@@ -1,0 +1,14 @@
+* Marvell sdhci-dove controller
+
+Required properties:
+- compatible: Should be "marvell,dove-sdhci".
+- reg: Physical base address of the sdhci controller.
+- interrupts: interrupt nr of the sdhci controller.
+
+Example:
+
+sdio0: sdio@92000 {
+	compatible = "marvell,dove-sdhci";
+	reg = <0x92000 0x100>;
+	interrupts = <35>;
+};
