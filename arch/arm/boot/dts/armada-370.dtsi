@@ -31,5 +31,9 @@
 				compatible = "marvell,armada-370-xp-system-controller";
 				reg = <0xd0018200 0x100>;
 		};
+
+                pinctrl@d0018000 {
+			        compatible = "marvell,mv88f6710-pinctrl";
+	        };
 	};
 };
