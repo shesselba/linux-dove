@@ -63,6 +63,13 @@
 			       reg = <0xd0020300 0x30>;
 			       interrupts = <37>, <38>, <39>, <40>;
 		};
+
+                pinctrl@d0018000 {
+                               reg = <0xd0018000 0x38>;
+                               #address-cells = <1>;
+                               #size-cells = <1>;
+                               ranges;
+                };
 	};
 };
 
