@@ -596,6 +596,7 @@ config ARCH_KIRKWOOD
 	select GENERIC_CLOCKEVENTS
 	select NEED_MACH_IO_H
 	select PLAT_ORION
+	select PINCTRL
 	help
 	  Support for the following Marvell Kirkwood series SoCs:
 	  88F6180, 88F6192 and 88F6281.
