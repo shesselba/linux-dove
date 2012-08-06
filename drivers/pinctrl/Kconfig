@@ -169,6 +169,11 @@ config PINCTRL_KIRKWOOD
 	  Say yes here to support pinctrl driver on Marvell Kirkwood SoCs
 	  (88f6180, 88f6190, 88f6192, 88f6281, 88f6282).
 
+config PINCTRL_ARMADA_370
+	bool "Support for Marvell Armada 370 SoCs"
+	depends on PINCTRL_MVEBU
+	depends on MACH_ARMADA_370_XP
+
 source "drivers/pinctrl/spear/Kconfig"
 
 endmenu
