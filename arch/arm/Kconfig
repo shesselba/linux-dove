@@ -573,6 +573,7 @@ config ARCH_MVEBU
 	select GENERIC_IRQ_CHIP
 	select IRQ_DOMAIN
 	select COMMON_CLK
+	select PLAT_ORION
 	help
 	  Support for the Marvell SoC Family with device tree support
 
@@ -583,7 +584,7 @@ config ARCH_DOVE
 	select ARCH_REQUIRE_GPIOLIB
 	select GENERIC_CLOCKEVENTS
 	select NEED_MACH_IO_H
-	select PLAT_ORION
+	select PLAT_ORION_LEGACY
 	help
 	  Support for the Marvell Dove SoC 88AP510
 
@@ -594,7 +595,7 @@ config ARCH_KIRKWOOD
 	select ARCH_REQUIRE_GPIOLIB
 	select GENERIC_CLOCKEVENTS
 	select NEED_MACH_IO_H
-	select PLAT_ORION
+	select PLAT_ORION_LEGACY
 	help
 	  Support for the following Marvell Kirkwood series SoCs:
 	  88F6180, 88F6192 and 88F6281.
@@ -621,7 +622,7 @@ config ARCH_MV78XX0
 	select ARCH_REQUIRE_GPIOLIB
 	select GENERIC_CLOCKEVENTS
 	select NEED_MACH_IO_H
-	select PLAT_ORION
+	select PLAT_ORION_LEGACY
 	help
 	  Support for the following Marvell MV78xx0 series SoCs:
 	  MV781x0, MV782x0.
@@ -634,7 +635,7 @@ config ARCH_ORION5X
 	select ARCH_REQUIRE_GPIOLIB
 	select GENERIC_CLOCKEVENTS
 	select NEED_MACH_IO_H
-	select PLAT_ORION
+	select PLAT_ORION_LEGACY
 	help
 	  Support for the following Marvell Orion 5x series SoCs:
 	  Orion-1 (5181), Orion-VoIP (5181L), Orion-NAS (5182),
@@ -1153,6 +1154,10 @@ config PLAT_ORION
 	select GENERIC_IRQ_CHIP
 	select IRQ_DOMAIN
 	select COMMON_CLK
+
+config PLAT_ORION_LEGACY
+	bool
+	select PLAT_ORION
 
 config PLAT_PXA
 	bool
