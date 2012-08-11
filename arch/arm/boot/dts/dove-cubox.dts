@@ -25,6 +25,16 @@
 	};
 };
 
+&pinctrl {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pmx_led>;
+
+	pmx_led: pmx-led {
+		marvell,pins = "mpp18";
+		marvell,function = "gpio";
+	};
+};
+
 &uart0 { status = "okay"; };
 &sdio0 { status = "okay"; };
 &sata0 { status = "okay"; };
