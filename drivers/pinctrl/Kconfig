@@ -147,13 +147,20 @@ config PINCTRL_COH901
 
 config PINCTRL_MVEBU
 	bool "Marvell SoC pin controller drivers"
-	depends on ARCH_MVEBU
+	depends on ARCH_MVEBU || ARCH_DOVE
 	select PINMUX
 	select PINCONF
 	help
 	  Say yes here to support pinctrl driver on Marvell SoCs.
 	  This is only the driver core and additionally needs a SoC specific
 	  driver.
+
+config PINCTRL_DOVE
+	bool "Support for Marvell Dove SoCs"
+	depends on PINCTRL_MVEBU
+	help
+	  Say yes here to support pinctrl driver on Marvell Dove SoCs
+	  (88AP510).
 
 source "drivers/pinctrl/spear/Kconfig"
 
