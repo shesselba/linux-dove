@@ -61,6 +61,11 @@
 			reg = <0x20300 0x28>;
 		};
 
+		pinctrl: pinctrl@d0200 {
+			compatible = "marvell,dove-pinctrl";
+			reg = <0xd0200 0x0c>;
+		};
+
 		gpio0: gpio@d0400 {
 			compatible = "marvell,orion-gpio";
 			#gpio-cells = <2>;
