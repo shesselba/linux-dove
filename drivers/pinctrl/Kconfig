@@ -174,6 +174,11 @@ config PINCTRL_ARMADA_370
 	depends on PINCTRL_MVEBU
 	depends on MACH_ARMADA_370_XP
 
+config PINCTRL_ARMADA_XP
+	bool "Support for Marvell Armada XP SoCs"
+	depends on PINCTRL_MVEBU
+	depends on MACH_ARMADA_370_XP
+
 source "drivers/pinctrl/spear/Kconfig"
 
 endmenu
