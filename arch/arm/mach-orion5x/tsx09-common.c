@@ -12,7 +12,7 @@
 
 #include <linux/kernel.h>
 #include <linux/pci.h>
-#include <linux/mv643xx_eth.h>
+#include <linux/platform_data/mv643xx_eth.h>
 #include <linux/timex.h>
 #include <linux/serial_reg.h>
 #include <mach/orion5x.h>

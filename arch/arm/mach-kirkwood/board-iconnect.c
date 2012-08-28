@@ -16,7 +16,8 @@
 #include <linux/of_fdt.h>
 #include <linux/of_irq.h>
 #include <linux/of_platform.h>
-#include <linux/mv643xx_eth.h>
+#include <linux/mtd/partitions.h>
+#include <linux/platform_data/mv643xx_eth.h>
 #include <linux/gpio.h>
 #include <asm/mach/arch.h>
 #include <mach/kirkwood.h>

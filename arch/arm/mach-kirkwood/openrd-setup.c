@@ -14,7 +14,7 @@
 #include <linux/mtd/nand.h>
 #include <linux/mtd/partitions.h>
 #include <linux/ata_platform.h>
-#include <linux/mv643xx_eth.h>
+#include <linux/platform_data/mv643xx_eth.h>
 #include <linux/i2c.h>
 #include <linux/gpio.h>
 #include <linux/platform_data/mvsdio.h>

@@ -15,7 +15,7 @@
 #include <linux/irq.h>
 #include <linux/mtd/physmap.h>
 #include <linux/timer.h>
-#include <linux/mv643xx_eth.h>
+#include <linux/platform_data/mv643xx_eth.h>
 #include <linux/ethtool.h>
 #include <linux/gpio.h>
 #include <linux/leds.h>

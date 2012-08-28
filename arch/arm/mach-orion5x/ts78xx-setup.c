@@ -14,7 +14,7 @@
 #include <linux/init.h>
 #include <linux/sysfs.h>
 #include <linux/platform_device.h>
-#include <linux/mv643xx_eth.h>
+#include <linux/platform_data/mv643xx_eth.h>
 #include <linux/ata_platform.h>
 #include <linux/m48t86.h>
 #include <linux/mtd/nand.h>

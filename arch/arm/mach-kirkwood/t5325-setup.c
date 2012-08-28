@@ -17,7 +17,7 @@
 #include <linux/spi/flash.h>
 #include <linux/spi/spi.h>
 #include <linux/i2c.h>
-#include <linux/mv643xx_eth.h>
+#include <linux/platform_data/mv643xx_eth.h>
 #include <linux/ata_platform.h>
 #include <linux/gpio.h>
 #include <linux/gpio_keys.h>

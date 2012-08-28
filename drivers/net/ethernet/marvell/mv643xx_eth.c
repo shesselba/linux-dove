@@ -52,12 +52,12 @@
 #include <linux/spinlock.h>
 #include <linux/workqueue.h>
 #include <linux/phy.h>
-#include <linux/mv643xx_eth.h>
 #include <linux/io.h>
 #include <linux/types.h>
 #include <linux/inet_lro.h>
 #include <linux/slab.h>
 #include <linux/clk.h>
+#include <linux/platform_data/mv643xx_eth.h>
 
 static char mv643xx_eth_driver_name[] = "mv643xx_eth";
 static char mv643xx_eth_driver_version[] = "1.4";
