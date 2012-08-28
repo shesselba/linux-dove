@@ -16,7 +16,7 @@
 #include <linux/delay.h>
 #include <linux/mtd/physmap.h>
 #include <linux/mtd/nand.h>
-#include <linux/mv643xx_eth.h>
+#include <linux/platform_data/mv643xx_eth.h>
 #include <linux/i2c.h>
 #include <linux/serial_reg.h>
 #include <linux/ata_platform.h>

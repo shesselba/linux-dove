@@ -2,8 +2,8 @@
  * MV-643XX ethernet platform device data definition file.
  */
 
-#ifndef __LINUX_MV643XX_ETH_H
-#define __LINUX_MV643XX_ETH_H
+#ifndef __MV643XX_ETH_PDATA_H
+#define __MV643XX_ETH_PDATA_H
 
 #include <linux/mbus.h>
 

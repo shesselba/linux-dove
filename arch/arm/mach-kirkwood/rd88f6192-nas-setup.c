@@ -12,7 +12,7 @@
 #include <linux/init.h>
 #include <linux/platform_device.h>
 #include <linux/ata_platform.h>
-#include <linux/mv643xx_eth.h>
+#include <linux/platform_data/mv643xx_eth.h>
 #include <linux/gpio.h>
 #include <linux/spi/flash.h>
 #include <linux/spi/spi.h>

@@ -18,7 +18,7 @@
 #include <linux/mtd/physmap.h>
 #include <linux/mtd/nand.h>
 #include <linux/timer.h>
-#include <linux/mv643xx_eth.h>
+#include <linux/platform_data/mv643xx_eth.h>
 #include <linux/i2c.h>
 #include <linux/platform_data/orion_nand.h>
 #include <asm/mach-types.h>

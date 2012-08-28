@@ -14,7 +14,7 @@
 #include <linux/pci.h>
 #include <linux/irq.h>
 #include <linux/mtd/physmap.h>
-#include <linux/mv643xx_eth.h>
+#include <linux/platform_data/mv643xx_eth.h>
 #include <linux/ethtool.h>
 #include <linux/i2c.h>
 #include <net/dsa.h>

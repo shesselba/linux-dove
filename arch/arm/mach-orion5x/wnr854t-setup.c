@@ -13,7 +13,7 @@
 #include <linux/irq.h>
 #include <linux/delay.h>
 #include <linux/mtd/physmap.h>
-#include <linux/mv643xx_eth.h>
+#include <linux/platform_data/mv643xx_eth.h>
 #include <linux/ethtool.h>
 #include <net/dsa.h>
 #include <asm/mach-types.h>

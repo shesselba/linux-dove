@@ -14,7 +14,7 @@
 #define __ASM_MV643XX_H
 
 #include <asm/types.h>
-#include <linux/mv643xx_eth.h>
+#include <linux/platform_data/mv643xx_eth.h>
 #include <linux/platform_data/mv643xx_i2c.h>
 
 /****************************************/
