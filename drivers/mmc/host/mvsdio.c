@@ -22,10 +22,10 @@
 #include <linux/clk.h>
 #include <linux/gpio.h>
 #include <linux/mmc/host.h>
+#include <linux/platform_data/mvsdio.h>
 
 #include <asm/sizes.h>
 #include <asm/unaligned.h>
-#include <plat/mvsdio.h>
 
 #include "mvsdio.h"
 

@@ -25,12 +25,12 @@
 #include <linux/mtd/physmap.h>
 #include <linux/spi/flash.h>
 #include <linux/spi/spi.h>
+#include <linux/platform_data/mvsdio.h>
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
 #include <mach/kirkwood.h>
 #include <mach/bridge-regs.h>
-#include <plat/mvsdio.h>
 #include "common.h"
 #include "mpp.h"
 

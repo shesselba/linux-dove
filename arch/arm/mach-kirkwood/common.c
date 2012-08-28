@@ -20,6 +20,7 @@
 #include <linux/mv643xx_i2c.h>
 #include <linux/platform_data/kirkwood-audio.h>
 #include <linux/platform_data/ehci-orion.h>
+#include <linux/platform_data/mvsdio.h>
 #include <net/dsa.h>
 #include <asm/page.h>
 #include <asm/timex.h>
@@ -29,7 +30,6 @@
 #include <mach/kirkwood.h>
 #include <mach/bridge-regs.h>
 #include <plat/cache-feroceon-l2.h>
-#include <plat/mvsdio.h>
 #include <plat/orion_nand.h>
 #include <plat/common.h>
 #include <plat/time.h>
