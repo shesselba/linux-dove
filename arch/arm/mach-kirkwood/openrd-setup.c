@@ -17,10 +17,10 @@
 #include <linux/mv643xx_eth.h>
 #include <linux/i2c.h>
 #include <linux/gpio.h>
+#include <linux/platform_data/mvsdio.h>
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
 #include <mach/kirkwood.h>
-#include <plat/mvsdio.h>
 #include "common.h"
 #include "mpp.h"
 
