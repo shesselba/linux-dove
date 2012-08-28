@@ -17,11 +17,11 @@
 #include <linux/dma-mapping.h>
 #include <linux/clk-provider.h>
 #include <linux/spinlock.h>
-#include <linux/mv643xx_i2c.h>
 #include <linux/platform_data/kirkwood-audio.h>
 #include <linux/platform_data/ehci-orion.h>
 #include <linux/platform_data/mvsdio.h>
 #include <linux/platform_data/mv_xor.h>
+#include <linux/platform_data/mv643xx_i2c.h>
 #include <linux/platform_data/orion_nand.h>
 #include <net/dsa.h>
 #include <asm/page.h>

@@ -5,8 +5,8 @@
  * option) any later version.
  */
 
-#ifndef _MV64XXX_I2C_H_
-#define _MV64XXX_I2C_H_
+#ifndef _MV64XXX_I2C_PDATA_H_
+#define _MV64XXX_I2C_PDATA_H_
 
 #include <linux/types.h>
 

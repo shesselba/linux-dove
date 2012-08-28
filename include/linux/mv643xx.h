@@ -15,7 +15,7 @@
 
 #include <asm/types.h>
 #include <linux/mv643xx_eth.h>
-#include <linux/mv643xx_i2c.h>
+#include <linux/platform_data/mv643xx_i2c.h>
 
 /****************************************/
 /* Processor Address Space              */

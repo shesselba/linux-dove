@@ -15,11 +15,11 @@
 #include <linux/platform_device.h>
 #include <linux/dma-mapping.h>
 #include <linux/serial_8250.h>
-#include <linux/mv643xx_i2c.h>
 #include <linux/ata_platform.h>
 #include <linux/delay.h>
 #include <linux/clk-provider.h>
 #include <linux/platform_data/ehci-orion.h>
+#include <linux/platform_data/mv643xx_i2c.h>
 #include <linux/platform_data/orion_nand.h>
 #include <net/dsa.h>
 #include <asm/page.h>

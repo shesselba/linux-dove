@@ -17,9 +17,9 @@
 #include <linux/clk.h>
 #include <linux/clkdev.h>
 #include <linux/mv643xx_eth.h>
-#include <linux/mv643xx_i2c.h>
 #include <linux/platform_data/ehci-orion.h>
 #include <linux/platform_data/mv_xor.h>
+#include <linux/platform_data/mv643xx_i2c.h>
 #include <net/dsa.h>
 #include <mach/bridge-regs.h>
 
