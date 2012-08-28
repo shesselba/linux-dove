@@ -21,6 +21,7 @@
 #include <linux/platform_data/kirkwood-audio.h>
 #include <linux/platform_data/ehci-orion.h>
 #include <linux/platform_data/mvsdio.h>
+#include <linux/platform_data/mv_xor.h>
 #include <net/dsa.h>
 #include <asm/page.h>
 #include <asm/timex.h>
@@ -34,7 +35,6 @@
 #include <plat/common.h>
 #include <plat/time.h>
 #include <plat/addr-map.h>
-#include <plat/mv_xor.h>
 #include "common.h"
 
 /*****************************************************************************
