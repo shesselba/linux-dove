@@ -17,7 +17,6 @@
 #include <linux/slab.h>
 #include <sound/soc.h>
 #include <mach/kirkwood.h>
-#include <plat/audio.h>
 #include <asm/mach-types.h>
 #include "../codecs/cs42l51.h"
 
