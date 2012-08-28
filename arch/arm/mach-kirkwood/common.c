@@ -22,6 +22,7 @@
 #include <linux/platform_data/ehci-orion.h>
 #include <linux/platform_data/mvsdio.h>
 #include <linux/platform_data/mv_xor.h>
+#include <linux/platform_data/orion_nand.h>
 #include <net/dsa.h>
 #include <asm/page.h>
 #include <asm/timex.h>
@@ -31,7 +32,6 @@
 #include <mach/kirkwood.h>
 #include <mach/bridge-regs.h>
 #include <plat/cache-feroceon-l2.h>
-#include <plat/orion_nand.h>
 #include <plat/common.h>
 #include <plat/time.h>
 #include <plat/addr-map.h>
