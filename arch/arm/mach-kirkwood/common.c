@@ -18,6 +18,7 @@
 #include <linux/clk-provider.h>
 #include <linux/spinlock.h>
 #include <linux/mv643xx_i2c.h>
+#include <linux/platform_data/kirkwood-audio.h>
 #include <net/dsa.h>
 #include <asm/page.h>
 #include <asm/timex.h>
@@ -26,7 +27,6 @@
 #include <asm/mach/time.h>
 #include <mach/kirkwood.h>
 #include <mach/bridge-regs.h>
-#include <plat/audio.h>
 #include <plat/cache-feroceon-l2.h>
 #include <plat/mvsdio.h>
 #include <plat/orion_nand.h>
