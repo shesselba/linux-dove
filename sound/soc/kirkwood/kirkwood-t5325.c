@@ -16,7 +16,6 @@
 #include <linux/slab.h>
 #include <sound/soc.h>
 #include <mach/kirkwood.h>
-#include <plat/audio.h>
 #include <asm/mach-types.h>
 #include "../codecs/alc5623.h"
 
