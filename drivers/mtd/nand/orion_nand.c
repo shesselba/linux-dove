@@ -19,9 +19,10 @@
 #include <linux/mtd/partitions.h>
 #include <linux/clk.h>
 #include <linux/err.h>
+#include <linux/platform_data/orion_nand.h>
 #include <asm/io.h>
 #include <asm/sizes.h>
-#include <plat/orion_nand.h>
+#include <mach/hardware.h>
 
 static void orion_nand_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
