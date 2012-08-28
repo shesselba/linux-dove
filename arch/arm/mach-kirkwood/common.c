@@ -19,6 +19,7 @@
 #include <linux/spinlock.h>
 #include <linux/mv643xx_i2c.h>
 #include <linux/platform_data/kirkwood-audio.h>
+#include <linux/platform_data/ehci-orion.h>
 #include <net/dsa.h>
 #include <asm/page.h>
 #include <asm/timex.h>
@@ -30,7 +31,6 @@
 #include <plat/cache-feroceon-l2.h>
 #include <plat/mvsdio.h>
 #include <plat/orion_nand.h>
-#include <plat/ehci-orion.h>
 #include <plat/common.h>
 #include <plat/time.h>
 #include <plat/addr-map.h>

@@ -16,6 +16,7 @@
 #include <linux/clk-provider.h>
 #include <linux/ata_platform.h>
 #include <linux/gpio.h>
+#include <linux/platform_data/ehci-orion.h>
 #include <asm/page.h>
 #include <asm/setup.h>
 #include <asm/timex.h>
@@ -28,7 +29,6 @@
 #include <asm/mach/arch.h>
 #include <linux/irq.h>
 #include <plat/time.h>
-#include <plat/ehci-orion.h>
 #include <plat/common.h>
 #include <plat/addr-map.h>
 #include "common.h"
