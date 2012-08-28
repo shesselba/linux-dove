@@ -19,6 +19,7 @@
 #include <linux/ata_platform.h>
 #include <linux/delay.h>
 #include <linux/clk-provider.h>
+#include <linux/platform_data/ehci-orion.h>
 #include <net/dsa.h>
 #include <asm/page.h>
 #include <asm/setup.h>
@@ -31,7 +32,6 @@
 #include <mach/hardware.h>
 #include <mach/orion5x.h>
 #include <plat/orion_nand.h>
-#include <plat/ehci-orion.h>
 #include <plat/time.h>
 #include <plat/common.h>
 #include <plat/addr-map.h>
