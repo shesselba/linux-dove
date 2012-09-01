@@ -1,0 +1,19 @@
+* EHCI controller, Orion Marvell variants
+
+Required properties:
+- compatible: must be "marvell,orion-ehci"
+- reg: physical base address of the controller and length of memory mapped
+  region.
+- interrupts: The EHCI interrupt
+- phy-version: Can be one of:
+  "NA" - Don't touch the phy, something else has already configured it.
+  "orion5x" - PHY setup as specified by the Orion5x Errata
+
+Example:
+
+	ehci@50000 {
+		compatible = "marvell,orion-ehci";
+		reg = <0x50000 0x1000>;
+		interrupts = <19>;
+		phy-version = "NA";
+	};
