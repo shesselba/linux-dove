@@ -171,8 +171,12 @@ sub print_mbox() {
 sub send_email() {
 	printf("Sending messages...\n");
 	foreach my $msg (@pull_requests) {
-		$msg->send("smtp", $smtp_host,
-		     AuthUser=>$user, AuthPass=>$pass);
+		if ($user =~ m//) {
+			$msg->send("smtp", $smtp_host);
+		} else {
+			$msg->send("smtp", $smtp_host,
+				AuthUser=>$user, AuthPass=>$pass);
+		}
 	}
 
 }
