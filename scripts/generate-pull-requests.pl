@@ -39,7 +39,7 @@ my $remotetree = "git://git.kernel.org/pub/scm/linux/kernel/git/asdf/asdf";
 #
 # Output for test mails in mbox format
 #
-my $mbox = "/tmp/mbox";
+my $mbox = "";
 
 my @pull_requests;
 
@@ -181,5 +181,7 @@ number_messages();
 if ($send_mail) {
 	send_email();
 } else {
+	$mbox=`mktemp /tmp/mbox-XXXXXXXX`;
 	print_mbox();
+	printf("Dry run complete, emails in $mbox\n");
 }
