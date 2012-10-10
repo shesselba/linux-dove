@@ -149,7 +149,7 @@ sub number_messages() {
 
 sub print_mbox() {
 	open(MBOX, ">>$mbox") or die("Could not open mbox: $!\n");
-	printf("Printing messages to mbox at %s...\n", $mbox); 
+	printf("Printing messages to mbox at %s...\n", $mbox);
 	foreach my $msg (@pull_requests) {
 		my $date = $msg->get("Date");
 		#$date =~ s/\n//;
