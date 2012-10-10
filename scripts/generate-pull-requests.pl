@@ -1,23 +1,24 @@
 #!/usr/bin/perl
 use strict;
 use MIME::Lite;
+use Getopt::Long qw(:config no_auto_abbrev);
 
 #
 # Script to create threaded series of pull requests out of
-# list of signed tags in the $pull_requests_config. Search
-# for asdf in the script to configure it.
+# list of signed tags in the $pull_requests_config.
 #
 # Written by Tony Lindgren <tony@atomide.com>
 # Licensed under whatever you prefer.
 #
+my $V = "0.1";
 
-my $from = "Firstname Lastname <asdf\@asdf.asdf>";
-my $to = "Firstname Lastname <asdf\@asdf.asdf>, Firstname Lastname <asdf\@asdf.asdf>";
-my $cc = "some-mailing-list\@lists.infradead.org";
+my $from = "";
+my $to = "";
+my $cc = "";
 
-my $smtp_host = "asdf:25";
-my $user = "asdf";
-my $pass = "asdf";
+my $smtp_host = "";
+my $user = "";
+my $pass = "";
 
 #
 # Format for the config file separated by tabs:
@@ -25,16 +26,17 @@ my $pass = "asdf";
 # ...
 #
 my $pull_requests_config = $ENV{"HOME"}."/.pull-requests";
+my $config_fn = $ENV{"HOME"}."/.genpullrqs.conf";
 
 #
 # Local Linux git tree
 #
-my $git_dir = $ENV{"HOME"}."/src/linux-2.6";
+my $git_dir = "";
 
 #
 # Remote Linux git tree
 #
-my $remotetree = "git://git.kernel.org/pub/scm/linux/kernel/git/asdf/asdf";
+my $remotetree = "";
 
 #
 # Output for test mails in mbox format
@@ -44,25 +46,28 @@ my $mbox = "";
 my @pull_requests;
 
 my $send_mail = 0;
+my $help = 0;
 
 sub print_usage() {
-	print("Usage: $0 read the script for options\n");
-	exit 1;
-}
+	print <<EOT;
+Usage: $0 [options]
+Version: $V
 
-sub parse_args() {
-	if (@ARGV[0] eq "--help") {
-		print_usage();
-	}
+Options:
+	--from		"email"		Sender of this mess
+	--to		"email"		Receiver(s) of this mess
+	--cc		"email"		Receiver(s) of copies of this mess
+	--smtp-server	"host[:port]"	Your SMTP server
+	--smtp-user	"name"		Username for SMTP server
+	--smtp-pass	"pass"		Password for SMTP server
+	-s|--src	"path"		Path to Linux git tree
+	-r|--remote	"git uri"	Public git tree others can read
+	-c|--config	"file"		config [$config_fn]
+	-f|--file	"file"		list of pullrqs for this run
+	--really-send			Don't dry-run it, really send
+	-h|--help|--usage		duh.
 
-	if (@ARGV[0] =~ /--really-send/) {
-		$send_mail = 1;
-	}
-
-	if ( -f $mbox ) {
-		printf("error: mbox already exists: %s\n", $mbox);
-		exit 2;
-	}
+EOT
 }
 
 sub add_message($ $) {
@@ -175,7 +180,51 @@ sub send_email() {
 #
 # Main program
 #
-parse_args();
+if (-f $config_fn) {
+	my @conf_args;
+	open(my $conffile, '<', "$config_fn")
+		or warn "$0: $config_fn: $!\n";
+
+	while (<$conffile>) {
+		my $line = $_;
+
+		$line =~ s/\s*\n?$//g;
+		$line =~ s/^\s*//g;
+		$line =~ s/\s+/ /g;
+
+		next if ($line =~ m/^\s*#/);
+		next if ($line =~ m/^\s*$/);
+
+		my ($opt, $arg) = split(" ", $line, 2);
+		push (@conf_args, $opt);
+		push (@conf_args, $arg);
+	}
+	close($conffile);
+	unshift(@ARGV, @conf_args) if @conf_args;
+}
+
+if (!GetOptions(
+		'from=s' => \$from,
+		'to=s' => \$to,
+		'cc=s' => \$cc,
+		'smtp-server=s' => \$smtp_host,
+		'smtp-user=s' => \$user,
+		'smtp-pass=s' => \$pass,
+		's|src=s' => \$git_dir,
+		'r|remote=s' => \$remotetree,
+		'c|config=s' => \$config_fn,
+		'f|file=s' => \$pull_requests_config,
+		'really-send' => \$send_mail,
+		'h|help|usage' => \$help,
+		)) {
+	die "$0: invalid argument - use --help if necessary\n";
+}
+
+if ($help != 0) {
+	print_usage();
+	exit 0;
+}
+
 parse_pull_requests();
 number_messages();
 if ($send_mail) {
