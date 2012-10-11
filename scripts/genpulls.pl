@@ -8,7 +8,8 @@ use Getopt::Long qw(:config no_auto_abbrev);
 # list of signed tags in the $pull_requests_config.
 #
 # Written by Tony Lindgren <tony@atomide.com>
-# Licensed under whatever you prefer.
+# Contributions by Jason Cooper <jason@lakedaemon.net>
+# Licensed under the terms of the GNU GPL License version 2
 #
 my $V = "0.1";
 
