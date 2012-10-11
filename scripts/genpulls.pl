@@ -159,7 +159,7 @@ sub number_messages() {
 
 sub print_mbox() {
 	open(MBOX, ">>$mbox") or die("Could not open mbox: $!\n");
-	printf("Printing messages to mbox at %s...\n", $mbox);
+	printf("Printing messages to mbox at %s ...\n", $mbox);
 	foreach my $msg (@pull_requests) {
 		my $date = $msg->get("Date");
 		#$date =~ s/\n//;
@@ -245,6 +245,6 @@ if ($send_mail) {
 	send_email();
 } else {
 	$mbox=`mktemp /tmp/mbox-XXXXXXXX`;
+	chomp($mbox);
 	print_mbox();
-	printf("Dry run complete, emails in $mbox\n");
 }
