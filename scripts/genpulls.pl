@@ -9,6 +9,10 @@ use Getopt::Long qw(:config no_auto_abbrev);
 #
 # Written by Tony Lindgren <tony@atomide.com>
 # Contributions by Jason Cooper <jason@lakedaemon.net>
+#
+# Significant portions wholeheartedly copied from scripts/get_maintainer.pl by
+# Joe Perches.
+#
 # Licensed under the terms of the GNU GPL License version 2
 #
 my $V = "0.1";
