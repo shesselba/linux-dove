@@ -31,7 +31,7 @@ my $pass = "";
 # ...
 #
 my $pull_requests_config = $ENV{"HOME"}."/.pull-requests";
-my $config_fn = $ENV{"HOME"}."/.genpullrqs.conf";
+my $config_fn = $ENV{"HOME"}."/.genpulls.conf";
 
 #
 # Local Linux git tree
@@ -204,7 +204,12 @@ if (-f $config_fn) {
 		next if ($line =~ m/^\s*#/);
 		next if ($line =~ m/^\s*$/);
 
-		my ($opt, $arg) = split(" ", $line, 2);
+		my ($opt, $arg) = split("=", $line, 2);
+		if ($opt =~ m/^.$/) {
+			$opt = "-" . $opt;
+		} else {
+			$opt = "--" . $opt;
+		}
 		push (@conf_args, $opt);
 		push (@conf_args, $arg);
 	}
