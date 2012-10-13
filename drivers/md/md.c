@@ -155,32 +155,17 @@ static int start_readonly;
  * like bio_clone, but with a local bio set
  */
 
-static void mddev_bio_destructor(struct bio *bio)
-{
-	struct mddev *mddev, **mddevp;
-
-	mddevp = (void*)bio;
-	mddev = mddevp[-1];
-
-	bio_free(bio, mddev->bio_set);
-}
-
 struct bio *bio_alloc_mddev(gfp_t gfp_mask, int nr_iovecs,
 			    struct mddev *mddev)
 {
 	struct bio *b;
-	struct mddev **mddevp;
 
 	if (!mddev || !mddev->bio_set)
 		return bio_alloc(gfp_mask, nr_iovecs);
 
-	b = bio_alloc_bioset(gfp_mask, nr_iovecs,
-			     mddev->bio_set);
+	b = bio_alloc_bioset(gfp_mask, nr_iovecs, mddev->bio_set);
 	if (!b)
 		return NULL;
-	mddevp = (void*)b;
-	mddevp[-1] = mddev;
-	b->bi_destructor = mddev_bio_destructor;
 	return b;
 }
 EXPORT_SYMBOL_GPL(bio_alloc_mddev);
@@ -188,32 +173,10 @@ EXPORT_SYMBOL_GPL(bio_alloc_mddev);
 struct bio *bio_clone_mddev(struct bio *bio, gfp_t gfp_mask,
 			    struct mddev *mddev)
 {
-	struct bio *b;
-	struct mddev **mddevp;
-
 	if (!mddev || !mddev->bio_set)
 		return bio_clone(bio, gfp_mask);
 
-	b = bio_alloc_bioset(gfp_mask, bio->bi_max_vecs,
-			     mddev->bio_set);
-	if (!b)
-		return NULL;
-	mddevp = (void*)b;
-	mddevp[-1] = mddev;
-	b->bi_destructor = mddev_bio_destructor;
-	__bio_clone(b, bio);
-	if (bio_integrity(bio)) {
-		int ret;
-
-		ret = bio_integrity_clone(b, bio, gfp_mask, mddev->bio_set);
-
-		if (ret < 0) {
-			bio_put(b);
-			return NULL;
-		}
-	}
-
-	return b;
+	return bio_clone_bioset(bio, gfp_mask, mddev->bio_set);
 }
 EXPORT_SYMBOL_GPL(bio_clone_mddev);
 
@@ -5006,8 +4969,7 @@ int md_run(struct mddev *mddev)
 	}
 
 	if (mddev->bio_set == NULL)
-		mddev->bio_set = bioset_create(BIO_POOL_SIZE,
-					       sizeof(struct mddev *));
+		mddev->bio_set = bioset_create(BIO_POOL_SIZE, 0);
 
 	spin_lock(&pers_lock);
 	pers = find_pers(mddev->level, mddev->clevel);
@@ -7619,6 +7581,8 @@ static int remove_and_add_spares(struct mddev *mddev)
 			}
 		}
 	}
+	if (removed)
+		set_bit(MD_CHANGE_DEVS, &mddev->flags);
 	return spares;
 }
 
@@ -7632,9 +7596,11 @@ static void reap_sync_thread(struct mddev *mddev)
 	    !test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery)) {
 		/* success...*/
 		/* activate any spares */
-		if (mddev->pers->spare_active(mddev))
+		if (mddev->pers->spare_active(mddev)) {
 			sysfs_notify(&mddev->kobj, NULL,
 				     "degraded");
+			set_bit(MD_CHANGE_DEVS, &mddev->flags);
+		}
 	}
 	if (test_bit(MD_RECOVERY_RESHAPE, &mddev->recovery) &&
 	    mddev->pers->finish_reshape)
