@@ -50,6 +50,7 @@ my $mbox = "";
 
 my @pull_requests;
 
+my $coverletter = 0;
 my $send_mail = 0;
 my $help = 0;
 
@@ -69,6 +70,7 @@ Options:
 	-r|--remote	"git uri"	Public git tree others can read
 	-c|--config	"file"		config [$config_fn]
 	-f|--file	"file"		list of pullrqs for this run
+	--cover-letter			treat first pull as coverletter/summary
 	--really-send			Don't dry-run it, really send
 	-h|--help|--usage		duh.
 
@@ -136,19 +138,22 @@ sub parse_pull_requests() {
 
 sub number_messages() {
 	my $nr_msg = 0;
-	my $i = 1;
+	my $i = ($coverletter) ? 0 : 1;
 	my $message_id = sprintf("<pull-%i-%i>", time(), rand(1000000));
 
 	foreach my $msg (@pull_requests) {
 		$nr_msg++;
 	}
 
+	$nr_msg -= $coverletter;
+
 	foreach my $msg (@pull_requests) {
 		my $index = sprintf("%i/%i", $i, $nr_msg);
 		my $subject = $msg->get("Subject");
 		$subject =~ s/GIT PULL/GIT PULL $index/;
 		$msg->replace("Subject", $subject);
-		if ($i == 1) {
+		if (( $coverletter && $i == 0) ||
+		    (!$coverletter && $i == 1)   ) {
 			$msg->add("Message-ID", $message_id);
 		} else {
 			$msg->add("In-Reply-To", $message_id);
@@ -228,6 +233,7 @@ if (!GetOptions(
 		'r|remote=s' => \$remotetree,
 		'c|config=s' => \$config_fn,
 		'f|file=s' => \$pull_requests_config,
+		'cover-letter' => \$coverletter,
 		'really-send' => \$send_mail,
 		'h|help|usage' => \$help,
 		)) {
