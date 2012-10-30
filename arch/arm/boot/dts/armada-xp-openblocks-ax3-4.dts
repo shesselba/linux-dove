@@ -65,5 +65,15 @@
 				linux,default-trigger = "heartbeat";
 			};
 		};
+
+		i2c@d0011000 {
+			status = "okay";
+			clock-frequency = <400000>;
+		};
+
+		i2c@d0011100 {
+			status = "okay";
+			clock-frequency = <400000>;
+		};
 	};
 };
