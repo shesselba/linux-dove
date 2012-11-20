@@ -22,6 +22,13 @@
 	model = "Marvell Armada XP family SoC";
 	compatible = "marvell,armadaxp", "marvell,armada-370-xp";
 
+	L2: l2-cache {
+		compatible = "marvell,aurora-system-cache";
+		reg = <0xd0008000 0x1000>;
+		cache-id-part = <0x100>;
+		wt-override;
+	};
+
 	mpic: interrupt-controller@d0020000 {
 	      reg = <0xd0020a00 0x1d0>,
 		    <0xd0021870 0x58>;
@@ -99,6 +106,20 @@
 		system-controller@d0018200 {
 				compatible = "marvell,armada-370-xp-system-controller";
 				reg = <0xd0018200 0x500>;
+		};
+
+		ethernet@d0030000 {
+				compatible = "marvell,armada-370-neta";
+				reg = <0xd0030000 0x2500>;
+				interrupts = <12>;
+				status = "disabled";
+		};
+
+		ethernet@d0034000 {
+				compatible = "marvell,armada-370-neta";
+				reg = <0xd0034000 0x2500>;
+				interrupts = <14>;
+				status = "disabled";
 		};
 	};
 };

@@ -36,15 +36,25 @@ dtb-$(CONFIG_ARCH_KIRKWOOD) += kirkwood-dns320.dtb \
 	kirkwood-ib62x0.dtb \
 	kirkwood-iconnect.dtb \
 	kirkwood-iomega_ix2_200.dtb \
+	kirkwood-is2.dtb \
 	kirkwood-km_kirkwood.dtb \
 	kirkwood-lschlv2.dtb \
 	kirkwood-lsxhl.dtb \
+	kirkwood-mplcec4.dtb \
+	kirkwood-ns2.dtb \
+	kirkwood-ns2lite.dtb \
+	kirkwood-ns2max.dtb \
+	kirkwood-ns2mini.dtb \
+	kirkwood-nsa310.dtb \
+	kirkwood-topkick.dtb \
 	kirkwood-ts219-6281.dtb \
 	kirkwood-ts219-6282.dtb
 dtb-$(CONFIG_ARCH_MSM) += msm8660-surf.dtb \
 	msm8960-cdp.dtb
 dtb-$(CONFIG_ARCH_MVEBU) += armada-370-db.dtb \
-	armada-xp-db.dtb
+	armada-370-mirabox.dtb \
+	armada-xp-db.dtb \
+	armada-xp-openblocks-ax3-4.dtb
 dtb-$(CONFIG_ARCH_MXC) += imx51-babbage.dtb \
 	imx53-ard.dtb \
 	imx53-evk.dtb \
@@ -73,6 +83,7 @@ dtb-$(CONFIG_ARCH_OMAP2PLUS) += omap2420-h4.dtb \
 	omap5-evm.dtb \
 	am335x-evm.dtb \
 	am335x-bone.dtb
+dtb-$(CONFIG_ARCH_ORION5X) += orion5x-lacie-ethernet-disk-mini-v2.dtb
 dtb-$(CONFIG_ARCH_PRIMA2) += prima2-evb.dtb
 dtb-$(CONFIG_ARCH_U8500) += snowball.dtb
 dtb-$(CONFIG_ARCH_SHMOBILE) += emev2-kzm9d.dtb \

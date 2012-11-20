@@ -141,6 +141,22 @@ static void __init kirkwood_dt_init(void)
 	if (of_machine_is_compatible("keymile,km_kirkwood"))
 		km_kirkwood_init();
 
+	if (of_machine_is_compatible("lacie,inetspace_v2") ||
+	    of_machine_is_compatible("lacie,netspace_v2") ||
+	    of_machine_is_compatible("lacie,netspace_max_v2") ||
+	    of_machine_is_compatible("lacie,netspace_lite_v2") ||
+	    of_machine_is_compatible("lacie,netspace_mini_v2"))
+		ns2_init();
+
+	if (of_machine_is_compatible("mpl,cec4"))
+		mplcec4_init();
+
+	if (of_machine_is_compatible("usi,topkick"))
+		usi_topkick_init();
+
+	if (of_machine_is_compatible("zyxel,nsa310"))
+		nsa310_init();
+
 	of_platform_populate(NULL, kirkwood_dt_match_table, NULL, NULL);
 }
 
@@ -156,6 +172,14 @@ static const char * const kirkwood_dt_board_compat[] = {
 	"buffalo,lsxl",
 	"iom,ix2-200",
 	"keymile,km_kirkwood",
+	"lacie,inetspace_v2",
+	"lacie,netspace_max_v2",
+	"lacie,netspace_v2",
+	"lacie,netspace_lite_v2",
+	"lacie,netspace_mini_v2",
+	"mpl,cec4",
+	"usi,topkick",
+	"zyxel,nsa310",
 	NULL
 };
 
