@@ -32,6 +32,7 @@
 #include <asm/mach/arch.h>
 #include <linux/irq.h>
 #include <plat/time.h>
+#include <linux/platform_data/asoc-kirkwood.h>
 #include <linux/platform_data/usb-ehci-orion.h>
 #include <plat/irq.h>
 #include <plat/common.h>
@@ -409,13 +410,16 @@ static void __init dove_legacy_clk_init(void)
 	orion_clkdev_add("1", "pcie",
 			 of_clk_get_from_provider(&clkspec));
 
-	clkspec.args[0] = CLOCK_GATING_BIT_XOR0;
-	orion_clkdev_add(NULL, "mv_xor_shared.0",
-			 of_clk_get_from_provider(&clkspec));
-
-	clkspec.args[0] = CLOCK_GATING_BIT_XOR1;
-	orion_clkdev_add(NULL, "mv_xor_shared.1",
-			 of_clk_get_from_provider(&clkspec));
+	{
+		int n;
+		struct clk* clk;
+		for (n = 0; n < 32; n++) {
+			clkspec.args[0] = n;
+			clk = of_clk_get_from_provider(&clkspec);
+			if (!IS_ERR(clk))
+				clk_prepare_enable(clk);
+		}
+	}
 }
 
 static void __init dove_of_clk_init(void)
@@ -444,8 +448,6 @@ static void __init dove_dt_init(void)
 
 	/* Internal devices not ported to DT yet */
 	dove_rtc_init();
-	dove_xor0_init();
-	dove_xor1_init();
 
 	dove_ge00_init(&dove_dt_ge00_data);
 	dove_ehci0_init();

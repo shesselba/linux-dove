@@ -4,6 +4,12 @@
 	compatible = "marvell,dove";
 	model = "Marvell Armada 88AP510 SoC";
 
+	aliases {
+		gpio0 = &gpio0;
+		gpio1 = &gpio1;
+		gpio2 = &gpio2;
+	};
+
 	soc@f1000000 {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -85,7 +91,8 @@
 			#gpio-cells = <2>;
 			gpio-controller;
 			reg = <0xd0400 0x20>;
-			ngpio = <32>;
+			ngpios = <32>;
+			interrupt-controller;
 			interrupts = <12>, <13>, <14>, <60>;
 		};
 
@@ -94,7 +101,8 @@
 			#gpio-cells = <2>;
 			gpio-controller;
 			reg = <0xd0420 0x20>;
-			ngpio = <32>;
+			ngpios = <32>;
+			interrupt-controller;
 			interrupts = <61>;
 		};
 
@@ -103,8 +111,14 @@
 			#gpio-cells = <2>;
 			gpio-controller;
 			reg = <0xe8400 0x0c>;
-			ngpio = <8>;
+			ngpios = <8>;
 		};
+
+		pinctrl: pinctrl@d0200 {
+			compatible = "marvell,dove-pinctrl";
+			reg = <0xd0200 0x10>;
+			clocks = <&gate_clk 22>;
+ 		};
 
 		spi0: spi@10600 {
 			compatible = "marvell,orion-spi";
@@ -173,6 +187,57 @@
 			interrupts = <31>;
 			clocks = <&gate_clk 15>;
 			status = "okay";
+		};
+
+		xor0: dma-engine@60800 {
+			compatible = "marvell,orion-xor";
+			reg = <0x60800 0x100
+			       0x60a00 0x100>;
+			clocks = <&gate_clk 23>;
+			status = "okay";
+
+			channel0 {
+				interrupts = <39>;
+				dmacap,memcpy;
+				dmacap,xor;
+			};
+
+			channel1 {
+				interrupts = <40>;
+				dmacap,memset;
+				dmacap,memcpy;
+				dmacap,xor;
+			};
+		};
+
+		xor1: dma-engine@60900 {
+			compatible = "marvell,orion-xor";
+			reg = <0x60900 0x100
+			       0x60b00 0x100>;
+			clocks = <&gate_clk 24>;
+			status = "okay";
+
+			channel0 {
+				interrupts = <42>;
+				dmacap,memcpy;
+				dmacap,xor;
+			};
+
+			channel1 {
+				interrupts = <43>;
+				dmacap,memset;
+				dmacap,memcpy;
+				dmacap,xor;
+			};
+		};
+
+		i2s1: audio@b4000 {
+			compatible = "marvell,kirkwood-i2s";
+			reg = <0xb4000 0x4000>;
+			interrupts = <21>, <22>;
+			clocks = <&gate_clk 13>;
+			marvell,burst-size = <128>;
+			status = "disabled";
 		};
 	};
 };

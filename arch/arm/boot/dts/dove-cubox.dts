@@ -23,12 +23,25 @@
 			linux,default-trigger = "default-on";
 		};
 	};
+
+	sound {
+		compatible = "marvell,kirkwood-spdif";
+		marvell,audio-controller = <&i2s1>;
+		marvell,audio-codec = <&spdif>;
+	};
+
+	soc@f1000000 {
+		spdif: spdif-jack {
+			compatible = "spdif-transceiver";
+		};
+	};
 };
 
 &uart0 { status = "okay"; };
 &sdio0 { status = "okay"; };
 &sata0 { status = "okay"; };
 &i2c0 { status = "okay"; };
+&i2s1 { status = "okay"; };
 
 &spi0 {
 	status = "okay";

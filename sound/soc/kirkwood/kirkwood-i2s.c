@@ -9,30 +9,153 @@
  *  Free Software Foundation;  either version 2 of the  License, or (at your
  *  option) any later version.
  */
-
+#define DEBUG 1
 #include <linux/init.h>
 #include <linux/module.h>
+#include <linux/platform_data/asoc-kirkwood.h>
 #include <linux/platform_device.h>
 #include <linux/io.h>
 #include <linux/slab.h>
 #include <linux/mbus.h>
 #include <linux/delay.h>
 #include <linux/clk.h>
+#include <linux/of.h>
+#include <sound/asoundef.h>
 #include <sound/pcm.h>
 #include <sound/pcm_params.h>
 #include <sound/soc.h>
-#include <linux/platform_data/asoc-kirkwood.h>
 #include "kirkwood.h"
 
 #define DRV_NAME	"kirkwood-i2s"
 
 #define KIRKWOOD_I2S_RATES \
 	(SNDRV_PCM_RATE_44100 | \
-	 SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_96000)
+	 SNDRV_PCM_RATE_48000 | \
+	 SNDRV_PCM_RATE_96000)
+
 #define KIRKWOOD_I2S_FORMATS \
 	(SNDRV_PCM_FMTBIT_S16_LE | \
 	 SNDRV_PCM_FMTBIT_S24_LE | \
-	 SNDRV_PCM_FMTBIT_S32_LE)
+	 SNDRV_PCM_FMTBIT_S32_LE | \
+	 SNDRV_PCM_FMTBIT_IEC958_SUBFRAME_LE | \
+	 SNDRV_PCM_FMTBIT_IEC958_SUBFRAME_BE)
+
+static void kirkwood_i2s_dump_spdif(struct device *dev,
+	struct kirkwood_dma_data *priv)
+{
+	u32 reg;
+
+	reg = readl(priv->io + KIRKWOOD_SPDIF_PLAYCTL);
+	dev_dbg(dev, "SPDIF Playback Ctrl = %08x\n", reg);
+	dev_dbg(dev, " - Non-PCM             = %d\n", (reg & KIRKWOOD_SPDIF_NON_PCM) ? 1 : 0);
+	dev_dbg(dev, " - Register Validity   = %d\n", (reg & KIRKWOOD_SPDIF_REG_VALIDITY) ? 1 : 0);
+	dev_dbg(dev, " - Force Parity Error  = %d\n", (reg & KIRKWOOD_SPDIF_FORCE_PARERR) ? 1 : 0);
+	dev_dbg(dev, " - Mem User Enable     = %d\n", (reg & KIRKWOOD_SPDIF_MEM_USER_EN) ? 1 : 0);
+	dev_dbg(dev, " - Mem Validity Enable = %d\n", (reg & KIRKWOOD_SPDIF_MEM_VALIDITY_EN) ? 1 : 0);
+	dev_dbg(dev, " - Block Start Mode    = %d\n", (reg & KIRKWOOD_SPDIF_BLOCK_START_MODE) ? 1 : 0);
+}
+
+static void kirkwood_i2s_dump_iec958(struct device *dev,
+	struct snd_aes_iec958 *iec)
+{
+	char status[sizeof(" 00") * 4 + 1], *p, *e;
+	int i;
+
+	p = status;
+	e = status + sizeof(status);
+
+	for (i = 0; i < 4; i++)
+		p += snprintf(p, e - p, " %02x", iec->status[i]);
+
+	dev_dbg(dev, "status  = %s\n", status);
+	dev_dbg(dev, "con/pro = %s, non-audio = %d\n",
+	       (iec->status[0] & IEC958_AES0_PROFESSIONAL) ? "pro" : "con",
+	       (iec->status[0] & IEC958_AES0_NONAUDIO) ? 1 : 0);
+}
+
+static int kirkwood_i2s_control_iec958_dflt_info(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_info *uinfo)
+{
+	struct snd_soc_dai *dai = snd_kcontrol_chip(kcontrol);
+
+	dev_dbg(dai->dev, "%s\n", __func__);
+
+	uinfo->type = SNDRV_CTL_ELEM_TYPE_IEC958;
+	uinfo->count = 1;
+	return 0;
+}
+
+static int kirkwood_i2s_control_iec958_dflt_get(struct snd_kcontrol *kcontrol,
+	 struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_dai *cpu_dai = snd_kcontrol_chip(kcontrol);
+	struct kirkwood_dma_data *priv = snd_soc_dai_get_drvdata(cpu_dai);
+	u32 reg;
+	int n;
+
+	dev_dbg(cpu_dai->dev, "%s: kcontrol = %p, kcontrol->private_data = %p, ucontrol = %p\n",
+		__func__, kcontrol, kcontrol->private_data, ucontrol);
+	kirkwood_i2s_dump_iec958(cpu_dai->dev, &ucontrol->value.iec958);
+
+#if 0
+	reg = readl(priv->io + KIRKWOOD_SPDIF_PLAYCTL);
+	ucontrol->value.iec958.status[0] &=
+		~(IEC958_AES0_PROFESSIONAL | IEC958_AES0_NONAUDIO);
+	if (reg & KIRKWOOD_SPDIF_NON_PCM)
+		ucontrol->value.iec958.status[0] |= IEC958_AES0_NONAUDIO;
+#endif
+
+	for (n = 0; n < 6; n++) {
+		reg = readl(priv->io + KIRKWOOD_SPDIF_STATUS0_L + (4 * n));
+		ucontrol->value.iec958.status[4 * n + 3] = (uint8_t)(reg >> 24) & 0xff;
+		ucontrol->value.iec958.status[4 * n + 2] = (uint8_t)(reg >> 16) & 0xff;
+		ucontrol->value.iec958.status[4 * n + 1] = (uint8_t)(reg >>  8) & 0xff;
+		ucontrol->value.iec958.status[4 * n + 0] = (uint8_t)(reg >>  0) & 0xff;
+	}
+
+	return 0;
+}
+
+static int kirkwood_i2s_control_iec958_dflt_put(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_dai *cpu_dai = snd_kcontrol_chip(kcontrol);
+	struct kirkwood_dma_data *priv = snd_soc_dai_get_drvdata(cpu_dai);
+	u32 reg, nreg;
+	int n;
+
+	dev_dbg(cpu_dai->dev, "%s: kcontrol = %p, ucontrol = %p\n",
+		__func__, kcontrol, ucontrol);
+	kirkwood_i2s_dump_iec958(cpu_dai->dev, &ucontrol->value.iec958);
+
+	reg  = readl(priv->io + KIRKWOOD_SPDIF_PLAYCTL);
+	nreg = reg & ~(KIRKWOOD_SPDIF_NON_PCM | KIRKWOOD_SPDIF_REG_VALIDITY);
+	if (ucontrol->value.iec958.status[0] & IEC958_AES0_NONAUDIO)
+		nreg |= KIRKWOOD_SPDIF_NON_PCM | KIRKWOOD_SPDIF_REG_VALIDITY;
+	writel(nreg, priv->io + KIRKWOOD_SPDIF_PLAYCTL);
+
+	for (n = 0; n < 6; n++) {
+		reg = (ucontrol->value.iec958.status[4 * n + 3] << 24) |
+			(ucontrol->value.iec958.status[4 * n + 2] << 16) |
+			(ucontrol->value.iec958.status[4 * n + 1] << 8) |
+			(ucontrol->value.iec958.status[4 * n + 0]);
+		writel(reg, priv->io + KIRKWOOD_SPDIF_STATUS0_L + (4 * n));
+		writel(reg, priv->io + KIRKWOOD_SPDIF_STATUS0_R + (4 * n));
+	}
+	return (nreg != reg);
+}
+
+static const struct snd_kcontrol_new kirkwood_i2s_iec958_controls[] = {
+	{
+		.iface	= SNDRV_CTL_ELEM_IFACE_PCM,
+		.name	= SNDRV_CTL_NAME_IEC958("", PLAYBACK, DEFAULT),
+		.access	= SNDRV_CTL_ELEM_ACCESS_READWRITE |
+			  SNDRV_CTL_ELEM_ACCESS_VOLATILE,
+		.info	= kirkwood_i2s_control_iec958_dflt_info,
+		.get	= kirkwood_i2s_control_iec958_dflt_get,
+		.put	= kirkwood_i2s_control_iec958_dflt_put,
+	},
+};
 
 static int kirkwood_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
 		unsigned int fmt)
@@ -158,8 +281,9 @@ static int kirkwood_i2s_hw_params(struct snd_pcm_substream *substream,
 	switch (params_format(params)) {
 	case SNDRV_PCM_FORMAT_S16_LE:
 		i2s_value |= KIRKWOOD_I2S_CTL_SIZE_16;
-		ctl_play = KIRKWOOD_PLAYCTL_SIZE_16_C |
-			   KIRKWOOD_PLAYCTL_I2S_EN;
+		ctl_play = KIRKWOOD_PLAYCTL_SIZE_16_C | 
+			   KIRKWOOD_PLAYCTL_I2S_EN |
+			   KIRKWOOD_PLAYCTL_SPDIF_EN;
 		ctl_rec = KIRKWOOD_RECCTL_SIZE_16_C |
 			  KIRKWOOD_RECCTL_I2S_EN;
 		break;
@@ -168,25 +292,36 @@ static int kirkwood_i2s_hw_params(struct snd_pcm_substream *substream,
 	 *
 	case SNDRV_PCM_FORMAT_S20_3LE:
 		i2s_value |= KIRKWOOD_I2S_CTL_SIZE_20;
-		ctl_play = KIRKWOOD_PLAYCTL_SIZE_20 |
-			   KIRKWOOD_PLAYCTL_I2S_EN;
+		ctl_play = KIRKWOOD_PLAYCTL_SIZE_20 | 
+			   KIRKWOOD_PLAYCTL_I2S_EN |
+			   KIRKWOOD_PLAYCTL_SPDIF_EN;
 		ctl_rec = KIRKWOOD_RECCTL_SIZE_20 |
 			  KIRKWOOD_RECCTL_I2S_EN;
 		break;
 	*/
 	case SNDRV_PCM_FORMAT_S24_LE:
 		i2s_value |= KIRKWOOD_I2S_CTL_SIZE_24;
-		ctl_play = KIRKWOOD_PLAYCTL_SIZE_24 |
-			   KIRKWOOD_PLAYCTL_I2S_EN;
+		ctl_play = KIRKWOOD_PLAYCTL_SIZE_24 | 
+			   KIRKWOOD_PLAYCTL_I2S_EN |
+			   KIRKWOOD_PLAYCTL_SPDIF_EN;
 		ctl_rec = KIRKWOOD_RECCTL_SIZE_24 |
 			  KIRKWOOD_RECCTL_I2S_EN;
 		break;
 	case SNDRV_PCM_FORMAT_S32_LE:
 		i2s_value |= KIRKWOOD_I2S_CTL_SIZE_32;
-		ctl_play = KIRKWOOD_PLAYCTL_SIZE_32 |
+		ctl_play = KIRKWOOD_PLAYCTL_SIZE_32 | 
 			   KIRKWOOD_PLAYCTL_I2S_EN;
 		ctl_rec = KIRKWOOD_RECCTL_SIZE_32 |
 			  KIRKWOOD_RECCTL_I2S_EN;
+		break;
+	case SNDRV_PCM_FORMAT_IEC958_SUBFRAME_LE:
+	case SNDRV_PCM_FORMAT_IEC958_SUBFRAME_BE:
+		if (substream->stream == SNDRV_PCM_STREAM_CAPTURE)
+			return -EINVAL;
+		i2s_value |= KIRKWOOD_I2S_CTL_SIZE_16;
+		ctl_play = KIRKWOOD_PLAYCTL_SIZE_16_C |
+			   KIRKWOOD_PLAYCTL_SPDIF_EN;
+		ctl_rec = 0;
 		break;
 	default:
 		return -EINVAL;
@@ -255,12 +390,15 @@ static int kirkwood_i2s_play_trigger(struct snd_pcm_substream *substream,
 
 		/* enable playback */
 		writel(ctl, priv->io + KIRKWOOD_PLAYCTL);
+
+		kirkwood_i2s_dump_spdif(dai->dev, priv);
+		
 		break;
 
 	case SNDRV_PCM_TRIGGER_STOP:
 		/* stop audio, disable interrupts */
-		ctl |= KIRKWOOD_PLAYCTL_PAUSE | KIRKWOOD_PLAYCTL_I2S_MUTE;
-		writel(ctl, priv->io + KIRKWOOD_PLAYCTL);
+//		ctl |= KIRKWOOD_PLAYCTL_PAUSE | KIRKWOOD_PLAYCTL_I2S_MUTE;
+//		writel(ctl, priv->io + KIRKWOOD_PLAYCTL);
 
 		value = readl(priv->io + KIRKWOOD_INT_MASK);
 		value &= ~KIRKWOOD_INT_CAUSE_PLAY_BYTES;
@@ -367,22 +505,29 @@ static int kirkwood_i2s_probe(struct snd_soc_dai *dai)
 	struct kirkwood_dma_data *priv = snd_soc_dai_get_drvdata(dai);
 	unsigned long value;
 	unsigned int reg_data;
+	int ret;
 
+	ret = snd_soc_add_dai_controls(dai, kirkwood_i2s_iec958_controls,
+				ARRAY_SIZE(kirkwood_i2s_iec958_controls));
+	if (ret) {
+		dev_err(dai->dev, "unable to add soc card controls\n");
+		return ret;
+	}
 	/* put system in a "safe" state : */
 	/* disable audio interrupts */
 	writel(0xffffffff, priv->io + KIRKWOOD_INT_CAUSE);
 	writel(0, priv->io + KIRKWOOD_INT_MASK);
 
+	reg_data = readl(priv->io + 0x120c);
 	reg_data = readl(priv->io + 0x1200);
 	reg_data &= (~(0x333FF8));
 	reg_data |= 0x111D18;
 	writel(reg_data, priv->io + 0x1200);
-
 	msleep(500);
-
 	reg_data = readl(priv->io + 0x1200);
 	reg_data &= (~(0x333FF8));
 	reg_data |= 0x111D18;
+	msleep(500);
 	writel(reg_data, priv->io + 0x1200);
 
 	/* disable playback/record */
@@ -484,12 +629,20 @@ static __devinit int kirkwood_i2s_dev_probe(struct platform_device *pdev)
 		return -ENXIO;
 	}
 
-	if (!data) {
-		dev_err(&pdev->dev, "no platform data ?!\n");
-		return -EINVAL;
+	if (pdev->dev.of_node) {
+		if (of_property_read_u32(pdev->dev.of_node, "marvell,burst-size",
+					  &priv->burst) < 0) {
+			dev_err(&pdev->dev,
+				"missing marvell,burst-size property\n");
+			return -EINVAL;
+		}
+	} else {
+		if (!data) {
+			dev_err(&pdev->dev, "no platform data ?!\n");
+			return -EINVAL;
+		}
+		priv->burst = data->burst;
 	}
-
-	priv->burst = data->burst;
 
 	priv->clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(priv->clk)) {
@@ -500,6 +653,9 @@ static __devinit int kirkwood_i2s_dev_probe(struct platform_device *pdev)
 	err = clk_prepare_enable(priv->clk);
 	if (err < 0)
 		return err;
+
+	writel(KIRKWOOD_MCLK_SOURCE_DCO, 
+	       priv->io+KIRKWOOD_CLOCKS_CTRL);
 
 	priv->extclk = clk_get(&pdev->dev, "extclk");
 	if (!IS_ERR(priv->extclk)) {
@@ -518,7 +674,7 @@ static __devinit int kirkwood_i2s_dev_probe(struct platform_device *pdev)
 	priv->ctl_rec = KIRKWOOD_RECCTL_SIZE_24;
 
 	/* Select the burst size */
-	if (data->burst == 32) {
+	if (priv->burst == 32) {
 		priv->ctl_play |= KIRKWOOD_PLAYCTL_BURST_32;
 		priv->ctl_rec |= KIRKWOOD_RECCTL_BURST_32;
 	} else {
@@ -527,10 +683,21 @@ static __devinit int kirkwood_i2s_dev_probe(struct platform_device *pdev)
 	}
 
 	err = snd_soc_register_dai(&pdev->dev, soc_dai);
-	if (!err)
-		return 0;
-	dev_err(&pdev->dev, "snd_soc_register_dai failed\n");
+	if (err) {
+		dev_err(&pdev->dev, "Could not register DAI: %d\n", err);
+		goto err_clk_put;
+	}
 
+	err = snd_soc_register_platform(&pdev->dev, &kirkwood_soc_platform);
+	if (err) {
+		dev_err(&pdev->dev, "Could not register PCM: %d\n", err);
+		goto err_unregister_dai;
+	}
+	return 0;
+
+err_unregister_dai:
+	snd_soc_unregister_dai(&pdev->dev);
+err_clk_put:
 	if (!IS_ERR(priv->extclk)) {
 		clk_disable_unprepare(priv->extclk);
 		clk_put(priv->extclk);
@@ -544,6 +711,7 @@ static __devexit int kirkwood_i2s_dev_remove(struct platform_device *pdev)
 {
 	struct kirkwood_dma_data *priv = dev_get_drvdata(&pdev->dev);
 
+	snd_soc_unregister_platform(&pdev->dev);
 	snd_soc_unregister_dai(&pdev->dev);
 
 	if (!IS_ERR(priv->extclk)) {
@@ -555,12 +723,18 @@ static __devexit int kirkwood_i2s_dev_remove(struct platform_device *pdev)
 	return 0;
 }
 
+static const struct of_device_id kirkwood_i2s_of_match[] __devinitconst = {
+	{ .compatible = "marvell,kirkwood-i2s", },
+	{},
+};
+
 static struct platform_driver kirkwood_i2s_driver = {
 	.probe  = kirkwood_i2s_dev_probe,
 	.remove = __devexit_p(kirkwood_i2s_dev_remove),
 	.driver = {
 		.name = DRV_NAME,
 		.owner = THIS_MODULE,
+		.of_match_table = kirkwood_i2s_of_match,
 	},
 };
 
