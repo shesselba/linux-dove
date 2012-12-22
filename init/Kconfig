@@ -882,7 +882,7 @@ config MEMCG_SWAP_ENABLED
 config MEMCG_KMEM
 	bool "Memory Resource Controller Kernel Memory accounting (EXPERIMENTAL)"
 	depends on MEMCG && EXPERIMENTAL
-	default n
+	depends on SLUB || SLAB
 	help
 	  The Kernel Memory extension for Memory Resource Controller can limit
 	  the amount of memory used by kernel objects in the system. Those are
@@ -1069,11 +1069,9 @@ config UIDGID_CONVERTED
 	# Filesystems
 	depends on 9P_FS = n
 	depends on AFS_FS = n
-	depends on AUTOFS4_FS = n
 	depends on CEPH_FS = n
 	depends on CIFS = n
 	depends on CODA_FS = n
-	depends on FUSE_FS = n
 	depends on GFS2_FS = n
 	depends on NCP_FS = n
 	depends on NFSD = n
