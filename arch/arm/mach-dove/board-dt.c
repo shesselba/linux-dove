@@ -47,8 +47,14 @@ static void __init dove_legacy_clk_init(void)
 			 of_clk_get_from_provider(&clkspec));
 }
 
+static const __initdata struct of_device_id clk_match[] = {
+	{ .compatible = "fixed-clock", .data = of_fixed_clk_setup },
+	{ }
+};
+
 static void __init dove_of_clk_init(void)
 {
+	of_clk_init(clk_match);
 	mvebu_clocks_init();
 	dove_legacy_clk_init();
 }
