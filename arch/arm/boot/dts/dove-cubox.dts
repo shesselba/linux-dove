@@ -97,6 +97,11 @@
 			silabs,clock-source = <0>;
 		};
 	};
+
+	tda998x: hdmi-encoder {
+		compatible = "nxp,tda998x";
+		reg = <0x70>;
+	};
 };
 
 &sdio0 {
