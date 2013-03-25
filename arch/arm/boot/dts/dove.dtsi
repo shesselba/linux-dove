@@ -212,6 +212,27 @@
 			status = "okay";
 		};
 
+		dcon: display-controller@830000 {
+			compatible = "marvell,dove-dcon";
+			reg = <0x830000 0xc4>, <0x831000 0x8c>;
+			interrupts = <45>;
+			status = "disabled";
+		};
+
+		lcd0: lcd-controller@820000 {
+			compatible = "marvell,dove-lcd";
+			reg = <0x820000 0x01c8>;
+			interrupts = <47>;
+			status = "disabled";
+		};
+
+		lcd1: lcd-controller@810000 {
+			compatible = "marvell,dove-lcd";
+			reg = <0x810000 0x01c8>;
+			interrupts = <46>;
+			status = "disabled";
+		};
+
 		xor0: dma-engine@60800 {
 			compatible = "marvell,orion-xor";
 			reg = <0x60800 0x100

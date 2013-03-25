@@ -1,0 +1,9 @@
+config DRM_DOVE
+       tristate "DRM Support for Marvell Dove"
+       depends on DRM && OF && ARM && (ARCH_DOVE || ARCH_MULTIPLATFORM)
+       select DRM_KMS_HELPER
+       select DRM_KMS_CMA_HELPER
+       select DRM_GEM_CMA_HELPER
+       help
+         Choose this option if you have an Marvell Dove chipset.
+         If M is selected the module will be called dove-drm.
