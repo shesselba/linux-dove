@@ -52,11 +52,26 @@
 			#clock-cells = <0>;
 			clock-frequency = <25000000>;
 		};
+
+		lcdclk: fixed-clock {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <400000000>;
+		};
 	};
 };
 
 &uart0 { status = "okay"; };
 &sata0 { status = "okay"; };
+
+&lcd0 {
+	status = "okay";
+	clocks = <&core_clk 3>, <0>, <&lcdclk>, <&si5351 0>;
+	marvell,lcd-config = <2 6>;
+	marvell,external-encoder = <&tda998x>;
+};
+
+&dcon { status = "okay"; };
 
 &i2c0 {
 	status = "okay";
