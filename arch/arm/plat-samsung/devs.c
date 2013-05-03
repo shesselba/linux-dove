@@ -63,7 +63,6 @@
 #include <linux/platform_data/usb-s3c2410_udc.h>
 #include <linux/platform_data/usb-ohci-s3c2410.h>
 #include <plat/usb-phy.h>
-#include <plat/regs-iic.h>
 #include <plat/regs-serial.h>
 #include <plat/regs-spi.h>
 #include <linux/platform_data/spi-s3c64xx.h>
@@ -147,14 +146,20 @@ struct platform_device s3c_device_camif = {
 
 /* ASOC DMA */
 
+#ifdef CONFIG_PLAT_S5P 
+static struct resource samsung_asoc_idma_resource = DEFINE_RES_IRQ(IRQ_I2S0);
+
 struct platform_device samsung_asoc_idma = {
 	.name		= "samsung-idma",
 	.id		= -1,
+	.num_resources	= 1,
+	.resource	= &samsung_asoc_idma_resource,
 	.dev		= {
 		.dma_mask		= &samsung_device_dma_mask,
 		.coherent_dma_mask	= DMA_BIT_MASK(32),
 	}
 };
+#endif
 
 /* FB */
 
