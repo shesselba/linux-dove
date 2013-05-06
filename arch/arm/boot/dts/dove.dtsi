@@ -258,5 +258,40 @@
 				dmacap,xor;
 			};
 		};
+
+		mdio: mdio-bus@72004 {
+			compatible = "marvell,orion-mdio";
+			reg = <0x72004 0x84>;
+			interrupts = <30>;
+			clocks = <&gate_clk 2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+
+			ethphy: ethernet-phy {
+				device_type = "ethernet-phy";
+				/* overwrite reg property in board file */
+			};
+		};
+
+		eth: ethernet-controller@72000 {
+			compatible = "marvell,mv643xx-eth-block";
+			reg = <0x72000 0x4000>;
+			clocks = <&gate_clk 2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			tx-csum-limit = <1600>;
+			status = "disabled";
+
+			egiga: ethernet-port@0 {
+				compatible = "marvell,mv643xx-eth";
+				device_type = "network";
+				reg = <0>;
+				interrupts = <29>;
+				clocks = <&gate_clk 2>;
+				phy = <&ethphy>;
+				status = "disabled";
+			};
+		};
 	};
 };
