@@ -283,7 +283,7 @@
 			tx-csum-limit = <1600>;
 			status = "disabled";
 
-			eth0: ethernet-port@0 {
+			egiga: ethernet-port@0 {
 				compatible = "marvell,mv643xx-eth";
 				device_type = "network";
 				reg = <0>;

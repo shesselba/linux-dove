@@ -51,7 +51,7 @@
 &i2c0 { status = "okay"; };
 &mdio { status = "okay"; };
 &eth { status = "okay"; };
-&eth0 { status = "okay"; };
+&egiga { status = "okay"; };
 
 &ethphy {
 	compatible = "marvell,88e1310";
