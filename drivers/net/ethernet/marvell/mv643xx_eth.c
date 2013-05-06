@@ -60,6 +60,11 @@
 #include <linux/types.h>
 #include <linux/slab.h>
 #include <linux/clk.h>
+#include <linux/stringify.h>
+#include <linux/of.h>
+#include <linux/of_platform.h>
+#include <linux/of_mdio.h>
+#include <linux/of_net.h>
 
 static char mv643xx_eth_driver_name[] = "mv643xx_eth";
 static char mv643xx_eth_driver_version[] = "1.4";
@@ -2450,13 +2455,22 @@ static void infer_hw_params(struct mv643xx_eth_shared_private *msp)
 	}
 }
 
+static const struct of_device_id mv643xx_eth_match[] = {
+	{ .compatible = "marvell,mv64360-eth" },
+	{ .compatible = "marvell,mv643xx-eth" },
+	{ },
+};
+MODULE_DEVICE_TABLE(of, mv643xx_eth_match);
+
 static int mv643xx_eth_shared_probe(struct platform_device *pdev)
 {
 	static int mv643xx_eth_version_printed;
+	struct device_node *np = pdev->dev.of_node;
 	struct mv643xx_eth_shared_platform_data *pd = pdev->dev.platform_data;
 	struct mv643xx_eth_shared_private *msp;
 	const struct mbus_dram_target_info *dram;
 	struct resource *res;
+	int tx_csum_limit = 0;
 
 	if (!mv643xx_eth_version_printed++)
 		pr_notice("MV-643xx 10/100/1000 ethernet driver version %s\n",
@@ -2485,13 +2499,21 @@ static int mv643xx_eth_shared_probe(struct platform_device *pdev)
 	if (dram)
 		mv643xx_eth_conf_mbus_windows(msp, dram);
 
-	msp->tx_csum_limit = (pd != NULL && pd->tx_csum_limit) ?
-					pd->tx_csum_limit : 9 * 1024;
+	if (np)
+		of_property_read_u32(np, "tx-csum-limit", &tx_csum_limit);
+	else
+		tx_csum_limit = pd->tx_csum_limit;
+
+	msp->tx_csum_limit = tx_csum_limit ? tx_csum_limit : 9 * 1024;
 	infer_hw_params(msp);
 
 	platform_set_drvdata(pdev, msp);
 
+#ifdef CONFIG_OF
+	return of_platform_bus_probe(np, mv643xx_eth_match, &pdev->dev);
+#else
 	return 0;
+#endif
 }
 
 static int mv643xx_eth_shared_remove(struct platform_device *pdev)
@@ -2505,12 +2527,20 @@ static int mv643xx_eth_shared_remove(struct platform_device *pdev)
 	return 0;
 }
 
+static const struct of_device_id mv643xx_eth_shared_match[] = {
+	{ .compatible = "marvell,mv64360-eth-block" },
+	{ .compatible = "marvell,mv643xx-eth-block" },
+	{ },
+};
+MODULE_DEVICE_TABLE(of, mv643xx_eth_shared_match);
+
 static struct platform_driver mv643xx_eth_shared_driver = {
 	.probe		= mv643xx_eth_shared_probe,
 	.remove		= mv643xx_eth_shared_remove,
 	.driver = {
 		.name	= MV643XX_ETH_SHARED_NAME,
 		.owner	= THIS_MODULE,
+		.of_match_table = of_match_ptr(mv643xx_eth_shared_match),
 	},
 };
 
@@ -2669,6 +2699,68 @@ static const struct net_device_ops mv643xx_eth_netdev_ops = {
 #endif
 };
 
+#ifdef CONFIG_OF
+static int mv643xx_eth_of_probe(struct platform_device *pdev)
+{
+	struct mv643xx_eth_platform_data *pd;
+	struct device_node *np = pdev->dev.of_node;
+	struct device_node *shared = of_get_parent(np);
+	const int *prop;
+	const char *mac_addr;
+
+	if (pdev->dev.platform_data || !pdev->dev.of_node)
+		return 0;
+
+	pd = devm_kzalloc(&pdev->dev, sizeof(*pd), GFP_KERNEL);
+	if (!pd)
+		return -ENOMEM;
+
+	pdev->dev.platform_data = pd;
+
+	pd->shared = of_find_device_by_node(shared);
+	if (!pd->shared)
+		return -ENODEV;
+
+	if (of_property_read_u32(np, "reg", &pd->port_number))
+		return -EINVAL;
+
+	pd->phy_node = of_parse_phandle(np, "phy", 0);
+	if (!pd->phy_node) {
+		pd->phy_addr = MV643XX_ETH_PHY_NONE;
+
+		of_property_read_u32(np, "speed", &pd->speed);
+		of_property_read_u32(np, "duplex", &pd->duplex);
+	}
+
+	mac_addr = of_get_mac_address(np);
+	if (mac_addr)
+		memcpy(pd->mac_addr, mac_addr, ETH_ALEN);
+
+#define rx_tx_queue_sram_property(_name)				\
+	do {								\
+		prop = of_get_property(np, __stringify(_name), NULL);	\
+		if (prop)						\
+			pd->_name = be32_to_cpup(prop);			\
+	} while (0)
+
+	rx_tx_queue_sram_property(rx_queue_count);
+	rx_tx_queue_sram_property(tx_queue_count);
+	rx_tx_queue_sram_property(rx_queue_size);
+	rx_tx_queue_sram_property(tx_queue_size);
+	rx_tx_queue_sram_property(rx_sram_addr);
+	rx_tx_queue_sram_property(rx_sram_size);
+	rx_tx_queue_sram_property(tx_sram_addr);
+	rx_tx_queue_sram_property(rx_sram_size);
+
+	return 0;
+}
+#else
+static inline int mv643xx_eth_of_probe(struct platform_device *dev)
+{
+	return 0;
+}
+#endif
+
 static int mv643xx_eth_probe(struct platform_device *pdev)
 {
 	struct mv643xx_eth_platform_data *pd;
@@ -2676,6 +2768,10 @@ static int mv643xx_eth_probe(struct platform_device *pdev)
 	struct net_device *dev;
 	struct resource *res;
 	int err;
+
+	err = mv643xx_eth_of_probe(pdev);
+	if (err)
+		return err;
 
 	pd = pdev->dev.platform_data;
 	if (pd == NULL) {
@@ -2717,7 +2813,12 @@ static int mv643xx_eth_probe(struct platform_device *pdev)
 	netif_set_real_num_rx_queues(dev, mp->rxq_count);
 
 	if (pd->phy_addr != MV643XX_ETH_PHY_NONE) {
-		mp->phy = phy_scan(mp, pd->phy_addr);
+		if (pd->phy_node)
+			mp->phy = of_phy_connect(mp->dev, pd->phy_node,
+						mv643xx_eth_adjust_link, 0,
+						PHY_INTERFACE_MODE_GMII);
+		else
+			mp->phy = phy_scan(mp, pd->phy_addr);
 
 		if (IS_ERR(mp->phy)) {
 			err = PTR_ERR(mp->phy);
@@ -2837,6 +2938,7 @@ static struct platform_driver mv643xx_eth_driver = {
 	.driver = {
 		.name	= MV643XX_ETH_NAME,
 		.owner	= THIS_MODULE,
+		.of_match_table = of_match_ptr(mv643xx_eth_match),
 	},
 };
 
