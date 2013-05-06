@@ -51,4 +51,4 @@
 	};
 };
 
-&ethphy0 { reg = <8>; };
+&ethphy0 { reg = <0>; };
