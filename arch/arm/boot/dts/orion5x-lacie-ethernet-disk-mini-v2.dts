@@ -53,3 +53,8 @@
 		};
 	};
 };
+
+&mdio { status = "okay"; };
+&eth { status = "okay"; };
+&egiga { status = "okay"; };
+&ethphy { reg = <8>; };
