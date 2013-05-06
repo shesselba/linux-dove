@@ -182,3 +182,28 @@
 	};
 };
 
+&eth0 { status = "okay"; };
+&egiga0 {
+	status = "okay";
+	phy = <&ethphy0>;
+};
+
+&eth1 { status = "okay"; };
+&egiga1 {
+	status = "okay";
+	phy = <&ethphy1>;
+};
+
+&mdio {
+	status = "okay";
+
+	ethphy0: ethernet-phy@1 {
+		device_type = "ethernet-phy";
+		reg = <1>;
+	};
+
+	ethphy1: ethernet-phy@2 {
+		device_type = "ethernet-phy";
+		reg = <2>;
+	};
+};

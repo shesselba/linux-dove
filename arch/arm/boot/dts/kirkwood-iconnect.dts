@@ -168,3 +168,18 @@
 		};
 	};
 };
+
+&eth0 { status = "okay"; };
+&egiga0 {
+	status = "okay";
+	phy = <&ethphy0>;
+};
+
+&mdio {
+	status = "okay";
+
+	ethphy0: ethernet-phy@11 {
+		device_type = "ethernet-phy";
+		reg = <11>;
+	};
+};
