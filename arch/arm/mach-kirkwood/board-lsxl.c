@@ -14,16 +14,7 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/platform_device.h>
-#include <linux/mv643xx_eth.h>
 #include "common.h"
-
-static struct mv643xx_eth_platform_data lsxl_ge00_data = {
-	.phy_addr	= MV643XX_ETH_PHY_ADDR(0),
-};
-
-static struct mv643xx_eth_platform_data lsxl_ge01_data = {
-	.phy_addr	= MV643XX_ETH_PHY_ADDR(8),
-};
 
 /*
  * On the LS-XHL/LS-CHLv2, the shutdown process is following:
@@ -43,9 +34,6 @@ void __init lsxl_init(void)
 	/*
 	 * Basic setup. Needs to be called early.
 	 */
-
-	kirkwood_ge00_init(&lsxl_ge00_data);
-	kirkwood_ge01_init(&lsxl_ge01_data);
 
 	/* register power-off method */
 	pm_power_off = lsxl_power_off;

@@ -10,17 +10,8 @@
 
 #include <linux/kernel.h>
 #include <linux/init.h>
-#include <linux/mv643xx_eth.h>
 #include "common.h"
-
-static struct mv643xx_eth_platform_data openblocks_ge00_data = {
-	.phy_addr	= MV643XX_ETH_PHY_ADDR(0),
-};
 
 void __init openblocks_a6_init(void)
 {
-	/*
-	 * Basic setup. Needs to be called early.
-	 */
-	kirkwood_ge00_init(&openblocks_ge00_data);
 }
