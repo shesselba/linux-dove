@@ -13,16 +13,10 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/platform_device.h>
-#include <linux/mv643xx_eth.h>
 #include <mach/kirkwood.h>
 #include "common.h"
 
-static struct mv643xx_eth_platform_data netgear_readynas_ge00_data = {
-	.phy_addr	= MV643XX_ETH_PHY_ADDR(0),
-};
-
 void __init netgear_readynas_init(void)
 {
-	kirkwood_ge00_init(&netgear_readynas_ge00_data);
 	kirkwood_pcie_init(KW_PCIE0);
 }

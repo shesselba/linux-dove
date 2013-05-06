@@ -14,14 +14,9 @@
 
 #include <linux/kernel.h>
 #include <linux/init.h>
-#include <linux/mv643xx_eth.h>
 #include <linux/clk.h>
 #include <linux/clk-private.h>
 #include "common.h"
-
-static struct mv643xx_eth_platform_data km_kirkwood_ge00_data = {
-	.phy_addr	= MV643XX_ETH_PHY_ADDR(0),
-};
 
 void __init km_kirkwood_init(void)
 {
@@ -39,6 +34,4 @@ void __init km_kirkwood_init(void)
 	sata_clk = clk_get_sys("sata_mv.0", "1");
 	if (!IS_ERR(sata_clk))
 		sata_clk->flags |= CLK_IGNORE_UNUSED;
-
-	kirkwood_ge00_init(&km_kirkwood_ge00_data);
 }
