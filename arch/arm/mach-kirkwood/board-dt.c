@@ -90,46 +90,17 @@ static void __init kirkwood_dt_init(void)
 	kexec_reinit = kirkwood_enable_pcie;
 #endif
 
-	if (of_machine_is_compatible("globalscale,dreamplug"))
-		dreamplug_init();
-
-	if (of_machine_is_compatible("globalscale,guruplug"))
-		guruplug_dt_init();
-
 	if (of_machine_is_compatible("dlink,dns-kirkwood"))
 		dnskw_init();
-
-	if (of_machine_is_compatible("iom,iconnect"))
-		iconnect_init();
-
-	if (of_machine_is_compatible("raidsonic,ib-nas62x0"))
-		ib62x0_init();
 
 	if (of_machine_is_compatible("qnap,ts219"))
 		qnap_dt_ts219_init();
 
-	if (of_machine_is_compatible("seagate,dockstar"))
-		dockstar_dt_init();
-
-	if (of_machine_is_compatible("seagate,goflexnet"))
-		goflexnet_init();
-
 	if (of_machine_is_compatible("buffalo,lsxl"))
 		lsxl_init();
 
-	if (of_machine_is_compatible("iom,ix2-200"))
-		iomega_ix2_200_init();
-
 	if (of_machine_is_compatible("keymile,km_kirkwood"))
 		km_kirkwood_init();
-
-	if (of_machine_is_compatible("lacie,cloudbox") ||
-	    of_machine_is_compatible("lacie,inetspace_v2") ||
-	    of_machine_is_compatible("lacie,netspace_lite_v2") ||
-	    of_machine_is_compatible("lacie,netspace_max_v2") ||
-	    of_machine_is_compatible("lacie,netspace_mini_v2") ||
-	    of_machine_is_compatible("lacie,netspace_v2"))
-		ns2_init();
 
 	if (of_machine_is_compatible("mpl,cec4"))
 		mplcec4_init();
