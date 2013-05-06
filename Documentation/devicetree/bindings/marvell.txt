@@ -112,11 +112,13 @@ prefixed with the string "marvell,", for Marvell Technology Group Ltd.
    Required properties:
      - #address-cells : <1>
      - #size-cells : <0>
-     - compatible : "marvell,mv64360-eth-block"
+     - compatible : "marvell,mv64360-eth-block", "marvell,mv643xx-eth-block"
      - reg : Offset and length of the register set for this block
 
    Optional properties:
      - clocks : Phandle to the clock control device and gate bit
+     - tx-csum-limit : Hardware limit above which transmit checksumming
+                       is disabled.
 
    Example Discovery Ethernet block node:
      ethernet-block@2000 {
@@ -133,7 +135,7 @@ prefixed with the string "marvell,", for Marvell Technology Group Ltd.
 
    Required properties:
      - device_type : Should be "network".
-     - compatible : Should be "marvell,mv64360-eth".
+     - compatible : Should be "marvell,mv64360-eth", "marvell,mv643xx-eth"
      - reg : Should be <0>, <1>, or <2>, according to which registers
        within the silicon block the device uses.
      - interrupts : <a> where a is the interrupt number for the port.
@@ -142,6 +144,22 @@ prefixed with the string "marvell,", for Marvell Technology Group Ltd.
      - phy : the phandle for the PHY connected to this ethernet
        controller.
      - local-mac-address : 6 bytes, MAC address
+
+   Optional properties:
+     - clocks : Phandle to the clock control device and gate bit
+     - clock-names : String describing the clock gate bit
+     - speed : Speed to force the link (10, 100, 1000), used when no
+               phy property is defined
+     - duplex : Duplex to force the link (0: half, 1: full), used when no
+               phy property is defined
+     - rx-queue-count : number of RX queues to use
+     - tx-queue-count : number of TX queues to use
+     - rx-queue-size : size of the RX queue (in bytes)
+     - tx-queue-size : size of the TX queue (in bytes)
+     - rx-sram-addr : address of the SRAM for RX path (non 0 means used)
+     - rx-sram-size : size of the SRAM for RX path (non 0 means used)
+     - tx-sram-addr : address of the SRAM for TX path (non 0 means used)
+     - tx-sram-size : size of the SRAM for TX path (non 0 means used)
 
    Example Discovery Ethernet port node:
      ethernet@0 {
