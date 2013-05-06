@@ -13,10 +13,6 @@
 #include <linux/of.h>
 #include "common.h"
 
-void __init iconnect_init(void)
-{
-}
-
 static int __init iconnect_pci_init(void)
 {
 	if (of_machine_is_compatible("iom,iconnect"))
