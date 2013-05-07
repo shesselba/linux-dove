@@ -2820,7 +2820,10 @@ static int mv643xx_eth_probe(struct platform_device *pdev)
 		else
 			mp->phy = phy_scan(mp, pd->phy_addr);
 
-		if (IS_ERR(mp->phy)) {
+		if (!mp->phy) {
+			err = -ENODEV;
+			goto out;
+		} else if (IS_ERR(mp->phy)) {
 			err = PTR_ERR(mp->phy);
 			if (err == -ENODEV)
 				err = -EPROBE_DEFER;
