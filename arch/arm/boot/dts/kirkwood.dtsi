@@ -206,7 +206,7 @@
 		mdio: mdio-bus@72004 {
 			compatible = "marvell,orion-mdio";
 			reg = <0x72004 0x84>;
-			interrupts = <11>;
+			interrupts = <46>;
 			clocks = <&gate_clk 0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -224,7 +224,7 @@
 			tx-csum-limit = <1600>;
 			status = "disabled";
 
-			egiga0: ethernet-port@0 {
+			egiga0: ethernet0-port@0 {
 				compatible = "marvell,mv643xx-eth";
 				device_type = "network";
 				reg = <0>;
@@ -244,10 +244,10 @@
 			tx-csum-limit = <1600>;
 			status = "disabled";
 
-			egiga1: ethernet-port@1 {
+			egiga1: ethernet1-port@0 {
 				compatible = "marvell,mv643xx-eth";
 				device_type = "network";
-				reg = <1>;
+				reg = <0>;
 				interrupts = <15>;
 				clocks = <&gate_clk 19>;
 				/* set phy property in board file */
