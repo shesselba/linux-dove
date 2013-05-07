@@ -113,11 +113,13 @@
 	status = "okay";
 
 	ethphy0: ethernet-phy@0 {
+		compatible = "marvell,88e1121";
 		device_type = "ethernet-phy";
 		reg = <0>;
 	};
 
 	ethphy1: ethernet-phy@1 {
+		compatible = "marvell,88e1121";
 		device_type = "ethernet-phy";
 		reg = <1>;
 	};
