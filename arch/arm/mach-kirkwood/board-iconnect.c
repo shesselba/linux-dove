@@ -11,17 +11,7 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/of.h>
-#include <linux/mv643xx_eth.h>
 #include "common.h"
-
-static struct mv643xx_eth_platform_data iconnect_ge00_data = {
-	.phy_addr	= MV643XX_ETH_PHY_ADDR(11),
-};
-
-void __init iconnect_init(void)
-{
-	kirkwood_ge00_init(&iconnect_ge00_data);
-}
 
 static int __init iconnect_pci_init(void)
 {
