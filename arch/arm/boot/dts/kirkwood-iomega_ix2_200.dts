@@ -191,3 +191,21 @@
 		};
 	};
 };
+
+&eth0 { status = "okay"; };
+&eth0port {
+	speed = <1000>;
+        duplex = <1>;
+};
+
+&eth1 { status = "okay"; };
+&eth1port { phy = <&ethphy1>; };
+
+&mdio {
+	status = "okay";
+
+	ethphy1: ethernet-phy@11 {
+		device_type = "ethernet-phy";
+		reg = <11>;
+	};
+};

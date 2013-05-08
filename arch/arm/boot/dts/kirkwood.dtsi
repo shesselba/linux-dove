@@ -202,5 +202,57 @@
 			clocks = <&gate_clk 4>;
 			status = "disabled";
 		};
+
+		mdio: mdio-bus@72004 {
+			compatible = "marvell,orion-mdio";
+			reg = <0x72004 0x84>;
+			interrupts = <46>;
+			clocks = <&gate_clk 0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+
+			/* add phy nodes in board file */
+		};
+
+		eth0: ethernet-controller@72000 {
+			compatible = "marvell,orion-eth";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x72000 0x4000>;
+			interrupts = <11>;
+			clocks = <&gate_clk 0>;
+			status = "disabled";
+
+			marvell,max-checksum-size = <1600>;
+			marvell,#rx-queues = <8>;
+			marvell,#tx-queues = <8>;
+
+			eth0port: ethernet-port@0 {
+				device_type = "network";
+				reg = <0>;
+				/* set phy property in board file */
+			};
+		};
+
+		eth1: ethernet-controller@76000 {
+			compatible = "marvell,orion-eth";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x76000 0x4000>;
+			interrupts = <15>;
+			clocks = <&gate_clk 19>;
+			status = "disabled";
+
+			marvell,max-checksum-size = <1600>;
+			marvell,#rx-queues = <8>;
+			marvell,#tx-queues = <8>;
+
+			eth1port: ethernet-port@0 {
+				device_type = "network";
+				reg = <0>;
+				/* set phy property in board file */
+			};
+		};
 	};
 };

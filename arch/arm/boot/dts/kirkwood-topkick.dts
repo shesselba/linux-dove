@@ -201,3 +201,15 @@
 		};
 	};
 };
+
+&eth0 { status = "okay"; };
+&eth0port { phy = <&ethphy0>; };
+
+&mdio {
+	status = "okay";
+
+	ethphy0: ethernet-phy@0 {
+		device_type = "ethernet-phy";
+		reg = <0>;
+	};
+};
