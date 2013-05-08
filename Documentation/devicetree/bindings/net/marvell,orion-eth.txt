@@ -1,0 +1,60 @@
+* Marvell Orion SoC/Discovery Ethernet Controller
+
+The ethernet controller found on Marvell Orion SoCs and Marvell Discovery
+MV64[345]60 system controllers comprises an ethernet controller with up to
+3 ethernet ports. The device tree node is therefore separated into a device
+node describing the ethernet controller and a child node within the controller
+node for each ethernet port available.
+
+Required controller properties:
+- compatible: should be "marvell,orion-eth" or "marvell,discovery-eth"
+- reg: base address and length of the controller registers
+- interrupts: interrupt for the device
+- clocks: phandle to the ethernet controller reference clock
+- #address-cells: shall be 1
+- #size-cells: shall be 0
+
+Optional controller properties:
+- marvell,max-checksum-size: maximum tx packet size for HW checksum generation
+- marvell,#rx-queues: available number of rx queues per port
+- marvell,#tx-queues: available number of tx queues per port
+
+Required port properties:
+- reg: port number of ethernet controller
+- device_type: shall be "network"
+
+Additional required port properties:
+- phy-handle: phandle to a phy node connected to port
+OR
+- speed: enforced port speed (10, 100, 1000)
+- duplex: enforced port mode (1=duplex, 0=half-duplex)
+
+Optional port properties:
+- status: selectively enable ("okay") or disable ("disable") port
+- marvell,#rx-queues: overwrite available number of rx queues
+- marvell,rx-queue-depth: overwrite default rx queue depth
+- marvell,#tx-queues: overwrite available number of tx queues
+- marvell,tx-queue-depth: overwrite default tx queue depth
+
+Example:
+
+eth: ethernet-controller@72000 {
+	compatible = "marvell,orion-eth";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	reg = <0x72000 0x4000>;
+	interrupts = <29>;
+	clocks = <&gate_clk 2>;
+	status = "okay";
+
+        /* Marvell Kirkwood SoC */
+	marvell,max-checksum-limit = <1600>;
+        marvell,#rx-queues = <8>;
+        marvell,#tx-queues = <8>;
+
+	ethernet-port@0 {
+		device_type = "network";
+		reg = <0>;
+		phy-handle = <&ethphy>;
+	};
+};

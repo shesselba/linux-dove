@@ -60,6 +60,11 @@
 #include <linux/types.h>
 #include <linux/slab.h>
 #include <linux/clk.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+#include <linux/of_irq.h>
+#include <linux/of_mdio.h>
+#include <linux/of_net.h>
 
 static char mv643xx_eth_driver_name[] = "mv643xx_eth";
 static char mv643xx_eth_driver_version[] = "1.4";
@@ -403,6 +408,14 @@ struct mv643xx_eth_private {
 	unsigned int t_clk;
 };
 
+struct orion_eth_private {
+	int nrports;
+	int irq;
+	int rxq_count;
+	int txq_count;
+	struct mv643xx_eth_shared_private msp;
+	struct mv643xx_eth_private *mp[0];
+};
 
 /* port register accessors **************************************************/
 static inline u32 rdl(struct mv643xx_eth_private *mp, int offset)
@@ -2669,6 +2682,62 @@ static const struct net_device_ops mv643xx_eth_netdev_ops = {
 #endif
 };
 
+static int mv643xx_eth_common_setup(struct net_device *dev,
+				struct mv643xx_eth_private *mp)
+{
+	int err;
+
+	SET_ETHTOOL_OPS(dev, &mv643xx_eth_ethtool_ops);
+	netif_set_real_num_tx_queues(dev, mp->txq_count);
+	netif_set_real_num_rx_queues(dev, mp->rxq_count);
+	mib_counters_clear(mp);
+
+	init_timer(&mp->mib_counters_timer);
+	mp->mib_counters_timer.data = (unsigned long)mp;
+	mp->mib_counters_timer.function = mib_counters_timer_wrapper;
+	mp->mib_counters_timer.expires = jiffies + 30 * HZ;
+	add_timer(&mp->mib_counters_timer);
+
+	spin_lock_init(&mp->mib_counters_lock);
+	INIT_WORK(&mp->tx_timeout_task, tx_timeout_task);
+
+	netif_napi_add(dev, &mp->napi, mv643xx_eth_poll, NAPI_POLL_WEIGHT);
+
+	init_timer(&mp->rx_oom);
+	mp->rx_oom.data = (unsigned long)mp;
+	mp->rx_oom.function = oom_timer_wrapper;
+
+	dev->netdev_ops = &mv643xx_eth_netdev_ops;
+	dev->watchdog_timeo = 2 * HZ;
+	dev->base_addr = 0;
+	dev->hw_features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_RXCSUM;
+	dev->features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_RXCSUM;
+	dev->vlan_features = NETIF_F_SG | NETIF_F_IP_CSUM;
+	dev->priv_flags |= IFF_UNICAST_FLT;
+
+	if (mp->shared->win_protect)
+		wrl(mp, WINDOW_PROTECT(mp->port_num), mp->shared->win_protect);
+
+	netif_carrier_off(dev);
+
+	wrlp(mp, SDMA_CONFIG, PORT_SDMA_CONFIG_DEFAULT_VALUE);
+
+	set_rx_coal(mp, 250);
+	set_tx_coal(mp, 0);
+
+	err = register_netdev(dev);
+	if (err)
+		return err;
+
+	netdev_notice(dev, "port %d with MAC address %pM\n",
+		      mp->port_num, dev->dev_addr);
+
+	if (mp->tx_desc_sram_size > 0)
+		netdev_notice(dev, "configured with sram\n");
+
+	return 0;
+}
+
 static int mv643xx_eth_probe(struct platform_device *pdev)
 {
 	struct mv643xx_eth_platform_data *pd;
@@ -2698,7 +2767,6 @@ static int mv643xx_eth_probe(struct platform_device *pdev)
 	mp->shared = platform_get_drvdata(pd->shared);
 	mp->base = mp->shared->base + 0x0400 + (pd->port_number << 10);
 	mp->port_num = pd->port_number;
-
 	mp->dev = dev;
 
 	/*
@@ -2712,9 +2780,14 @@ static int mv643xx_eth_probe(struct platform_device *pdev)
 		mp->t_clk = clk_get_rate(mp->clk);
 	}
 
+	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+	if (!res) {
+		dev_err(&pdev->dev, "unable to get irq\n");
+		return -EINVAL;
+	}
+	dev->irq = res->start;
+
 	set_params(mp, pd);
-	netif_set_real_num_tx_queues(dev, mp->txq_count);
-	netif_set_real_num_rx_queues(dev, mp->rxq_count);
 
 	if (pd->phy_addr != MV643XX_ETH_PHY_NONE) {
 		mp->phy = phy_scan(mp, pd->phy_addr);
@@ -2728,66 +2801,11 @@ static int mv643xx_eth_probe(struct platform_device *pdev)
 		phy_init(mp, pd->speed, pd->duplex);
 	}
 
-	SET_ETHTOOL_OPS(dev, &mv643xx_eth_ethtool_ops);
-
 	init_pscr(mp, pd->speed, pd->duplex);
-
-
-	mib_counters_clear(mp);
-
-	init_timer(&mp->mib_counters_timer);
-	mp->mib_counters_timer.data = (unsigned long)mp;
-	mp->mib_counters_timer.function = mib_counters_timer_wrapper;
-	mp->mib_counters_timer.expires = jiffies + 30 * HZ;
-	add_timer(&mp->mib_counters_timer);
-
-	spin_lock_init(&mp->mib_counters_lock);
-
-	INIT_WORK(&mp->tx_timeout_task, tx_timeout_task);
-
-	netif_napi_add(dev, &mp->napi, mv643xx_eth_poll, 128);
-
-	init_timer(&mp->rx_oom);
-	mp->rx_oom.data = (unsigned long)mp;
-	mp->rx_oom.function = oom_timer_wrapper;
-
-
-	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-	BUG_ON(!res);
-	dev->irq = res->start;
-
-	dev->netdev_ops = &mv643xx_eth_netdev_ops;
-
-	dev->watchdog_timeo = 2 * HZ;
-	dev->base_addr = 0;
-
-	dev->hw_features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_RXCSUM;
-	dev->features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_RXCSUM;
-	dev->vlan_features = NETIF_F_SG | NETIF_F_IP_CSUM;
-
-	dev->priv_flags |= IFF_UNICAST_FLT;
-
 	SET_NETDEV_DEV(dev, &pdev->dev);
-
-	if (mp->shared->win_protect)
-		wrl(mp, WINDOW_PROTECT(mp->port_num), mp->shared->win_protect);
-
-	netif_carrier_off(dev);
-
-	wrlp(mp, SDMA_CONFIG, PORT_SDMA_CONFIG_DEFAULT_VALUE);
-
-	set_rx_coal(mp, 250);
-	set_tx_coal(mp, 0);
-
-	err = register_netdev(dev);
+	err = mv643xx_eth_common_setup(dev, mp);
 	if (err)
 		goto out;
-
-	netdev_notice(dev, "port %d with MAC address %pM\n",
-		      mp->port_num, dev->dev_addr);
-
-	if (mp->tx_desc_sram_size > 0)
-		netdev_notice(dev, "configured with sram\n");
 
 	return 0;
 
@@ -2861,6 +2879,212 @@ static void __exit mv643xx_eth_cleanup_module(void)
 	platform_driver_unregister(&mv643xx_eth_shared_driver);
 }
 module_exit(mv643xx_eth_cleanup_module);
+
+#define of_orion_prop(_np, _n, _v, _d)				\
+	do {							\
+		u32 _p = (_d);					\
+		of_property_read_u32(_np, "marvell," _n, &_p);	\
+		(_v) = (_p);					\
+	} while (0)
+
+static int orion_eth_probe(struct platform_device *pdev)
+{
+	struct orion_eth_private *priv;
+	struct device_node *np = pdev->dev.of_node;
+	struct device_node *child;
+	const struct mbus_dram_target_info *dram;
+	struct resource res;
+	int ret, sz, nr;
+
+	/* count number of ethernet ports */
+	nr = of_get_child_count(np);
+
+	sz = sizeof(*priv) + nr * sizeof(void *);
+	priv = devm_kzalloc(&pdev->dev, sz, GFP_KERNEL);
+	if (!priv)
+		return -ENOMEM;
+	priv->nrports = nr;
+
+	ret = of_address_to_resource(np, 0, &res);
+	if (ret)
+		return ret;
+
+	priv->msp.base = devm_ioremap(&pdev->dev, res.start,
+				resource_size(&res));
+	if (!priv->msp.base)
+		return -ENOMEM;
+
+	priv->irq = irq_of_parse_and_map(np, 0);
+	if (!priv->irq)
+		return -EINVAL;
+
+	priv->msp.clk = devm_clk_get(&pdev->dev, NULL);
+	if (IS_ERR(priv->msp.clk))
+		return PTR_ERR(priv->msp.clk);
+	clk_prepare_enable(priv->msp.clk);
+
+	dram = mv_mbus_dram_info();
+	if (dram)
+		mv643xx_eth_conf_mbus_windows(&priv->msp, dram);
+
+	platform_set_drvdata(pdev, priv);
+
+	of_orion_prop(np, "max-checksum-size",
+		priv->msp.tx_csum_limit, 9 * 1024);
+	of_orion_prop(np, "#rx-queues", priv->rxq_count, 1);
+	of_orion_prop(np, "#tx-queues", priv->txq_count, 1);
+
+	printk(">>> %s: max-checksum-size = %d, #rx-queues = %d, #tx-queues = %d\n",
+		__func__, priv->msp.tx_csum_limit, priv->rxq_count, priv->txq_count);
+
+	infer_hw_params(&priv->msp);
+
+	nr = 0;	for_each_available_child_of_node(np, child) {
+		struct mv643xx_eth_private *mp;
+		struct net_device *netdev;
+		struct device_node *npphy;
+		const void *mac_addr;
+		u32 portnr, speed = 0, duplex = 0;
+
+		if (of_property_read_u32(child, "reg", &portnr)) {
+			dev_err(&pdev->dev,
+				"missing reg property on port %s\n",
+				child->name);
+			return -EINVAL;
+		}
+
+		netdev = alloc_etherdev_mq(sizeof(*mp), 8);
+		if (!netdev)
+			return -ENOMEM;
+		netdev->irq = priv->irq;
+
+		priv->mp[nr++] = mp = netdev_priv(netdev);
+		mp->shared = &priv->msp;
+		mp->port_num = portnr;
+		mp->base = priv->msp.base + (mp->port_num + 1) * 0x0400;
+		mp->dev = netdev;
+		mp->t_clk = clk_get_rate(priv->msp.clk);
+
+		npphy = of_parse_phandle(child, "phy-handle", 0);
+		if (npphy) {
+			/* phy mode restricted to GMII for now */
+			int phymode = PHY_INTERFACE_MODE_GMII;
+
+			mp->phy = of_phy_connect(netdev, npphy,
+						mv643xx_eth_adjust_link, 0,
+						phymode);
+			if (!mp->phy) {
+				dev_err(&pdev->dev,
+					"unable to connect to phy on port %s",
+					child->name);
+				return -ENODEV;
+			}
+			if (IS_ERR(mp->phy) && PTR_ERR(mp->phy) == -ENODEV)
+				return -EPROBE_DEFER;
+			if (IS_ERR(mp->phy))
+				return PTR_ERR(mp->phy);
+		}
+
+		of_property_read_u32(child, "speed", &speed);
+		of_property_read_u32(child, "duplex", &duplex);
+
+		if (!npphy && (!speed || !duplex)) {
+			dev_err(&pdev->dev,
+				"missing speed/duplex properties on port %s\n",
+				child->name);
+			return -EINVAL;
+		}
+
+		mac_addr = of_get_mac_address(child);
+		if (mac_addr)
+			memcpy(netdev->dev_addr, mac_addr, 6);
+		else
+			uc_addr_get(mp, netdev->dev_addr);
+		
+		/* setup default port parameters */
+		of_orion_prop(child, "#rx-queues",
+			mp->rxq_count, priv->rxq_count);
+		of_orion_prop(child, "rx-queue-depth",
+			mp->rx_ring_size, DEFAULT_RX_QUEUE_SIZE);
+		of_orion_prop(child, "#tx-queues",
+			mp->txq_count, priv->txq_count);
+		of_orion_prop(child, "tx-queue-depth",
+			mp->tx_ring_size, DEFAULT_TX_QUEUE_SIZE);
+
+		printk(">>> %s: port = %d, #rx-queues = %d/%d, #tx-queues = %d/%d\n",
+			__func__, mp->port_num, mp->rxq_count, mp->rx_ring_size, mp->txq_count, mp->tx_ring_size);
+
+		init_pscr(mp, speed, duplex);
+		SET_NETDEV_DEV(netdev, &pdev->dev);
+		ret = mv643xx_eth_common_setup(netdev, mp);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+static int orion_eth_remove(struct platform_device *pdev)
+{
+	struct orion_eth_private *priv = platform_get_drvdata(pdev);
+	int n;
+
+	for (n = 0; n < priv->nrports; n++) {
+		struct mv643xx_eth_private *mp = priv->mp[n];
+		
+		if (!mp)
+			continue;
+
+		unregister_netdev(mp->dev);
+		if (mp->phy)
+			phy_detach(mp->phy);
+		cancel_work_sync(&mp->tx_timeout_task);
+		free_netdev(mp->dev);
+	}
+
+	if (!IS_ERR(priv->msp.clk))
+		clk_disable_unprepare(priv->msp.clk);
+
+	return 0;
+}
+
+static void orion_eth_shutdown(struct platform_device *pdev)
+{
+	struct orion_eth_private *priv = platform_get_drvdata(pdev);
+	int n;
+
+	for (n = 0; n < priv->nrports; n++) {
+		struct mv643xx_eth_private *mp = priv->mp[n];
+		
+		if (!mp)
+			continue;
+
+		/* mask and clear all port interrupts */
+		wrlp(mp, INT_MASK, 0);
+		rdlp(mp, INT_MASK);
+
+		if (netif_running(mp->dev))
+			port_reset(mp);
+	}
+}
+
+static const struct of_device_id orion_eth_match[] = {
+	{ .compatible = "marvell,orion-eth" },
+	{ },
+};
+MODULE_DEVICE_TABLE(of, orion_eth_match);
+
+static struct platform_driver orion_eth_driver = {
+	.probe		= orion_eth_probe,
+	.remove		= orion_eth_remove,
+	.shutdown	= orion_eth_shutdown,
+	.driver = {
+		.name	= "orion-eth",
+		.owner	= THIS_MODULE,
+		.of_match_table = of_match_ptr(orion_eth_match),
+	},
+};
+module_platform_driver(orion_eth_driver);
 
 MODULE_AUTHOR("Rabeeh Khoury, Assaf Hoffman, Matthew Dharm, "
 	      "Manish Lachwani, Dale Farnsworth and Lennert Buytenhek");
