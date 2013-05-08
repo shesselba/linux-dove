@@ -132,5 +132,38 @@
 			interrupts = <28>;
 			status = "okay";
 		};
+
+		mdio: mdio-bus@72004 {
+			compatible = "marvell,orion-mdio";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x72004 0x84>;
+			interrupts = <22>;
+			status = "disabled";
+
+			ethphy: ethernet-phy {
+				device_type = "ethernet-phy";
+				/* overwrite reg property in board file */
+			};
+		};
+
+		eth: ethernet-controller@72000 {
+			compatible = "marvell,orion-eth";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x72000 0x4000>;
+			interrupts = <21>;
+			/* tclk clocks property required */
+			status = "disabled";
+
+			marvell,#rx-queues = <8>;
+			marvell,#tx-queues = <1>;
+
+			ethernet-port@0 {
+				device_type = "network";
+				reg = <0>;
+				phy-handle = <&ethphy>;
+			};
+		};
 	};
 };

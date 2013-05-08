@@ -53,3 +53,7 @@
 		};
 	};
 };
+
+&mdio { status = "okay"; };
+&eth { status = "disabled"; };
+&ethphy { reg = <8>; };
