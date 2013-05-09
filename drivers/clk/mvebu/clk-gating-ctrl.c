@@ -128,6 +128,13 @@ static const struct mvebu_soc_descr __initconst armada_370_gating_descr[] = {
 	{ "sata1", NULL, 30 },
 	{ }
 };
+
+static void __init armada_370_gating_init(struct device_node *np)
+{
+	mvebu_clk_gating_setup(np, armada_370_gating_descr);
+}
+CLK_OF_DECLARE(armada_370_gating, "marvell,armada-370-gating-clock",
+	       armada_370_gating_init);
 #endif
 
 #ifdef CONFIG_MACH_ARMADA_XP
@@ -157,6 +164,13 @@ static const struct mvebu_soc_descr __initconst armada_xp_gating_descr[] = {
 	{ "sata1", "sata1lnk", 30 },
 	{ }
 };
+
+static void __init armada_xp_gating_init(struct device_node *np)
+{
+	mvebu_clk_gating_setup(np, armada_xp_gating_descr);
+}
+CLK_OF_DECLARE(armada_xp_gating, "marvell,armada-xp-gating-clock",
+	       armada_xp_gating_init);
 #endif
 
 #ifdef CONFIG_ARCH_DOVE
@@ -181,6 +195,13 @@ static const struct mvebu_soc_descr __initconst dove_gating_descr[] = {
 	{ "gephy", NULL, 30 },
 	{ }
 };
+
+static void __init dove_gating_init(struct device_node *np)
+{
+	mvebu_clk_gating_setup(np, dove_gating_descr);
+}
+CLK_OF_DECLARE(dove_gating, "marvell,dove-gating-clock",
+	       dove_gating_init);
 #endif
 
 #ifdef CONFIG_ARCH_KIRKWOOD
@@ -203,48 +224,11 @@ static const struct mvebu_soc_descr __initconst kirkwood_gating_descr[] = {
 	{ "tdm", NULL, 20 },
 	{ }
 };
-#endif
 
-static const __initdata struct of_device_id clk_gating_match[] = {
-#ifdef CONFIG_MACH_ARMADA_370
-	{
-		.compatible = "marvell,armada-370-gating-clock",
-		.data = armada_370_gating_descr,
-	},
-#endif
-
-#ifdef CONFIG_MACH_ARMADA_XP
-	{
-		.compatible = "marvell,armada-xp-gating-clock",
-		.data = armada_xp_gating_descr,
-	},
-#endif
-
-#ifdef CONFIG_ARCH_DOVE
-	{
-		.compatible = "marvell,dove-gating-clock",
-		.data = dove_gating_descr,
-	},
-#endif
-
-#ifdef CONFIG_ARCH_KIRKWOOD
-	{
-		.compatible = "marvell,kirkwood-gating-clock",
-		.data = kirkwood_gating_descr,
-	},
-#endif
-
-	{ }
-};
-
-void __init mvebu_gating_clk_init(void)
+static void __init kirkwood_gating_init(struct device_node *np)
 {
-	struct device_node *np;
-
-	for_each_matching_node(np, clk_gating_match) {
-		const struct of_device_id *match =
-			of_match_node(clk_gating_match, np);
-		mvebu_clk_gating_setup(np,
-		       (const struct mvebu_soc_descr *)match->data);
-	}
+	mvebu_clk_gating_setup(np, kirkwood_gating_descr);
 }
+CLK_OF_DECLARE(kirkwood_gating, "marvell,kirkwood-gating-clock",
+	       kirkwood_gating_init);
+#endif

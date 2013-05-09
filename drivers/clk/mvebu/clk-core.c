@@ -17,7 +17,6 @@
 #include <linux/of_address.h>
 #include <linux/io.h>
 #include <linux/of.h>
-#include "clk-core.h"
 
 struct core_ratio {
 	int id;
@@ -35,7 +34,7 @@ struct core_clocks {
 static struct clk_onecell_data clk_data;
 
 static void __init mvebu_clk_core_setup(struct device_node *np,
-				 struct core_clocks *coreclk)
+					const struct core_clocks *coreclk)
 {
 	const char *tclk_name = "tclk";
 	const char *cpuclk_name = "cpuclk";
@@ -243,6 +242,13 @@ static const struct core_clocks armada_370_core_clocks = {
 	.num_ratios = ARRAY_SIZE(armada_370_xp_core_ratios),
 };
 
+static void __init armada_370_core_clk_init(struct device_node *np)
+{
+	mvebu_clk_core_setup(np, &armada_370_core_clocks);
+}
+CLK_OF_DECLARE(armada_370_core_clk, "marvell,armada-370-core-clock",
+	       armada_370_core_clk_init);
+
 static const u32 __initconst armada_xp_cpu_frequencies[] = {
 	1000000000,
 	1066000000,
@@ -312,6 +318,12 @@ static const struct core_clocks armada_xp_core_clocks = {
 	.num_ratios = ARRAY_SIZE(armada_370_xp_core_ratios),
 };
 
+static void __init armada_xp_core_clk_init(struct device_node *np)
+{
+	mvebu_clk_core_setup(np, &armada_xp_core_clocks);
+}
+CLK_OF_DECLARE(armada_xp_core_clk, "marvell,armada-xp-core-clock",
+	       armada_xp_core_clk_init);
 #endif /* CONFIG_MACH_ARMADA_370_XP */
 
 /*
@@ -447,6 +459,12 @@ static const struct core_clocks dove_core_clocks = {
 	.ratios = dove_core_ratios,
 	.num_ratios = ARRAY_SIZE(dove_core_ratios),
 };
+
+static void __init dove_core_clk_init(struct device_node *np)
+{
+	mvebu_clk_core_setup(np, &dove_core_clocks);
+}
+CLK_OF_DECLARE(dove_core_clk, "marvell,dove-core-clock", dove_core_clk_init);
 #endif /* CONFIG_ARCH_DOVE */
 
 /*
@@ -582,6 +600,13 @@ static const struct core_clocks kirkwood_core_clocks = {
 	.num_ratios = ARRAY_SIZE(kirkwood_core_ratios),
 };
 
+static void __init kirkwood_core_clk_init(struct device_node *np)
+{
+	mvebu_clk_core_setup(np, &kirkwood_core_clocks);
+}
+CLK_OF_DECLARE(kirkwood_core_clk, "marvell,kirkwood-core-clock",
+	       kirkwood_core_clk_init);
+
 static const u32 __initconst mv88f6180_cpu_frequencies[] = {
 	0, 0, 0, 0, 0,
 	600000000,
@@ -629,47 +654,11 @@ static const struct core_clocks mv88f6180_core_clocks = {
 	.ratios = kirkwood_core_ratios,
 	.num_ratios = ARRAY_SIZE(kirkwood_core_ratios),
 };
-#endif /* CONFIG_ARCH_KIRKWOOD */
 
-static const __initdata struct of_device_id clk_core_match[] = {
-#ifdef CONFIG_MACH_ARMADA_370_XP
-	{
-		.compatible = "marvell,armada-370-core-clock",
-		.data = &armada_370_core_clocks,
-	},
-	{
-		.compatible = "marvell,armada-xp-core-clock",
-		.data = &armada_xp_core_clocks,
-	},
-#endif
-#ifdef CONFIG_ARCH_DOVE
-	{
-		.compatible = "marvell,dove-core-clock",
-		.data = &dove_core_clocks,
-	},
-#endif
-
-#ifdef CONFIG_ARCH_KIRKWOOD
-	{
-		.compatible = "marvell,kirkwood-core-clock",
-		.data = &kirkwood_core_clocks,
-	},
-	{
-		.compatible = "marvell,mv88f6180-core-clock",
-		.data = &mv88f6180_core_clocks,
-	},
-#endif
-
-	{ }
-};
-
-void __init mvebu_core_clk_init(void)
+static void __init mv88f6180_core_clk_init(struct device_node *np)
 {
-	struct device_node *np;
-
-	for_each_matching_node(np, clk_core_match) {
-		const struct of_device_id *match =
-			of_match_node(clk_core_match, np);
-		mvebu_clk_core_setup(np, (struct core_clocks *)match->data);
-	}
+	mvebu_clk_core_setup(np, &mv88f6180_core_clocks);
 }
+CLK_OF_DECLARE(mv88f6180_core_clk, "marvell,mv88f6180-core-clock",
+	       mv88f6180_core_clk_init);
+#endif /* CONFIG_ARCH_KIRKWOOD */
