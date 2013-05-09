@@ -45,7 +45,7 @@ static void __init dove_legacy_clk_init(void)
 
 static void __init dove_of_clk_init(void)
 {
-	mvebu_clocks_init();
+	of_clk_init(NULL);
 	dove_legacy_clk_init();
 }
 
