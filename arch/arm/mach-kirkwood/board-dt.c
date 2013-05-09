@@ -61,7 +61,7 @@ static void __init kirkwood_legacy_clk_init(void)
 
 static void __init kirkwood_of_clk_init(void)
 {
-	mvebu_clocks_init();
+	of_clk_init(NULL);
 	kirkwood_legacy_clk_init();
 }
 
