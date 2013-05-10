@@ -313,8 +313,6 @@ extern void schedule_preempt_disabled(void);
 struct nsproxy;
 struct user_namespace;
 
-#include <linux/aio.h>
-
 #ifdef CONFIG_MMU
 extern void arch_pick_mmap_layout(struct mm_struct *mm);
 extern unsigned long
@@ -1412,6 +1410,10 @@ struct task_struct {
 #endif
 #ifdef CONFIG_UPROBES
 	struct uprobe_task *utask;
+#endif
+#if defined(CONFIG_BCACHE) || defined(CONFIG_BCACHE_MODULE)
+	unsigned int	sequential_io;
+	unsigned int	sequential_io_avg;
 #endif
 };
 
