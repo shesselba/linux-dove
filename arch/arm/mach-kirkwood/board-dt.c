@@ -12,15 +12,17 @@
 
 #include <linux/kernel.h>
 #include <linux/init.h>
+#include <linux/dma-mapping.h>
 #include <linux/of.h>
 #include <linux/of_platform.h>
 #include <linux/clk-provider.h>
 #include <linux/clk/mvebu.h>
+#include <linux/clocksource.h>
+#include <linux/irqchip.h>
 #include <linux/kexec.h>
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
 #include <mach/bridge-regs.h>
-#include <linux/platform_data/usb-ehci-orion.h>
 #include <plat/irq.h>
 #include <plat/common.h>
 #include "common.h"
@@ -53,21 +55,25 @@ static void __init kirkwood_legacy_clk_init(void)
 	clkspec.args[0] = CGC_BIT_PEX1;
 	orion_clkdev_add("1", "pcie",
 			 of_clk_get_from_provider(&clkspec));
-
-	clkspec.args[0] = CGC_BIT_SDIO;
-	orion_clkdev_add(NULL, "mvsdio",
-			 of_clk_get_from_provider(&clkspec));
 }
 
-static void __init kirkwood_of_clk_init(void)
+static void __init kirkwood_dt_time_init(void)
 {
 	of_clk_init(NULL);
-	kirkwood_legacy_clk_init();
+	clocksource_of_init();
+}
+
+static void __init kirkwood_dt_init_early(void)
+{
+	init_dma_coherent_pool_size(SZ_1M);
+	mvebu_mbus_init("marvell,kirkwood-mbus",
+			BRIDGE_WINS_BASE, BRIDGE_WINS_SZ,
+			DDR_WINDOW_CPU_BASE, DDR_WINDOW_CPU_SZ);
 }
 
 static void __init kirkwood_dt_init(void)
 {
-	pr_info("Kirkwood: %s, TCLK=%d.\n", kirkwood_id(), kirkwood_tclk);
+	pr_info("Kirkwood: %s\n", kirkwood_id());
 
 	/*
 	 * Disable propagation of mbus errors to the CPU local bus,
@@ -82,7 +88,7 @@ static void __init kirkwood_dt_init(void)
 	kirkwood_l2_init();
 
 	/* Setup root of clk tree */
-	kirkwood_of_clk_init();
+	kirkwood_legacy_clk_init();
 
 	kirkwood_cpuidle_init();
 
@@ -147,9 +153,9 @@ static const char * const kirkwood_dt_board_compat[] = {
 DT_MACHINE_START(KIRKWOOD_DT, "Marvell Kirkwood (Flattened Device Tree)")
 	/* Maintainer: Jason Cooper <jason@lakedaemon.net> */
 	.map_io		= kirkwood_map_io,
-	.init_early	= kirkwood_init_early,
-	.init_irq	= orion_dt_init_irq,
-	.init_time	= kirkwood_timer_init,
+	.init_early	= kirkwood_dt_init_early,
+	.init_irq	= irqchip_init,
+	.init_time	= kirkwood_dt_time_init,
 	.init_machine	= kirkwood_dt_init,
 	.restart	= kirkwood_restart,
 	.dt_compat	= kirkwood_dt_board_compat,

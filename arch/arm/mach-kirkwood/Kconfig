@@ -2,68 +2,82 @@ if ARCH_KIRKWOOD
 
 menu "Marvell Kirkwood Implementations"
 
+config KIRKWOOD_LEGACY
+	bool
+
 config MACH_D2NET_V2
 	bool "LaCie d2 Network v2 NAS Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  LaCie d2 Network v2 NAS.
 
 config MACH_DB88F6281_BP
 	bool "Marvell DB-88F6281-BP Development Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  Marvell DB-88F6281-BP Development Board.
 
 config MACH_DOCKSTAR
 	bool "Seagate FreeAgent DockStar"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  Seagate FreeAgent DockStar.
 
 config MACH_ESATA_SHEEVAPLUG
 	bool "Marvell eSATA SheevaPlug Reference Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  Marvell eSATA SheevaPlug Reference Board.
 
 config MACH_GURUPLUG
 	bool "Marvell GuruPlug Reference Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  Marvell GuruPlug Reference Board.
 
 config MACH_INETSPACE_V2
 	bool "LaCie Internet Space v2 NAS Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  LaCie Internet Space v2 NAS.
 
 config MACH_MV88F6281GTW_GE
 	bool "Marvell 88F6281 GTW GE Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  Marvell 88F6281 GTW GE Board.
 
 config MACH_NET2BIG_V2
 	bool "LaCie 2Big Network v2 NAS Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  LaCie 2Big Network v2 NAS.
 
 config MACH_NET5BIG_V2
 	bool "LaCie 5Big Network v2 NAS Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  LaCie 5Big Network v2 NAS.
 
 config MACH_NETSPACE_MAX_V2
 	bool "LaCie Network Space Max v2 NAS Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  LaCie Network Space Max v2 NAS.
 
 config MACH_NETSPACE_V2
 	bool "LaCie Network Space v2 NAS Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  LaCie Network Space v2 NAS.
@@ -74,6 +88,7 @@ config MACH_OPENRD
 config MACH_OPENRD_BASE
 	bool "Marvell OpenRD Base Board"
 	select MACH_OPENRD
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  Marvell OpenRD Base Board.
@@ -81,6 +96,7 @@ config MACH_OPENRD_BASE
 config MACH_OPENRD_CLIENT
 	bool "Marvell OpenRD Client Board"
 	select MACH_OPENRD
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  Marvell OpenRD Client Board.
@@ -88,36 +104,42 @@ config MACH_OPENRD_CLIENT
 config MACH_OPENRD_ULTIMATE
 	bool "Marvell OpenRD Ultimate Board"
 	select MACH_OPENRD
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  Marvell OpenRD Ultimate Board.
 
 config MACH_RD88F6192_NAS
 	bool "Marvell RD-88F6192-NAS Reference Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  Marvell RD-88F6192-NAS Reference Board.
 
 config MACH_RD88F6281
 	bool "Marvell RD-88F6281 Reference Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  Marvell RD-88F6281 Reference Board.
 
 config MACH_SHEEVAPLUG
 	bool "Marvell SheevaPlug Reference Board"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  Marvell SheevaPlug Reference Board.
 
 config MACH_T5325
 	bool "HP t5325 Thin Client"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  HP t5325 Thin Client.
 
 config MACH_TS219
 	bool "QNAP TS-110, TS-119, TS-119P+, TS-210, TS-219, TS-219P and TS-219P+ Turbo NAS"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  QNAP TS-110, TS-119, TS-119P+, TS-210, TS-219, TS-219P and
@@ -125,6 +147,7 @@ config MACH_TS219
 
 config MACH_TS41X
 	bool "QNAP TS-410, TS-410U, TS-419P, TS-419P+ and TS-419U Turbo NAS"
+	select KIRKWOOD_LEGACY
 	help
 	  Say 'Y' here if you want your kernel to support the
 	  QNAP TS-410, TS-410U, TS-419P, TS-419P+ and TS-419U Turbo
@@ -134,6 +157,8 @@ comment "Device tree entries"
 
 config ARCH_KIRKWOOD_DT
 	bool "Marvell Kirkwood Flattened Device Tree"
+	select ORION_IRQCHIP
+	select ORION_TIMER
 	select POWER_SUPPLY
 	select POWER_RESET
 	select POWER_RESET_GPIO
