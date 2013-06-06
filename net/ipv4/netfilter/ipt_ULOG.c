@@ -231,8 +231,10 @@ static void ipt_ulog_packet(struct net *net,
 	put_unaligned(tv.tv_usec, &pm->timestamp_usec);
 	put_unaligned(skb->mark, &pm->mark);
 	pm->hook = hooknum;
-	if (prefix != NULL)
-		strncpy(pm->prefix, prefix, sizeof(pm->prefix));
+	if (prefix != NULL) {
+		strncpy(pm->prefix, prefix, sizeof(pm->prefix) - 1);
+		pm->prefix[sizeof(pm->prefix) - 1] = '\0';
+	}
 	else if (loginfo->prefix[0] != '\0')
 		strncpy(pm->prefix, loginfo->prefix, sizeof(pm->prefix));
 	else
@@ -327,6 +329,12 @@ static void ipt_logfn(struct net *net,
 static int ulog_tg_check(const struct xt_tgchk_param *par)
 {
 	const struct ipt_ulog_info *loginfo = par->targinfo;
+
+	if (!par->net->xt.ulog_warn_deprecated) {
+		pr_info("ULOG is deprecated and it will be removed soon, "
+			"use NFLOG instead\n");
+		par->net->xt.ulog_warn_deprecated = true;
+	}
 
 	if (loginfo->prefix[sizeof(loginfo->prefix) - 1] != '\0') {
 		pr_debug("prefix not null-terminated\n");

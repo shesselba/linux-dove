@@ -487,7 +487,7 @@ drop:
 EXPORT_SYMBOL_GPL(ip_tunnel_rcv);
 
 void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
-		    const struct iphdr *tnl_params)
+		    const struct iphdr *tnl_params, const u8 protocol)
 {
 	struct ip_tunnel *tunnel = netdev_priv(dev);
 	const struct iphdr *inner_iph;
@@ -503,6 +503,7 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
 
 	inner_iph = (const struct iphdr *)skb_inner_network_header(skb);
 
+	memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
 	dst = tnl_params->daddr;
 	if (dst == 0) {
 		/* NBMA tunnel */
@@ -658,7 +659,6 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
 
 	skb_dst_drop(skb);
 	skb_dst_set(skb, &rt->dst);
-	memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
 
 	/* Push down and install the IP header. */
 	skb_push(skb, sizeof(struct iphdr));
@@ -670,7 +670,7 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
 	iph->version	=	4;
 	iph->ihl	=	sizeof(struct iphdr) >> 2;
 	iph->frag_off	=	df;
-	iph->protocol	=	tnl_params->protocol;
+	iph->protocol	=	protocol;
 	iph->tos	=	ip_tunnel_ecn_encap(tos, inner_iph, skb);
 	iph->daddr	=	fl4.daddr;
 	iph->saddr	=	fl4.saddr;
