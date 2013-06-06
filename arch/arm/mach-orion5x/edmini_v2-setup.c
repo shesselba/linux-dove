@@ -24,7 +24,6 @@
 #include <linux/pci.h>
 #include <linux/irq.h>
 #include <linux/mtd/physmap.h>
-#include <linux/mv643xx_eth.h>
 #include <linux/leds.h>
 #include <linux/gpio_keys.h>
 #include <linux/input.h>
@@ -96,14 +95,6 @@ static struct platform_device edmini_v2_nor_flash = {
 };
 
 /*****************************************************************************
- * Ethernet
- ****************************************************************************/
-
-static struct mv643xx_eth_platform_data edmini_v2_eth_data = {
-	.phy_addr	= 8,
-};
-
-/*****************************************************************************
  * RTC 5C372a on I2C bus
  ****************************************************************************/
 
@@ -152,7 +143,6 @@ void __init edmini_v2_init(void)
 	 * Configure peripherals.
 	 */
 	orion5x_ehci0_init();
-	orion5x_eth_init(&edmini_v2_eth_data);
 
 	mvebu_mbus_add_window("devbus-boot", EDMINI_V2_NOR_BOOT_BASE,
 			      EDMINI_V2_NOR_BOOT_SIZE);
