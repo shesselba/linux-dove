@@ -104,7 +104,7 @@ static irqreturn_t orion_clkevt_irq_handler(int irq, void *dev_id)
 
 static struct irqaction orion_clkevt_irq = {
 	.name		= "orion_event",
-	.flags		= IRQF_DISABLED | IRQF_TIMER,
+	.flags		= IRQF_TIMER,
 	.handler	= orion_clkevt_irq_handler,
 };
 
@@ -143,6 +143,7 @@ static void __init orion_timer_init(struct device_node *np)
 
 	ticks_per_jiffy = (clk_get_rate(clk) + HZ/2) / HZ;
 	orion_clkevt.cpumask = cpumask_of(0);
+	orion_clkevt.irq = irq;
 	clockevents_config_and_register(&orion_clkevt, clk_get_rate(clk),
 					ORION_ONESHOT_MIN, ORION_ONESHOT_MAX);
 }
