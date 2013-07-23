@@ -21,6 +21,11 @@
 	       gpio1 = &gpio1;
 	};
 
+	mbus {
+		compatible = "marvell,kirkwood-mbus", "simple-bus";
+		controller = <&mbusc>;
+	};
+
 	ocp@f1000000 {
 		compatible = "simple-bus";
 		ranges = <0x00000000 0xf1000000 0x0100000
@@ -52,6 +57,11 @@
 			reg = <0x20110 0x8>;
 			interrupts = <1>;
 			marvell,#interrupts = <6>;
+		};
+
+		mbusc: mbus-controller@20000 {
+			compatible = "marvell,mbus-controller";
+			reg = <0x20000 0x80>, <0x1500 0x20>;
 		};
 
 		core_clk: core-clocks@10030 {
