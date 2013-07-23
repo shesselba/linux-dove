@@ -20,6 +20,18 @@ Required properties:
 		 registers that control the MBus, which is typically contained
 		 within the internal register window (see below).
 
+Optional properties:
+
+- pcie-mem-aperture:	This optional property contains the aperture for
+			the memory region of the PCIe driver.
+			If it's defined, it must encode the base address and
+			size for the address decoding windows allocated for
+			the PCIe memory region.
+
+- pcie-io-aperture:	Just as explained for the above property, this
+			optional property contains the aperture for the
+			I/O region of the PCIe driver.
+
 * Marvell MBus controller
 
 Required properties:
@@ -38,6 +50,8 @@ Example:
 		#address-cells = <2>;
 		#size-cells = <1>;
 		controller = <&mbusc>;
+		pcie-mem-aperture = <0xe0000000 0x8000000>;
+		pcie-io-aperture  = <0xe8000000 0x100000>;
 
 		internal-regs {
 			compatible = "simple-bus";
