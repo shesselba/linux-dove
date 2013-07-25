@@ -905,7 +905,8 @@ int __init mvebu_mbus_dt_init(void)
 		return -EINVAL;
 	}
 
-	controller = of_find_node_by_phandle(be32_to_cpup(prop));
+	controller = of_find_compatible_node(NULL, NULL,
+					     "marvell,mbus-controller");
 	if (!controller) {
 		pr_err("could not find an 'mbus-controller' node\n");
 		return -ENODEV;
