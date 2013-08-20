@@ -30,7 +30,6 @@
 #include <linux/module.h>
 #include <linux/sched_clock.h>
 #include <linux/percpu.h>
-#include <linux/time-armada-370-xp.h>
 
 /*
  * Timer block registers.
@@ -217,13 +216,11 @@ static struct notifier_block armada_370_xp_timer_cpu_nb = {
 	.notifier_call = armada_370_xp_timer_cpu_notify,
 };
 
-void __init armada_370_xp_timer_init(void)
+void __init armada_370_xp_timer_init(struct device_node *np)
 {
 	u32 u;
-	struct device_node *np;
 	int res;
 
-	np = of_find_compatible_node(NULL, NULL, "marvell,armada-370-xp-timer");
 	timer_base = of_iomap(np, 0);
 	WARN_ON(!timer_base);
 	local_base = of_iomap(np, 1);
@@ -293,3 +290,5 @@ void __init armada_370_xp_timer_init(void)
 	if (!res)
 		armada_370_xp_timer_setup(this_cpu_ptr(armada_370_xp_evt));
 }
+CLOCKSOURCE_OF_DECLARE(armada_370_xp_timer, "marvell,armada-370-xp-timer",
+		       armada_370_xp_timer_init);
