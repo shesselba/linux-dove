@@ -701,6 +701,4 @@ void __init vtwm_clk_init(void __iomem *base)
 		return;
 
 	pmc_base = base;
-
-	of_clk_init(NULL);
 }
