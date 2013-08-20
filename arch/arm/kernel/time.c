@@ -22,6 +22,7 @@
 #include <linux/errno.h>
 #include <linux/profile.h>
 #include <linux/timer.h>
+#include <linux/clk-provider.h>
 #include <linux/clocksource.h>
 #include <linux/irq.h>
 #include <linux/sched_clock.h>
@@ -116,6 +117,9 @@ int __init register_persistent_clock(clock_access_fn read_boot,
 
 void __init time_init(void)
 {
+	/* initalize common clocks before timers */
+	of_clk_init(NULL);
+
 	if (machine_desc->init_time)
 		machine_desc->init_time();
 	else
