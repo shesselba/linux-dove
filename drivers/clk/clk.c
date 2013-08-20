@@ -2117,9 +2117,15 @@ EXPORT_SYMBOL_GPL(of_clk_get_parent_name);
 void __init of_clk_init(const struct of_device_id *matches)
 {
 	struct device_node *np;
+	static bool table_done;
 
-	if (!matches)
+	if (!matches) {
+		/* init __clk_of_table drivers only once */
+		if (table_done)
+			return;
 		matches = __clk_of_table;
+		table_done = true;
+	}
 
 	for_each_matching_node(np, matches) {
 		const struct of_device_id *match = of_match_node(matches, np);
