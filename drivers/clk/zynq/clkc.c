@@ -21,6 +21,7 @@
 #include <linux/clk/zynq.h>
 #include <linux/clk-provider.h>
 #include <linux/of.h>
+#include <linux/of_address.h>
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/io.h>
@@ -203,9 +204,19 @@ static void __init zynq_clk_setup(struct device_node *np)
 	const char *periph_parents[4];
 	const char *swdt_ext_clk_mux_parents[2];
 	const char *can_mio_mux_parents[NUM_MIO_PINS];
+	struct device_node *slcrnp;
 
 	pr_info("Zynq clock init\n");
 
+	slcrnp = of_find_compatible_node(NULL, NULL, "xlnx,zynq-slcr");
+	if (WARN_ON(!slcrnp))
+		return;
+
+	zynq_slcr_base_priv = of_iomap(slcrnp, 0);
+	of_node_put(slcrnp);
+	if (WARN_ON(!zynq_slcr_base_priv))
+		return;
+	
 	/* get clock output names from DT */
 	for (i = 0; i < clk_max; i++) {
 		if (of_property_read_string_index(np, "clock-output-names",
@@ -528,9 +539,3 @@ static void __init zynq_clk_setup(struct device_node *np)
 }
 
 CLK_OF_DECLARE(zynq_clkc, "xlnx,ps7-clkc", zynq_clk_setup);
-
-void __init zynq_clock_init(void __iomem *slcr_base)
-{
-	zynq_slcr_base_priv = slcr_base;
-	of_clk_init(NULL);
-}
