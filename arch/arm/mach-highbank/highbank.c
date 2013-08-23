@@ -27,7 +27,6 @@
 #include <linux/of_address.h>
 #include <linux/smp.h>
 #include <linux/amba/bus.h>
-#include <linux/clk-provider.h>
 
 #include <asm/cacheflush.h>
 #include <asm/cputype.h>
@@ -88,20 +87,6 @@ static void __init highbank_init_irq(void)
 #endif
 }
 
-static void __init highbank_timer_init(void)
-{
-	struct device_node *np;
-
-	/* Map system registers */
-	np = of_find_compatible_node(NULL, NULL, "calxeda,hb-sregs");
-	sregs_base = of_iomap(np, 0);
-	WARN_ON(!sregs_base);
-
-	of_clk_init(NULL);
-
-	clocksource_of_init();
-}
-
 static void highbank_power_off(void)
 {
 	highbank_set_pwr_shutdown();
@@ -160,6 +145,13 @@ static struct notifier_block highbank_platform_nb = {
 
 static void __init highbank_init(void)
 {
+	struct device_node *np;
+
+	/* Map system registers */
+	np = of_find_compatible_node(NULL, NULL, "calxeda,hb-sregs");
+	sregs_base = of_iomap(np, 0);
+	WARN_ON(!sregs_base);
+
 	pm_power_off = highbank_power_off;
 	highbank_pm_init();
 
@@ -178,7 +170,6 @@ static const char *highbank_match[] __initconst = {
 DT_MACHINE_START(HIGHBANK, "Highbank")
 	.smp		= smp_ops(highbank_smp_ops),
 	.init_irq	= highbank_init_irq,
-	.init_time	= highbank_timer_init,
 	.init_machine	= highbank_init,
 	.dt_compat	= highbank_match,
 	.restart	= highbank_restart,
