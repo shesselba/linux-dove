@@ -830,10 +830,3 @@ static void __init of_u300_syscon_mclk_init(struct device_node *np)
 }
 CLK_OF_DECLARE(u300_syscon_mclk,
 	"stericsson,u300-syscon-mclk", of_u300_syscon_mclk_init);
-
-void __init u300_clk_init(void __iomem *base)
-{
-	syscon_vbase = base;
-
-	of_clk_init(NULL);
-}

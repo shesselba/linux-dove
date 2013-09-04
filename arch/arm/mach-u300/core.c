@@ -9,6 +9,7 @@
  * Author: Linus Walleij <linus.walleij@stericsson.com>
  */
 #include <linux/clk.h>
+#include <linux/clk-provider.h>
 #include <linux/clocksource.h>
 #include <linux/irqchip.h>
 #include <linux/kernel.h>
@@ -16,7 +17,6 @@
 #include <linux/of_platform.h>
 #include <linux/pinctrl/machine.h>
 #include <linux/pinctrl/pinconf-generic.h>
-#include <linux/platform_data/clk-u300.h>
 #include <linux/platform_data/u300-syscon.h>
 
 #include <asm/mach/arch.h>
@@ -352,7 +352,7 @@ static void __init u300_init_irq_dt(void)
 	writew(val, syscon_base + U300_SYSCON_PMCR);
 
 	/* initialize clocking early, we want to clock the INTCON */
-	u300_clk_init(syscon_base);
+	of_clk_init(NULL);
 
 	/* Bootstrap EMIF and SEMI clocks */
 	clk = clk_get_sys("pl172", NULL);
