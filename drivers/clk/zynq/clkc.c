@@ -562,8 +562,3 @@ static void __init zynq_clk_setup(struct device_node *np)
 	of_clk_add_provider(np, of_clk_src_onecell_get, &clk_data);
 }
 CLK_OF_DECLARE(zynq_clkc, "xlnx,ps7-clkc", zynq_clk_setup);
-
-void __init zynq_clock_init(void __iomem *slcr_base)
-{
-	of_clk_init(NULL);
-}

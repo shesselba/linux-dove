@@ -100,15 +100,12 @@ int __init zynq_slcr_init(void)
 		pr_err("%s: Unable to map I/O memory\n", __func__);
 		BUG();
 	}
+	of_node_put(np);
 
 	/* unlock the SLCR so that registers can be changed */
 	writel(SLCR_UNLOCK_MAGIC, zynq_slcr_base + SLCR_UNLOCK_OFFSET);
 
 	pr_info("%s mapped to %p\n", np->name, zynq_slcr_base);
-
-	zynq_clock_init(zynq_slcr_base);
-
-	of_node_put(np);
 
 	return 0;
 }
