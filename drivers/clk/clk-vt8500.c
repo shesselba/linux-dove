@@ -15,10 +15,13 @@
 
 #include <linux/io.h>
 #include <linux/of.h>
+#include <linux/of_address.h>
 #include <linux/slab.h>
 #include <linux/bitops.h>
 #include <linux/clkdev.h>
 #include <linux/clk-provider.h>
+
+#define LEGACY_PMC_BASE		0xD8130000
 
 /* All clocks share the same lock as none can be changed concurrently */
 static DEFINE_SPINLOCK(_lock);
@@ -626,6 +629,21 @@ const struct clk_ops vtwm_pll_ops = {
 	.recalc_rate = vtwm_pll_recalc_rate,
 };
 
+static __init void vtwm_set_pmc_base(void)
+{
+	struct device_node *np =
+		of_find_compatible_node(NULL, NULL, "via,vt8500-pmc");
+
+	if (np)
+		pmc_base = of_iomap(np, 0);
+	else
+		pmc_base = ioremap(LEGACY_PMC_BASE, 0x1000);
+	of_node_put(np);
+
+	if (!pmc_base)
+		pr_err("%s:of_iomap(pmc) failed\n", __func__);
+}
+
 static __init void vtwm_pll_clk_init(struct device_node *node, int pll_type)
 {
 	u32 reg;
@@ -635,6 +653,9 @@ static __init void vtwm_pll_clk_init(struct device_node *node, int pll_type)
 	const char *parent_name;
 	struct clk_init_data init;
 	int rc;
+
+	if (!pmc_base)
+		vtwm_set_pmc_base();
 
 	rc = of_property_read_u32(node, "reg", &reg);
 	if (WARN_ON(rc))
