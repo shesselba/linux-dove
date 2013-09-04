@@ -11,6 +11,7 @@
 #include <linux/err.h>
 #include <linux/io.h>
 #include <linux/of.h>
+#include <linux/of_address.h>
 #include <linux/platform_data/u300-syscon.h>
 #include <linux/spinlock.h>
 
@@ -75,6 +76,16 @@
 
 /* Global syscon virtual base */
 static void __iomem *syscon_vbase;
+
+static void __init u300_set_syscon_base(void)
+{
+	struct device_node *np =
+		of_find_compatible_node(NULL, NULL, "stericsson,u300-syscon");
+	syscon_vbase = of_iomap(np, 0);
+	if (!syscon_vbase)
+		pr_crit("could not remap syscon\n");
+	of_node_put(np);
+}
 
 /**
  * struct clk_syscon - U300 syscon clock
@@ -535,6 +546,9 @@ static void __init of_u300_syscon_clk_init(struct device_node *np)
 	u32 clk_id;
 	int i;
 
+	if (!syscon_vbase)
+		u300_set_syscon_base();
+
 	if (of_property_read_u32(np, "clock-type", &clk_type)) {
 		pr_err("%s: syscon clock \"%s\" missing clock-type property\n",
 		       __func__, clk_name);
@@ -593,6 +607,8 @@ static void __init of_u300_syscon_clk_init(struct device_node *np)
 			clk_register_clkdev(clk, NULL, "intcon");
 	}
 }
+CLK_OF_DECLARE(u300_syscon_clk,
+	"stericsson,u300-syscon-clk", of_u300_syscon_clk_init);
 
 /**
  * struct clk_mclk - U300 MCLK clock (MMC/SD clock)
@@ -804,35 +820,20 @@ static void __init of_u300_syscon_mclk_init(struct device_node *np)
 	const char *clk_name = np->name;
 	const char *parent_name;
 
+	if (!syscon_vbase)
+		u300_set_syscon_base();
+
 	parent_name = of_clk_get_parent_name(np, 0);
 	clk = mclk_clk_register(NULL, clk_name, parent_name, false);
 	if (!IS_ERR(clk))
 		of_clk_add_provider(np, of_clk_src_simple_get, clk);
 }
-
-static const struct of_device_id u300_clk_match[] __initconst = {
-	{
-		.compatible = "fixed-clock",
-		.data = of_fixed_clk_setup,
-	},
-	{
-		.compatible = "fixed-factor-clock",
-		.data = of_fixed_factor_clk_setup,
-	},
-	{
-		.compatible = "stericsson,u300-syscon-clk",
-		.data = of_u300_syscon_clk_init,
-	},
-	{
-		.compatible = "stericsson,u300-syscon-mclk",
-		.data = of_u300_syscon_mclk_init,
-	},
-};
-
+CLK_OF_DECLARE(u300_syscon_mclk,
+	"stericsson,u300-syscon-mclk", of_u300_syscon_mclk_init);
 
 void __init u300_clk_init(void __iomem *base)
 {
 	syscon_vbase = base;
 
-	of_clk_init(u300_clk_match);
+	of_clk_init(NULL);
 }
