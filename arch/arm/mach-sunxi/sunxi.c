@@ -10,6 +10,7 @@
  * warranty of any kind, whether express or implied.
  */
 
+#include <linux/clk-provider.h>
 #include <linux/clocksource.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
@@ -19,8 +20,6 @@
 #include <linux/of_platform.h>
 #include <linux/io.h>
 #include <linux/reboot.h>
-
-#include <linux/clk/sunxi.h>
 
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
@@ -118,7 +117,7 @@ static void sunxi_setup_restart(void)
 
 static void __init sunxi_timer_init(void)
 {
-	sunxi_init_clocks();
+	of_clk_init(NULL);
 	clocksource_of_init();
 }
 
