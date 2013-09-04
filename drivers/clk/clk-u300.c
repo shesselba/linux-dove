@@ -832,22 +832,7 @@ static const struct of_device_id u300_clk_match[] __initconst = {
 
 void __init u300_clk_init(void __iomem *base)
 {
-	u16 val;
-
 	syscon_vbase = base;
-
-	/* Set system to run at PLL208, max performance, a known state. */
-	val = readw(syscon_vbase + U300_SYSCON_CCR);
-	val &= ~U300_SYSCON_CCR_CLKING_PERFORMANCE_MASK;
-	writew(val, syscon_vbase + U300_SYSCON_CCR);
-	/* Wait for the PLL208 to lock if not locked in yet */
-	while (!(readw(syscon_vbase + U300_SYSCON_CSR) &
-		 U300_SYSCON_CSR_PLL208_LOCK_IND));
-
-	/* Power management enable */
-	val = readw(syscon_vbase + U300_SYSCON_PMCR);
-	val |= U300_SYSCON_PMCR_PWR_MGNT_ENABLE;
-	writew(val, syscon_vbase + U300_SYSCON_PMCR);
 
 	of_clk_init(u300_clk_match);
 }

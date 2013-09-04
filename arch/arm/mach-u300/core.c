@@ -335,8 +335,22 @@ static struct of_dev_auxdata u300_auxdata_lookup[] __initdata = {
 static void __init u300_init_irq_dt(void)
 {
 	struct clk *clk;
+	u16 val;
 
 	u300_set_syscon_base();
+
+	/* Set system to run at PLL208, max performance, a known state. */
+	val = readw(syscon_base + U300_SYSCON_CCR);
+	val &= ~U300_SYSCON_CCR_CLKING_PERFORMANCE_MASK;
+	writew(val, syscon_base + U300_SYSCON_CCR);
+	/* Wait for the PLL208 to lock if not locked in yet */
+	while (!(readw(syscon_base + U300_SYSCON_CSR) &
+		 U300_SYSCON_CSR_PLL208_LOCK_IND));
+	/* Power management enable */
+	val = readw(syscon_base + U300_SYSCON_PMCR);
+	val |= U300_SYSCON_PMCR_PWR_MGNT_ENABLE;
+	writew(val, syscon_base + U300_SYSCON_PMCR);
+
 	/* initialize clocking early, we want to clock the INTCON */
 	u300_clk_init(syscon_base);
 
