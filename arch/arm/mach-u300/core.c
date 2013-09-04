@@ -137,6 +137,16 @@
 
 static void __iomem *syscon_base;
 
+static void __init u300_set_syscon_base(void)
+{
+	struct device_node *np =
+		of_find_compatible_node(NULL, NULL, "stericsson,u300-syscon");
+	syscon_base = of_iomap(np, 0);
+	if (!syscon_base)
+		pr_crit("could not remap syscon\n");
+	of_node_put(np);
+}
+
 /*
  * Static I/O mappings that are needed for booting the U300 platforms. The
  * only things we need are the areas where we find the timer, syscon and
@@ -324,19 +334,9 @@ static struct of_dev_auxdata u300_auxdata_lookup[] __initdata = {
 
 static void __init u300_init_irq_dt(void)
 {
-	struct device_node *syscon;
 	struct clk *clk;
 
-	syscon = of_find_node_by_path("/syscon@c0011000");
-	if (!syscon) {
-		pr_crit("could not find syscon node\n");
-		return;
-	}
-	syscon_base = of_iomap(syscon, 0);
-	if (!syscon_base) {
-		pr_crit("could not remap syscon\n");
-		return;
-	}
+	u300_set_syscon_base();
 	/* initialize clocking early, we want to clock the INTCON */
 	u300_clk_init(syscon_base);
 
