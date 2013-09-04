@@ -8,18 +8,19 @@
  * Core platform support, IRQ handling and device definitions.
  * Author: Linus Walleij <linus.walleij@stericsson.com>
  */
+#include <linux/clk.h>
+#include <linux/clocksource.h>
+#include <linux/irqchip.h>
 #include <linux/kernel.h>
+#include <linux/of_address.h>
+#include <linux/of_platform.h>
 #include <linux/pinctrl/machine.h>
 #include <linux/pinctrl/pinconf-generic.h>
 #include <linux/platform_data/clk-u300.h>
-#include <linux/irqchip.h>
-#include <linux/of_address.h>
-#include <linux/of_platform.h>
-#include <linux/clocksource.h>
-#include <linux/clk.h>
+#include <linux/platform_data/u300-syscon.h>
 
-#include <asm/mach/map.h>
 #include <asm/mach/arch.h>
+#include <asm/mach/map.h>
 
 /*
  * These are the large blocks of memory allocated for I/O.
@@ -133,31 +134,6 @@
 #define U300_VIDEOENC_BASE		(0xc0080000)
 /* XGAM Base */
 #define U300_XGAM_BASE			(0xd0000000)
-
-/*
- * SYSCON addresses applicable to the core machine.
- */
-
-/* Chip ID register 16bit (R/-) */
-#define U300_SYSCON_CIDR					(0x400)
-/* SMCR */
-#define U300_SYSCON_SMCR					(0x4d0)
-#define U300_SYSCON_SMCR_FIELD_MASK				(0x000e)
-#define U300_SYSCON_SMCR_SEMI_SREFACK_IND			(0x0008)
-#define U300_SYSCON_SMCR_SEMI_SREFREQ_ENABLE			(0x0004)
-#define U300_SYSCON_SMCR_SEMI_EXT_BOOT_MODE_ENABLE		(0x0002)
-/* CPU_SW_DBGEN Software Debug Enable 16bit (R/W) */
-#define U300_SYSCON_CSDR					(0x4f0)
-#define U300_SYSCON_CSDR_SW_DEBUG_ENABLE			(0x0001)
-/* PRINT_CONTROL Print Control 16bit (R/-) */
-#define U300_SYSCON_PCR						(0x4f8)
-#define U300_SYSCON_PCR_SERV_IND				(0x0001)
-/* BOOT_CONTROL 16bit (R/-) */
-#define U300_SYSCON_BCR						(0x4fc)
-#define U300_SYSCON_BCR_ACC_CPU_SUBSYS_VINITHI_IND		(0x0400)
-#define U300_SYSCON_BCR_APP_CPU_SUBSYS_VINITHI_IND		(0x0200)
-#define U300_SYSCON_BCR_EXTRA_BOOT_OPTION_MASK			(0x01FC)
-#define U300_SYSCON_BCR_APP_BOOT_SERV_MASK			(0x0003)
 
 static void __iomem *syscon_base;
 
