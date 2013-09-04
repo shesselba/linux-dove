@@ -9,25 +9,12 @@
  */
 
 #include <linux/init.h>
-#include <linux/clk-provider.h>
-#include <linux/clocksource.h>
-#include <linux/irqchip.h>
+#include <linux/mbus.h>
 #include <linux/of.h>
 #include <linux/of_platform.h>
-#include <linux/platform_data/usb-ehci-orion.h>
 #include <asm/hardware/cache-tauros2.h>
 #include <asm/mach/arch.h>
-#include <mach/dove.h>
-#include <mach/pm.h>
-#include <plat/common.h>
-#include <plat/irq.h>
 #include "common.h"
-
-static void __init dove_dt_time_init(void)
-{
-	of_clk_init(NULL);
-	clocksource_of_init();
-}
 
 static void __init dove_dt_init(void)
 {
@@ -47,7 +34,6 @@ static const char * const dove_dt_board_compat[] = {
 
 DT_MACHINE_START(DOVE_DT, "Marvell Dove (Flattened Device Tree)")
 	.map_io		= dove_map_io,
-	.init_time	= dove_dt_time_init,
 	.init_machine	= dove_dt_init,
 	.restart	= dove_restart,
 	.dt_compat	= dove_dt_board_compat,
