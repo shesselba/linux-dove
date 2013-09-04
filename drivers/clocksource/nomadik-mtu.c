@@ -257,12 +257,17 @@ void __init nmdk_timer_init(void __iomem *base, int irq)
 	__nmdk_timer_init(base, irq, pclk0, clk0);
 }
 
+/* Initial value for SRC control register: all timers use MXTAL/8 source */
+#define SRC_CR_INIT_MASK	0x00007fff
+#define SRC_CR_INIT_VAL		0x2aaa8000
+
 static void __init nmdk_timer_of_init(struct device_node *node)
 {
 	struct clk *pclk;
 	struct clk *clk;
 	void __iomem *base;
 	int irq;
+	u32 src_cr;
 
 	base = of_iomap(node, 0);
 	if (!base)
@@ -279,6 +284,12 @@ static void __init nmdk_timer_of_init(struct device_node *node)
 	irq = irq_of_parse_and_map(node, 0);
 	if (irq <= 0)
 		panic("Can't parse IRQ");
+
+	/* Configure timer sources in "system reset controller" ctrl reg */
+	src_cr = readl(base);
+	src_cr &= SRC_CR_INIT_MASK;
+	src_cr |= SRC_CR_INIT_VAL;
+	writel(src_cr, base);
 
 	__nmdk_timer_init(base, irq, pclk, clk);
 }
