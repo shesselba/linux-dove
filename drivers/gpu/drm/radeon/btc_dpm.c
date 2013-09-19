@@ -2340,12 +2340,6 @@ int btc_dpm_set_power_state(struct radeon_device *rdev)
 		return ret;
 	}
 
-	ret = rv770_dpm_force_performance_level(rdev, RADEON_DPM_FORCED_LEVEL_AUTO);
-	if (ret) {
-		DRM_ERROR("rv770_dpm_force_performance_level failed\n");
-		return ret;
-	}
-
 	return 0;
 }
 
@@ -2698,6 +2692,12 @@ int btc_dpm_init(struct radeon_device *rdev)
 		rdev->pm.dpm.dyn_state.sclk_mclk_delta = 15000;
 	else
 		rdev->pm.dpm.dyn_state.sclk_mclk_delta = 10000;
+
+	/* make sure dc limits are valid */
+	if ((rdev->pm.dpm.dyn_state.max_clock_voltage_on_dc.sclk == 0) ||
+	    (rdev->pm.dpm.dyn_state.max_clock_voltage_on_dc.mclk == 0))
+		rdev->pm.dpm.dyn_state.max_clock_voltage_on_dc =
+			rdev->pm.dpm.dyn_state.max_clock_voltage_on_ac;
 
 	return 0;
 }
