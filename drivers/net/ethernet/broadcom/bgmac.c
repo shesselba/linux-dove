@@ -157,6 +157,7 @@ static netdev_tx_t bgmac_dma_tx_add(struct bgmac *bgmac,
 	if (++ring->end >= BGMAC_TX_RING_SLOTS)
 		ring->end = 0;
 	bgmac_write(bgmac, ring->mmio_base + BGMAC_DMA_TX_INDEX,
+		    ring->index_base +
 		    ring->end * sizeof(struct bgmac_dma_desc));
 
 	/* Always keep one slot free to allow detecting bugged calls. */
@@ -180,6 +181,8 @@ static void bgmac_dma_tx_free(struct bgmac *bgmac, struct bgmac_dma_ring *ring)
 
 	/* The last slot that hardware didn't consume yet */
 	empty_slot = bgmac_read(bgmac, ring->mmio_base + BGMAC_DMA_TX_STATUS);
+	empty_slot &= BGMAC_DMA_TX_STATDPTR;
+	empty_slot -= ring->index_base;
 	empty_slot &= BGMAC_DMA_TX_STATDPTR;
 	empty_slot /= sizeof(struct bgmac_dma_desc);
 
@@ -241,25 +244,33 @@ static int bgmac_dma_rx_skb_for_slot(struct bgmac *bgmac,
 				     struct bgmac_slot_info *slot)
 {
 	struct device *dma_dev = bgmac->core->dma_dev;
+	struct sk_buff *skb;
+	dma_addr_t dma_addr;
 	struct bgmac_rx_header *rx;
 
 	/* Alloc skb */
-	slot->skb = netdev_alloc_skb(bgmac->net_dev, BGMAC_RX_BUF_SIZE);
-	if (!slot->skb)
+	skb = netdev_alloc_skb(bgmac->net_dev, BGMAC_RX_BUF_SIZE);
+	if (!skb)
 		return -ENOMEM;
 
 	/* Poison - if everything goes fine, hardware will overwrite it */
-	rx = (struct bgmac_rx_header *)slot->skb->data;
+	rx = (struct bgmac_rx_header *)skb->data;
 	rx->len = cpu_to_le16(0xdead);
 	rx->flags = cpu_to_le16(0xbeef);
 
 	/* Map skb for the DMA */
-	slot->dma_addr = dma_map_single(dma_dev, slot->skb->data,
-					BGMAC_RX_BUF_SIZE, DMA_FROM_DEVICE);
-	if (dma_mapping_error(dma_dev, slot->dma_addr)) {
+	dma_addr = dma_map_single(dma_dev, skb->data,
+				  BGMAC_RX_BUF_SIZE, DMA_FROM_DEVICE);
+	if (dma_mapping_error(dma_dev, dma_addr)) {
 		bgmac_err(bgmac, "DMA mapping error\n");
+		dev_kfree_skb(skb);
 		return -ENOMEM;
 	}
+
+	/* Update the slot */
+	slot->skb = skb;
+	slot->dma_addr = dma_addr;
+
 	if (slot->dma_addr & 0xC0000000)
 		bgmac_warn(bgmac, "DMA address using 0xC0000000 bit(s), it may need translation trick\n");
 
@@ -273,6 +284,8 @@ static int bgmac_dma_rx_read(struct bgmac *bgmac, struct bgmac_dma_ring *ring,
 	int handled = 0;
 
 	end_slot = bgmac_read(bgmac, ring->mmio_base + BGMAC_DMA_RX_STATUS);
+	end_slot &= BGMAC_DMA_RX_STATDPTR;
+	end_slot -= ring->index_base;
 	end_slot &= BGMAC_DMA_RX_STATDPTR;
 	end_slot /= sizeof(struct bgmac_dma_desc);
 
@@ -418,9 +431,6 @@ static int bgmac_dma_alloc(struct bgmac *bgmac)
 		ring = &bgmac->tx_ring[i];
 		ring->num_slots = BGMAC_TX_RING_SLOTS;
 		ring->mmio_base = ring_base[i];
-		if (bgmac_dma_unaligned(bgmac, ring, BGMAC_DMA_RING_TX))
-			bgmac_warn(bgmac, "TX on ring 0x%X supports unaligned addressing but this feature is not implemented\n",
-				   ring->mmio_base);
 
 		/* Alloc ring of descriptors */
 		size = ring->num_slots * sizeof(struct bgmac_dma_desc);
@@ -435,6 +445,13 @@ static int bgmac_dma_alloc(struct bgmac *bgmac)
 		if (ring->dma_base & 0xC0000000)
 			bgmac_warn(bgmac, "DMA address using 0xC0000000 bit(s), it may need translation trick\n");
 
+		ring->unaligned = bgmac_dma_unaligned(bgmac, ring,
+						      BGMAC_DMA_RING_TX);
+		if (ring->unaligned)
+			ring->index_base = lower_32_bits(ring->dma_base);
+		else
+			ring->index_base = 0;
+
 		/* No need to alloc TX slots yet */
 	}
 
@@ -444,9 +461,6 @@ static int bgmac_dma_alloc(struct bgmac *bgmac)
 		ring = &bgmac->rx_ring[i];
 		ring->num_slots = BGMAC_RX_RING_SLOTS;
 		ring->mmio_base = ring_base[i];
-		if (bgmac_dma_unaligned(bgmac, ring, BGMAC_DMA_RING_RX))
-			bgmac_warn(bgmac, "RX on ring 0x%X supports unaligned addressing but this feature is not implemented\n",
-				   ring->mmio_base);
 
 		/* Alloc ring of descriptors */
 		size = ring->num_slots * sizeof(struct bgmac_dma_desc);
@@ -461,6 +475,13 @@ static int bgmac_dma_alloc(struct bgmac *bgmac)
 		}
 		if (ring->dma_base & 0xC0000000)
 			bgmac_warn(bgmac, "DMA address using 0xC0000000 bit(s), it may need translation trick\n");
+
+		ring->unaligned = bgmac_dma_unaligned(bgmac, ring,
+						      BGMAC_DMA_RING_RX);
+		if (ring->unaligned)
+			ring->index_base = lower_32_bits(ring->dma_base);
+		else
+			ring->index_base = 0;
 
 		/* Alloc RX slots */
 		for (j = 0; j < ring->num_slots; j++) {
@@ -489,12 +510,14 @@ static void bgmac_dma_init(struct bgmac *bgmac)
 	for (i = 0; i < BGMAC_MAX_TX_RINGS; i++) {
 		ring = &bgmac->tx_ring[i];
 
-		/* We don't implement unaligned addressing, so enable first */
-		bgmac_dma_tx_enable(bgmac, ring);
+		if (!ring->unaligned)
+			bgmac_dma_tx_enable(bgmac, ring);
 		bgmac_write(bgmac, ring->mmio_base + BGMAC_DMA_TX_RINGLO,
 			    lower_32_bits(ring->dma_base));
 		bgmac_write(bgmac, ring->mmio_base + BGMAC_DMA_TX_RINGHI,
 			    upper_32_bits(ring->dma_base));
+		if (ring->unaligned)
+			bgmac_dma_tx_enable(bgmac, ring);
 
 		ring->start = 0;
 		ring->end = 0;	/* Points the slot that should *not* be read */
@@ -505,12 +528,14 @@ static void bgmac_dma_init(struct bgmac *bgmac)
 
 		ring = &bgmac->rx_ring[i];
 
-		/* We don't implement unaligned addressing, so enable first */
-		bgmac_dma_rx_enable(bgmac, ring);
+		if (!ring->unaligned)
+			bgmac_dma_rx_enable(bgmac, ring);
 		bgmac_write(bgmac, ring->mmio_base + BGMAC_DMA_RX_RINGLO,
 			    lower_32_bits(ring->dma_base));
 		bgmac_write(bgmac, ring->mmio_base + BGMAC_DMA_RX_RINGHI,
 			    upper_32_bits(ring->dma_base));
+		if (ring->unaligned)
+			bgmac_dma_rx_enable(bgmac, ring);
 
 		for (j = 0, dma_desc = ring->cpu_base; j < ring->num_slots;
 		     j++, dma_desc++) {
@@ -531,6 +556,7 @@ static void bgmac_dma_init(struct bgmac *bgmac)
 		}
 
 		bgmac_write(bgmac, ring->mmio_base + BGMAC_DMA_RX_INDEX,
+			    ring->index_base +
 			    ring->num_slots * sizeof(struct bgmac_dma_desc));
 
 		ring->start = 0;
@@ -908,10 +934,10 @@ static void bgmac_chip_reset(struct bgmac *bgmac)
 		struct bcma_drv_cc *cc = &bgmac->core->bus->drv_cc;
 		u8 et_swtype = 0;
 		u8 sw_type = BGMAC_CHIPCTL_1_SW_TYPE_EPHY |
-			     BGMAC_CHIPCTL_1_IF_TYPE_RMII;
-		char buf[2];
+			     BGMAC_CHIPCTL_1_IF_TYPE_MII;
+		char buf[4];
 
-		if (bcm47xx_nvram_getenv("et_swtype", buf, 1) > 0) {
+		if (bcm47xx_nvram_getenv("et_swtype", buf, sizeof(buf)) > 0) {
 			if (kstrtou8(buf, 0, &et_swtype))
 				bgmac_err(bgmac, "Failed to parse et_swtype (%s)\n",
 					  buf);

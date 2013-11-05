@@ -88,6 +88,7 @@ static inline char *nic_name(struct pci_dev *pdev)
 #define BE_MIN_MTU		256
 
 #define BE_NUM_VLANS_SUPPORTED	64
+#define BE_UMC_NUM_VLANS_SUPPORTED	15
 #define BE_MAX_EQD		96u
 #define	BE_MAX_TX_FRAG_COUNT	30
 
@@ -333,6 +334,7 @@ enum vf_state {
 
 #define BE_FLAGS_LINK_STATUS_INIT		1
 #define BE_FLAGS_WORKER_SCHEDULED		(1 << 3)
+#define BE_FLAGS_VLAN_PROMISC			(1 << 4)
 #define BE_FLAGS_NAPI_ENABLED			(1 << 9)
 #define BE_UC_PMAC_COUNT		30
 #define BE_VF_UC_PMAC_COUNT		2
@@ -692,6 +694,15 @@ static inline bool be_is_wol_excluded(struct be_adapter *adapter)
 static inline int qnq_async_evt_rcvd(struct be_adapter *adapter)
 {
 	return adapter->flags & BE_FLAGS_QNQ_ASYNC_EVT_RCVD;
+}
+
+static inline int fw_major_num(const char *fw_ver)
+{
+	int fw_major = 0;
+
+	sscanf(fw_ver, "%d.", &fw_major);
+
+	return fw_major;
 }
 
 extern void be_cq_notify(struct be_adapter *adapter, u16 qid, bool arm,
