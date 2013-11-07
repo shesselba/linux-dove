@@ -149,14 +149,6 @@ err_no_cmd:
 	return -EPERM;
 }
 
-static const void *bonding_namespace(struct class *cls,
-				     const struct class_attribute *attr)
-{
-	const struct bond_net *bn =
-		container_of(attr, struct bond_net, class_attr_bonding_masters);
-	return bn->net;
-}
-
 /* class attribute for bond_masters file.  This ends up in /sys/class/net */
 static const struct class_attribute class_attr_bonding_masters = {
 	.attr = {
@@ -165,7 +157,6 @@ static const struct class_attribute class_attr_bonding_masters = {
 	},
 	.show = bonding_show_bonds,
 	.store = bonding_store_bonds,
-	.namespace = bonding_namespace,
 };
 
 int bond_create_slave_symlinks(struct net_device *master,
@@ -1699,6 +1690,44 @@ out:
 static DEVICE_ATTR(resend_igmp, S_IRUGO | S_IWUSR,
 		   bonding_show_resend_igmp, bonding_store_resend_igmp);
 
+
+static ssize_t bonding_show_lp_interval(struct device *d,
+					struct device_attribute *attr,
+					char *buf)
+{
+	struct bonding *bond = to_bond(d);
+	return sprintf(buf, "%d\n", bond->params.lp_interval);
+}
+
+static ssize_t bonding_store_lp_interval(struct device *d,
+					 struct device_attribute *attr,
+					 const char *buf, size_t count)
+{
+	struct bonding *bond = to_bond(d);
+	int new_value, ret = count;
+
+	if (sscanf(buf, "%d", &new_value) != 1) {
+		pr_err("%s: no lp interval value specified.\n",
+			bond->dev->name);
+		ret = -EINVAL;
+		goto out;
+	}
+
+	if (new_value <= 0) {
+		pr_err ("%s: lp_interval must be between 1 and %d\n",
+			bond->dev->name, INT_MAX);
+		ret = -EINVAL;
+		goto out;
+	}
+
+	bond->params.lp_interval = new_value;
+out:
+	return ret;
+}
+
+static DEVICE_ATTR(lp_interval, S_IRUGO | S_IWUSR,
+		   bonding_show_lp_interval, bonding_store_lp_interval);
+
 static struct attribute *per_bond_attrs[] = {
 	&dev_attr_slaves.attr,
 	&dev_attr_mode.attr,
@@ -1729,6 +1758,7 @@ static struct attribute *per_bond_attrs[] = {
 	&dev_attr_all_slaves_active.attr,
 	&dev_attr_resend_igmp.attr,
 	&dev_attr_min_links.attr,
+	&dev_attr_lp_interval.attr,
 	NULL,
 };
 
@@ -1748,7 +1778,8 @@ int bond_create_sysfs(struct bond_net *bn)
 	bn->class_attr_bonding_masters = class_attr_bonding_masters;
 	sysfs_attr_init(&bn->class_attr_bonding_masters.attr);
 
-	ret = netdev_class_create_file(&bn->class_attr_bonding_masters);
+	ret = netdev_class_create_file_ns(&bn->class_attr_bonding_masters,
+					  bn->net);
 	/*
 	 * Permit multiple loads of the module by ignoring failures to
 	 * create the bonding_masters sysfs file.  Bonding devices
@@ -1778,7 +1809,7 @@ int bond_create_sysfs(struct bond_net *bn)
  */
 void bond_destroy_sysfs(struct bond_net *bn)
 {
-	netdev_class_remove_file(&bn->class_attr_bonding_masters);
+	netdev_class_remove_file_ns(&bn->class_attr_bonding_masters, bn->net);
 }
 
 /*

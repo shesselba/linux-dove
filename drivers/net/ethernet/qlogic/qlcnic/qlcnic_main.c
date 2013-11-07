@@ -431,6 +431,9 @@ static void qlcnic_82xx_cancel_idc_work(struct qlcnic_adapter *adapter)
 	while (test_and_set_bit(__QLCNIC_RESETTING, &adapter->state))
 		usleep_range(10000, 11000);
 
+	if (!adapter->fw_work.work.func)
+		return;
+
 	cancel_delayed_work_sync(&adapter->fw_work);
 }
 
@@ -1128,7 +1131,10 @@ qlcnic_initialize_nic(struct qlcnic_adapter *adapter)
 		if (err == -EIO)
 			return err;
 		adapter->ahw->extra_capability[0] = temp;
+	} else {
+		adapter->ahw->extra_capability[0] = 0;
 	}
+
 	adapter->ahw->max_mac_filters = nic_info.max_mac_filters;
 	adapter->ahw->max_mtu = nic_info.max_mtu;
 
@@ -2156,8 +2162,7 @@ void qlcnic_set_drv_version(struct qlcnic_adapter *adapter)
 	else if (qlcnic_83xx_check(adapter))
 		fw_cmd = QLCNIC_CMD_83XX_SET_DRV_VER;
 
-	if ((ahw->capabilities & QLCNIC_FW_CAPABILITY_MORE_CAPS) &&
-	    (ahw->extra_capability[0] & QLCNIC_FW_CAPABILITY_SET_DRV_VER))
+	if (ahw->extra_capability[0] & QLCNIC_FW_CAPABILITY_SET_DRV_VER)
 		qlcnic_fw_cmd_set_drv_version(adapter, fw_cmd);
 }
 
@@ -2254,7 +2259,7 @@ qlcnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 	err = qlcnic_alloc_adapter_resources(adapter);
 	if (err)
-		goto err_out_free_netdev;
+		goto err_out_free_wq;
 
 	adapter->dev_rst_time = jiffies;
 	adapter->ahw->revision_id = pdev->revision;
@@ -2275,8 +2280,9 @@ qlcnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		adapter->portnum = adapter->ahw->pci_func;
 		err = qlcnic_start_firmware(adapter);
 		if (err) {
-			dev_err(&pdev->dev, "Loading fw failed.Please Reboot\n");
-			goto err_out_free_hw;
+			dev_err(&pdev->dev, "Loading fw failed.Please Reboot\n"
+				"\t\tIf reboot doesn't help, try flashing the card\n");
+			goto err_out_maintenance_mode;
 		}
 
 		qlcnic_get_multiq_capability(adapter);
@@ -2392,6 +2398,9 @@ err_out_disable_msi:
 err_out_free_hw:
 	qlcnic_free_adapter_resources(adapter);
 
+err_out_free_wq:
+	destroy_workqueue(adapter->qlcnic_wq);
+
 err_out_free_netdev:
 	free_netdev(netdev);
 
@@ -2408,6 +2417,22 @@ err_out_disable_pdev:
 	pci_set_drvdata(pdev, NULL);
 	pci_disable_device(pdev);
 	return err;
+
+err_out_maintenance_mode:
+	netdev->netdev_ops = &qlcnic_netdev_failed_ops;
+	SET_ETHTOOL_OPS(netdev, &qlcnic_ethtool_failed_ops);
+	err = register_netdev(netdev);
+
+	if (err) {
+		dev_err(&pdev->dev, "Failed to register net device\n");
+		qlcnic_clr_all_drv_state(adapter, 0);
+		goto err_out_free_hw;
+	}
+
+	pci_set_drvdata(pdev, adapter);
+	qlcnic_add_sysfs(adapter);
+
+	return 0;
 }
 
 static void qlcnic_remove(struct pci_dev *pdev)
@@ -2518,7 +2543,15 @@ static int qlcnic_resume(struct pci_dev *pdev)
 static int qlcnic_open(struct net_device *netdev)
 {
 	struct qlcnic_adapter *adapter = netdev_priv(netdev);
+	u32 state;
 	int err;
+
+	state = QLC_SHARED_REG_RD32(adapter, QLCNIC_CRB_DEV_STATE);
+	if (state == QLCNIC_DEV_FAILED || state == QLCNIC_DEV_BADBAD) {
+		netdev_err(netdev, "%s: Device is in FAILED state\n", __func__);
+
+		return -EIO;
+	}
 
 	netif_carrier_off(netdev);
 
@@ -3228,6 +3261,13 @@ void qlcnic_82xx_dev_request_reset(struct qlcnic_adapter *adapter, u32 key)
 		return;
 
 	state = QLC_SHARED_REG_RD32(adapter, QLCNIC_CRB_DEV_STATE);
+	if (state == QLCNIC_DEV_FAILED || state == QLCNIC_DEV_BADBAD) {
+		netdev_err(adapter->netdev, "%s: Device is in FAILED state\n",
+			   __func__);
+		qlcnic_api_unlock(adapter);
+
+		return;
+	}
 
 	if (state == QLCNIC_DEV_READY) {
 		QLC_SHARED_REG_WR32(adapter, QLCNIC_CRB_DEV_STATE,
@@ -3613,11 +3653,6 @@ int qlcnic_validate_max_tx_rings(struct qlcnic_adapter *adapter, u32 txq)
 	u8 max_hw = QLCNIC_MAX_TX_RINGS;
 	u32 max_allowed;
 
-	if (!qlcnic_82xx_check(adapter)) {
-		netdev_err(netdev, "No Multi TX-Q support\n");
-		return -EINVAL;
-	}
-
 	if (!qlcnic_use_msi_x && !qlcnic_use_msi) {
 		netdev_err(netdev, "No Multi TX-Q support in INT-x mode\n");
 		return -EINVAL;
@@ -3657,8 +3692,7 @@ int qlcnic_validate_max_rss(struct qlcnic_adapter *adapter,
 	u8 max_hw = adapter->ahw->max_rx_ques;
 	u32 max_allowed;
 
-	if (qlcnic_82xx_check(adapter) && !qlcnic_use_msi_x &&
-	    !qlcnic_use_msi) {
+	if (!qlcnic_use_msi_x && !qlcnic_use_msi) {
 		netdev_err(netdev, "No RSS support in INT-x mode\n");
 		return -EINVAL;
 	}
