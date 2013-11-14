@@ -708,7 +708,7 @@ int mwifiex_ret_wmm_get_status(struct mwifiex_private *priv,
 {
 	u8 *curr = (u8 *) &resp->params.get_wmm_status;
 	uint16_t resp_len = le16_to_cpu(resp->size), tlv_len;
-	int valid = true;
+	bool valid = true;
 
 	struct mwifiex_ie_types_data *tlv_hdr;
 	struct mwifiex_ie_types_wmm_queue_status *tlv_wmm_qstatus;
@@ -1239,8 +1239,7 @@ mwifiex_dequeue_tx_packet(struct mwifiex_adapter *adapter)
 		if (enable_tx_amsdu && mwifiex_is_amsdu_allowed(priv, tid) &&
 		    mwifiex_is_11n_aggragation_possible(priv, ptr,
 							adapter->tx_buf_size))
-			mwifiex_11n_aggregate_pkt(priv, ptr, INTF_HEADER_LEN,
-						  ptr_index, flags);
+			mwifiex_11n_aggregate_pkt(priv, ptr, ptr_index, flags);
 			/* ra_list_spinlock has been freed in
 			   mwifiex_11n_aggregate_pkt() */
 		else
