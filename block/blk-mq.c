@@ -319,7 +319,7 @@ void __blk_mq_end_io(struct request *rq, int error)
 		blk_mq_complete_request(rq, error);
 }
 
-#if defined(CONFIG_SMP) && defined(CONFIG_USE_GENERIC_SMP_HELPERS)
+#if defined(CONFIG_SMP)
 
 /*
  * Called with interrupts disabled.
@@ -361,7 +361,7 @@ static int ipi_remote_cpu(struct blk_mq_ctx *ctx, const int cpu,
 
 	return true;
 }
-#else /* CONFIG_SMP && CONFIG_USE_GENERIC_SMP_HELPERS */
+#else /* CONFIG_SMP */
 static int ipi_remote_cpu(struct blk_mq_ctx *ctx, const int cpu,
 			  struct request *rq, const int error)
 {
@@ -1444,7 +1444,7 @@ void blk_mq_free_queue(struct request_queue *q)
 EXPORT_SYMBOL(blk_mq_free_queue);
 
 /* Basically redo blk_mq_init_queue with queue frozen */
-static void __cpuinit blk_mq_queue_reinit(struct request_queue *q)
+static void blk_mq_queue_reinit(struct request_queue *q)
 {
 	blk_mq_freeze_queue(q);
 
@@ -1461,8 +1461,8 @@ static void __cpuinit blk_mq_queue_reinit(struct request_queue *q)
 	blk_mq_unfreeze_queue(q);
 }
 
-static int __cpuinit blk_mq_queue_reinit_notify(struct notifier_block *nb,
-		unsigned long action, void *hcpu)
+static int blk_mq_queue_reinit_notify(struct notifier_block *nb,
+				      unsigned long action, void *hcpu)
 {
 	struct request_queue *q;
 
