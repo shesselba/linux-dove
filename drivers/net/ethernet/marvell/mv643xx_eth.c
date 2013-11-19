@@ -2097,6 +2097,8 @@ static void port_start(struct mv643xx_eth_private *mp)
 
 		mv643xx_eth_get_settings(mp->dev, &cmd);
 		phy_reset(mp);
+		phy_resume(mp->phy);
+		phy_start(mp->phy);
 		mv643xx_eth_set_settings(mp->dev, &cmd);
 	}
 
@@ -2305,6 +2307,11 @@ static int mv643xx_eth_stop(struct net_device *dev)
 		rxq_deinit(mp->rxq + i);
 	for (i = 0; i < mp->txq_count; i++)
 		txq_deinit(mp->txq + i);
+
+	if (mp->phy) {
+		phy_stop(mp->phy);
+		phy_suspend(mp->phy);
+	}
 
 	return 0;
 }
