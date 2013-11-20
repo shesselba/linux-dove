@@ -1013,6 +1013,7 @@ static void cpsw_slave_open(struct cpsw_slave *slave, struct cpsw_priv *priv)
 	} else {
 		dev_info(priv->dev, "phy found : id is : 0x%x\n",
 			 slave->phy->phy_id);
+		phy_resume(slave->phy);
 		phy_start(slave->phy);
 
 		/* Configure GMII_SEL register */
@@ -1081,6 +1082,7 @@ static void cpsw_slave_stop(struct cpsw_slave *slave, struct cpsw_priv *priv)
 	if (!slave->phy)
 		return;
 	phy_stop(slave->phy);
+	phy_suspend(slave->phy);
 	phy_disconnect(slave->phy);
 	slave->phy = NULL;
 }
