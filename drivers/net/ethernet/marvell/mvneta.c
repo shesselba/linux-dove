@@ -2194,6 +2194,7 @@ static void mvneta_start_dev(struct mvneta_port *pp)
 	mvreg_write(pp, MVNETA_INTR_NEW_MASK,
 		    MVNETA_RX_INTR_MASK(rxq_number));
 
+	phy_resume(pp->phy_dev);
 	phy_start(pp->phy_dev);
 	netif_tx_start_all_queues(pp->dev);
 }
@@ -2201,6 +2202,7 @@ static void mvneta_start_dev(struct mvneta_port *pp)
 static void mvneta_stop_dev(struct mvneta_port *pp)
 {
 	phy_stop(pp->phy_dev);
+	phy_suspend(pp->phy_dev);
 
 	napi_disable(&pp->napi);
 
