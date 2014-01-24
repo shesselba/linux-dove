@@ -6,7 +6,7 @@
  */
 
 struct kmem_cache {
-/* 1) Cache tunables. Protected by cache_chain_mutex */
+/* 1) Cache tunables. Protected by slab_mutex */
 	unsigned int batchcount;
 	unsigned int limit;
 	unsigned int shared;
@@ -27,8 +27,8 @@ struct kmem_cache {
 
 	size_t colour;			/* cache colouring range */
 	unsigned int colour_off;	/* colour offset */
-	struct kmem_cache *slabp_cache;
-	unsigned int slab_size;
+	struct kmem_cache *freelist_cache;
+	unsigned int freelist_size;
 
 	/* constructor func */
 	void (*ctor)(void *obj);

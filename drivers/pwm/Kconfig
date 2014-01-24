@@ -62,6 +62,15 @@ config PWM_BFIN
 	  To compile this driver as a module, choose M here: the module
 	  will be called pwm-bfin.
 
+config PWM_EP93XX
+	tristate "Cirrus Logic EP93xx PWM support"
+	depends on ARCH_EP93XX
+	help
+	  Generic PWM framework driver for Cirrus Logic EP93xx.
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called pwm-ep93xx.
+
 config PWM_IMX
 	tristate "i.MX PWM support"
 	depends on ARCH_MXC
@@ -80,6 +89,16 @@ config PWM_JZ4740
 
 	  To compile this driver as a module, choose M here: the module
 	  will be called pwm-jz4740.
+
+config PWM_LP3943
+	tristate "TI/National Semiconductor LP3943 PWM support"
+	depends on MFD_LP3943
+	help
+	  Generic PWM framework driver for LP3943 which supports two PWM
+	  channels.
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called pwm-lp3943.
 
 config PWM_LPC32XX
 	tristate "LPC32XX PWM support"

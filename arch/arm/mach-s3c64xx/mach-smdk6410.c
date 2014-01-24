@@ -57,6 +57,7 @@
 
 #include <plat/regs-serial.h>
 #include <mach/regs-gpio.h>
+#include <mach/gpio-samsung.h>
 #include <linux/platform_data/ata-samsung_cf.h>
 #include <linux/platform_data/i2c-s3c2410.h>
 #include <plat/fb.h>
@@ -625,6 +626,7 @@ static struct samsung_bl_gpio_info smdk6410_bl_gpio_info = {
 
 static struct platform_pwm_backlight_data smdk6410_bl_data = {
 	.pwm_id = 1,
+	.enable_gpio = -1,
 };
 
 static struct s3c_hsotg_plat smdk6410_hsotg_pdata;

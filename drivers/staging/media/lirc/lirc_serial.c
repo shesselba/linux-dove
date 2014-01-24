@@ -428,8 +428,8 @@ static int init_timing_params(unsigned int new_duty_cycle,
 	period = 256 * 1000000L / freq;
 	pulse_width = period * duty_cycle / 100;
 	space_width = period - pulse_width;
-	dprintk("in init_timing_params, freq=%d pulse=%ld, "
-		"space=%ld\n", freq, pulse_width, space_width);
+	dprintk("in init_timing_params, freq=%d pulse=%ld, space=%ld\n",
+		freq, pulse_width, space_width);
 	return 0;
 }
 #endif /* USE_RDTSC */
@@ -707,7 +707,8 @@ static irqreturn_t irq_handler(int i, void *blah)
 				pr_warn("ignoring spike: %d %d %lx %lx %lx %lx\n",
 					dcd, sense,
 					tv.tv_sec, lasttv.tv_sec,
-					tv.tv_usec, lasttv.tv_usec);
+					(unsigned long)tv.tv_usec,
+					(unsigned long)lasttv.tv_usec);
 				continue;
 			}
 
@@ -719,7 +720,8 @@ static irqreturn_t irq_handler(int i, void *blah)
 				pr_warn("%d %d %lx %lx %lx %lx\n",
 					dcd, sense,
 					tv.tv_sec, lasttv.tv_sec,
-					tv.tv_usec, lasttv.tv_usec);
+					(unsigned long)tv.tv_usec,
+					(unsigned long)lasttv.tv_usec);
 				data = PULSE_MASK;
 			} else if (deltv > 15) {
 				data = PULSE_MASK; /* really long time */
@@ -728,7 +730,8 @@ static irqreturn_t irq_handler(int i, void *blah)
 					pr_warn("AIEEEE: %d %d %lx %lx %lx %lx\n",
 						dcd, sense,
 						tv.tv_sec, lasttv.tv_sec,
-						tv.tv_usec, lasttv.tv_usec);
+						(unsigned long)tv.tv_usec,
+						(unsigned long)lasttv.tv_usec);
 					/*
 					 * detecting pulse while this
 					 * MUST be a space!
@@ -971,7 +974,7 @@ static void set_use_dec(void *data)
 	spin_unlock_irqrestore(&hardware[type].lock, flags);
 }
 
-static ssize_t lirc_write(struct file *file, const char *buf,
+static ssize_t lirc_write(struct file *file, const char __user *buf,
 			 size_t n, loff_t *ppos)
 {
 	int i, count;

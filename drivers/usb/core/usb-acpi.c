@@ -92,7 +92,7 @@ static int usb_acpi_check_port_connect_type(struct usb_device *hdev,
 	int ret = 0;
 
 	/*
-	 * Accoding to ACPI Spec 9.13. PLD indicates whether usb port is
+	 * According to ACPI Spec 9.13. PLD indicates whether usb port is
 	 * user visible and _UPC indicates whether it is connectable. If
 	 * the port was visible and connectable, it could be freely connected
 	 * and disconnected with USB devices. If no visible and connectable,
@@ -173,7 +173,7 @@ static int usb_acpi_find_device(struct device *dev, acpi_handle *handle)
 		}
 
 		/* root hub's parent is the usb hcd. */
-		parent_handle = DEVICE_ACPI_HANDLE(dev->parent);
+		parent_handle = ACPI_HANDLE(dev->parent);
 		*handle = acpi_get_child(parent_handle, udev->portnum);
 		if (!*handle)
 			return -ENODEV;
@@ -194,7 +194,7 @@ static int usb_acpi_find_device(struct device *dev, acpi_handle *handle)
 
 			raw_port_num = usb_hcd_find_raw_port_number(hcd,
 				port_num);
-			*handle = acpi_get_child(DEVICE_ACPI_HANDLE(&udev->dev),
+			*handle = acpi_get_child(ACPI_HANDLE(&udev->dev),
 				raw_port_num);
 			if (!*handle)
 				return -ENODEV;

@@ -265,9 +265,6 @@ static void tsc_check_state(int state) { return; }
 static int acpi_processor_get_power_info_fadt(struct acpi_processor *pr)
 {
 
-	if (!pr)
-		return -EINVAL;
-
 	if (!pr->pblk)
 		return -ENODEV;
 
@@ -730,11 +727,6 @@ static int acpi_idle_enter_c1(struct cpuidle_device *dev,
 	if (unlikely(!pr))
 		return -EINVAL;
 
-	if (cx->entry_method == ACPI_CSTATE_FFH) {
-		if (current_set_polling_and_test())
-			return -EINVAL;
-	}
-
 	lapic_timer_state_broadcast(pr, cx, 1);
 	acpi_idle_do_entry(cx);
 
@@ -788,11 +780,6 @@ static int acpi_idle_enter_simple(struct cpuidle_device *dev,
 	if (unlikely(!pr))
 		return -EINVAL;
 
-	if (cx->entry_method == ACPI_CSTATE_FFH) {
-		if (current_set_polling_and_test())
-			return -EINVAL;
-	}
-
 	/*
 	 * Must be done before busmaster disable as we might need to
 	 * access HPET !
@@ -842,11 +829,6 @@ static int acpi_idle_enter_bm(struct cpuidle_device *dev,
 			acpi_safe_halt();
 			return -EBUSY;
 		}
-	}
-
-	if (cx->entry_method == ACPI_CSTATE_FFH) {
-		if (current_set_polling_and_test())
-			return -EINVAL;
 	}
 
 	acpi_unlazy_tlb(smp_processor_id());
@@ -1050,12 +1032,8 @@ int acpi_processor_hotplug(struct acpi_processor *pr)
 	if (disabled_by_idle_boot_param())
 		return 0;
 
-	if (!pr)
-		return -EINVAL;
-
-	if (nocst) {
+	if (nocst)
 		return -ENODEV;
-	}
 
 	if (!pr->flags.power_setup_done)
 		return -ENODEV;
@@ -1081,9 +1059,6 @@ int acpi_processor_cst_has_changed(struct acpi_processor *pr)
 
 	if (disabled_by_idle_boot_param())
 		return 0;
-
-	if (!pr)
-		return -EINVAL;
 
 	if (nocst)
 		return -ENODEV;
@@ -1156,9 +1131,6 @@ int acpi_processor_power_init(struct acpi_processor *pr)
 			       max_cstate);
 		first_run++;
 	}
-
-	if (!pr)
-		return -EINVAL;
 
 	if (acpi_gbl_FADT.cst_control && !nocst) {
 		status =

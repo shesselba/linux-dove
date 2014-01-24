@@ -13,7 +13,7 @@
 #include "util/parse-options.h"
 #include "util/trace-event.h"
 #include "util/debug.h"
-#include <lk/debugfs.h>
+#include <api/fs/debugfs.h>
 #include "util/tool.h"
 #include "util/stat.h"
 #include "util/top.h"
@@ -89,7 +89,7 @@ struct exit_reasons_table {
 
 struct perf_kvm_stat {
 	struct perf_tool    tool;
-	struct perf_record_opts opts;
+	struct record_opts  opts;
 	struct perf_evlist  *evlist;
 	struct perf_session *session;
 
@@ -1158,9 +1158,7 @@ out:
 	if (kvm->timerfd >= 0)
 		close(kvm->timerfd);
 
-	if (pollfds)
-		free(pollfds);
-
+	free(pollfds);
 	return err;
 }
 
@@ -1176,7 +1174,7 @@ static int kvm_live_open_events(struct perf_kvm_stat *kvm)
 	 * Note: exclude_{guest,host} do not apply here.
 	 *       This command processes KVM tracepoints from host only
 	 */
-	list_for_each_entry(pos, &evlist->entries, node) {
+	evlist__for_each(evlist, pos) {
 		struct perf_event_attr *attr = &pos->attr;
 
 		/* make sure these *are* set */
@@ -1232,7 +1230,7 @@ static int read_events(struct perf_kvm_stat *kvm)
 		.ordered_samples	= true,
 	};
 	struct perf_data_file file = {
-		.path = input_name,
+		.path = kvm->file_name,
 		.mode = PERF_DATA_MODE_READ,
 	};
 
@@ -1510,13 +1508,13 @@ static int kvm_events_live(struct perf_kvm_stat *kvm,
 	/*
 	 * target related setups
 	 */
-	err = perf_target__validate(&kvm->opts.target);
+	err = target__validate(&kvm->opts.target);
 	if (err) {
-		perf_target__strerror(&kvm->opts.target, err, errbuf, BUFSIZ);
+		target__strerror(&kvm->opts.target, err, errbuf, BUFSIZ);
 		ui__warning("%s", errbuf);
 	}
 
-	if (perf_target__none(&kvm->opts.target))
+	if (target__none(&kvm->opts.target))
 		kvm->opts.target.system_wide = true;
 
 
@@ -1544,18 +1542,8 @@ static int kvm_events_live(struct perf_kvm_stat *kvm,
 	}
 	kvm->session->evlist = kvm->evlist;
 	perf_session__set_id_hdr_size(kvm->session);
-
-
-	if (perf_target__has_task(&kvm->opts.target))
-		perf_event__synthesize_thread_map(&kvm->tool,
-						  kvm->evlist->threads,
-						  perf_event__process,
-						  &kvm->session->machines.host);
-	else
-		perf_event__synthesize_threads(&kvm->tool, perf_event__process,
-					       &kvm->session->machines.host);
-
-
+	machine__synthesize_threads(&kvm->session->machines.host, &kvm->opts.target,
+				    kvm->evlist->threads, false);
 	err = kvm_live_open_events(kvm);
 	if (err)
 		goto out;
@@ -1568,10 +1556,8 @@ out:
 	if (kvm->session)
 		perf_session__delete(kvm->session);
 	kvm->session = NULL;
-	if (kvm->evlist) {
-		perf_evlist__delete_maps(kvm->evlist);
+	if (kvm->evlist)
 		perf_evlist__delete(kvm->evlist);
-	}
 
 	return err;
 }
@@ -1700,6 +1686,8 @@ int cmd_kvm(int argc, const char **argv, const char *prefix __maybe_unused)
 			   "file", "file saving guest os /proc/kallsyms"),
 		OPT_STRING(0, "guestmodules", &symbol_conf.default_guest_modules,
 			   "file", "file saving guest os /proc/modules"),
+		OPT_INCR('v', "verbose", &verbose,
+			    "be more verbose (show counter open errors, etc)"),
 		OPT_END()
 	};
 
@@ -1721,12 +1709,7 @@ int cmd_kvm(int argc, const char **argv, const char *prefix __maybe_unused)
 		perf_guest = 1;
 
 	if (!file_name) {
-		if (perf_host && !perf_guest)
-			file_name = strdup("perf.data.host");
-		else if (!perf_host && perf_guest)
-			file_name = strdup("perf.data.guest");
-		else
-			file_name = strdup("perf.data.kvm");
+		file_name = get_filename_for_perf_kvm();
 
 		if (!file_name) {
 			pr_err("Failed to allocate memory for filename\n");

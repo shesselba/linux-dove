@@ -565,6 +565,8 @@ static int arc_emac_tx(struct sk_buff *skb, struct net_device *ndev)
 	/* Make sure pointer to data buffer is set */
 	wmb();
 
+	skb_tx_timestamp(skb);
+
 	*info = cpu_to_le32(FOR_EMAC | FIRST_OR_LAST_MASK | len);
 
 	/* Increment index to point to the next BD */
@@ -578,8 +580,6 @@ static int arc_emac_tx(struct sk_buff *skb, struct net_device *ndev)
 		netif_stop_queue(ndev);
 
 	arc_reg_set(priv, R_STATUS, TXPL_MASK);
-
-	skb_tx_timestamp(skb);
 
 	return NETDEV_TX_OK;
 }
@@ -671,6 +671,7 @@ static int arc_emac_probe(struct platform_device *pdev)
 	if (!ndev)
 		return -ENOMEM;
 
+	platform_set_drvdata(pdev, ndev);
 	SET_NETDEV_DEV(ndev, &pdev->dev);
 
 	ndev->netdev_ops = &arc_emac_netdev_ops;
@@ -725,10 +726,10 @@ static int arc_emac_probe(struct platform_device *pdev)
 	/* Get MAC address from device tree */
 	mac_addr = of_get_mac_address(pdev->dev.of_node);
 
-	if (!mac_addr || !is_valid_ether_addr(mac_addr))
-		eth_hw_addr_random(ndev);
-	else
+	if (mac_addr)
 		memcpy(ndev->dev_addr, mac_addr, ETH_ALEN);
+	else
+		eth_hw_addr_random(ndev);
 
 	dev_info(&pdev->dev, "MAC address is now %pM\n", ndev->dev_addr);
 

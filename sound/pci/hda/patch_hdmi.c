@@ -46,6 +46,9 @@ module_param(static_hdmi_pcm, bool, 0644);
 MODULE_PARM_DESC(static_hdmi_pcm, "Don't restrict PCM parameters per ELD info");
 
 #define is_haswell(codec)  ((codec)->vendor_id == 0x80862807)
+#define is_broadwell(codec)    ((codec)->vendor_id == 0x80862808)
+#define is_haswell_plus(codec) (is_haswell(codec) || is_broadwell(codec))
+
 #define is_valleyview(codec) ((codec)->vendor_id == 0x80862882)
 
 struct hdmi_spec_per_cvt {
@@ -763,12 +766,12 @@ static struct channel_map_table map_tables[] = {
 	{ SNDRV_CHMAP_RC,	RC },
 	{ SNDRV_CHMAP_FLC,	FLC },
 	{ SNDRV_CHMAP_FRC,	FRC },
-	{ SNDRV_CHMAP_FLH,	FLH },
-	{ SNDRV_CHMAP_FRH,	FRH },
+	{ SNDRV_CHMAP_TFL,	FLH },
+	{ SNDRV_CHMAP_TFR,	FRH },
 	{ SNDRV_CHMAP_FLW,	FLW },
 	{ SNDRV_CHMAP_FRW,	FRW },
 	{ SNDRV_CHMAP_TC,	TC },
-	{ SNDRV_CHMAP_FCH,	FCH },
+	{ SNDRV_CHMAP_TFC,	FCH },
 	{} /* terminator */
 };
 
@@ -1101,7 +1104,7 @@ static void hdmi_setup_audio_infoframe(struct hda_codec *codec,
 	if (!channels)
 		return;
 
-	if (is_haswell(codec))
+	if (is_haswell_plus(codec))
 		snd_hda_codec_write(codec, pin_nid, 0,
 					    AC_VERB_SET_AMP_GAIN_MUTE,
 					    AMP_OUT_UNMUTE);
@@ -1142,32 +1145,34 @@ static void hdmi_setup_audio_infoframe(struct hda_codec *codec,
 
 static bool hdmi_present_sense(struct hdmi_spec_per_pin *per_pin, int repoll);
 
-static void hdmi_intrinsic_event(struct hda_codec *codec, unsigned int res)
+static void jack_callback(struct hda_codec *codec, struct hda_jack_tbl *jack)
 {
 	struct hdmi_spec *spec = codec->spec;
+	int pin_idx = pin_nid_to_pin_index(spec, jack->nid);
+	if (pin_idx < 0)
+		return;
+
+	if (hdmi_present_sense(get_pin(spec, pin_idx), 1))
+		snd_hda_jack_report_sync(codec);
+}
+
+static void hdmi_intrinsic_event(struct hda_codec *codec, unsigned int res)
+{
 	int tag = res >> AC_UNSOL_RES_TAG_SHIFT;
-	int pin_nid;
-	int pin_idx;
 	struct hda_jack_tbl *jack;
 	int dev_entry = (res & AC_UNSOL_RES_DE) >> AC_UNSOL_RES_DE_SHIFT;
 
 	jack = snd_hda_jack_tbl_get_from_tag(codec, tag);
 	if (!jack)
 		return;
-	pin_nid = jack->nid;
 	jack->jack_dirty = 1;
 
 	_snd_printd(SND_PR_VERBOSE,
 		"HDMI hot plug event: Codec=%d Pin=%d Device=%d Inactive=%d Presence_Detect=%d ELD_Valid=%d\n",
-		codec->addr, pin_nid, dev_entry, !!(res & AC_UNSOL_RES_IA),
+		codec->addr, jack->nid, dev_entry, !!(res & AC_UNSOL_RES_IA),
 		!!(res & AC_UNSOL_RES_PD), !!(res & AC_UNSOL_RES_ELDV));
 
-	pin_idx = pin_nid_to_pin_index(spec, pin_nid);
-	if (pin_idx < 0)
-		return;
-
-	if (hdmi_present_sense(get_pin(spec, pin_idx), 1))
-		snd_hda_jack_report_sync(codec);
+	jack_callback(codec, jack);
 }
 
 static void hdmi_non_intrinsic_event(struct hda_codec *codec, unsigned int res)
@@ -1247,6 +1252,9 @@ static int hdmi_pin_hbr_setup(struct hda_codec *codec, hda_nid_t pin_nid,
 		pinctl = snd_hda_codec_read(codec, pin_nid, 0,
 					    AC_VERB_GET_PIN_WIDGET_CONTROL, 0);
 
+		if (pinctl < 0)
+			return hbr ? -EINVAL : 0;
+
 		new_pinctl = pinctl & ~AC_PINCTL_EPT;
 		if (hbr)
 			new_pinctl |= AC_PINCTL_EPT_HBR;
@@ -1275,7 +1283,7 @@ static int hdmi_setup_stream(struct hda_codec *codec, hda_nid_t cvt_nid,
 	struct hdmi_spec *spec = codec->spec;
 	int err;
 
-	if (is_haswell(codec))
+	if (is_haswell_plus(codec))
 		haswell_verify_D0(codec, cvt_nid, pin_nid);
 
 	err = spec->ops.pin_hbr_setup(codec, pin_nid, is_hbr_format(format));
@@ -1416,7 +1424,7 @@ static int hdmi_pcm_open(struct hda_pcm_stream *hinfo,
 			    mux_idx);
 
 	/* configure unused pins to choose other converters */
-	if (is_haswell(codec) || is_valleyview(codec))
+	if (is_haswell_plus(codec) || is_valleyview(codec))
 		intel_not_share_assigned_cvt(codec, per_pin->pin_nid, mux_idx);
 
 	snd_hda_spdif_ctls_assign(codec, pin_idx, per_cvt->cvt_nid);
@@ -1491,10 +1499,13 @@ static bool hdmi_present_sense(struct hdmi_spec_per_pin *per_pin, int repoll)
 	 * specification worked this way. Hence, we just ignore the data in
 	 * the unsolicited response to avoid custom WARs.
 	 */
-	int present = snd_hda_pin_sense(codec, pin_nid);
+	int present;
 	bool update_eld = false;
 	bool eld_changed = false;
 	bool ret;
+
+	snd_hda_power_up(codec);
+	present = snd_hda_pin_sense(codec, pin_nid);
 
 	mutex_lock(&per_pin->lock);
 	pin_eld->monitor_present = !!(present & AC_PINSENSE_PRESENCE);
@@ -1568,6 +1579,7 @@ static bool hdmi_present_sense(struct hdmi_spec_per_pin *per_pin, int repoll)
 		jack->block_report = !ret;
 
 	mutex_unlock(&per_pin->lock);
+	snd_hda_power_down(codec);
 	return ret;
 }
 
@@ -1602,7 +1614,7 @@ static int hdmi_add_pin(struct hda_codec *codec, hda_nid_t pin_nid)
 	if (get_defcfg_connect(config) == AC_JACK_PORT_NONE)
 		return 0;
 
-	if (is_haswell(codec))
+	if (is_haswell_plus(codec))
 		intel_haswell_fixup_connect_list(codec, pin_nid);
 
 	pin_idx = spec->num_pins;
@@ -1688,21 +1700,6 @@ static int hdmi_parse_codec(struct hda_codec *codec)
 			break;
 		}
 	}
-
-#ifdef CONFIG_PM
-	/* We're seeing some problems with unsolicited hot plug events on
-	 * PantherPoint after S3, if this is not enabled */
-	if (codec->vendor_id == 0x80862806)
-		codec->bus->power_keep_link_on = 1;
-	/*
-	 * G45/IbexPeak don't support EPSS: the unsolicited pin hot plug event
-	 * can be lost and presence sense verb will become inaccurate if the
-	 * HDA link is powered off at hot plug or hw initialization time.
-	 */
-	else if (!(snd_hda_param_read(codec, codec->afg, AC_PAR_POWER_STATE) &
-	      AC_PWRST_EPSS))
-		codec->bus->power_keep_link_on = 1;
-#endif
 
 	return 0;
 }
@@ -2092,7 +2089,8 @@ static int generic_hdmi_init(struct hda_codec *codec)
 		hda_nid_t pin_nid = per_pin->pin_nid;
 
 		hdmi_init_pin(codec, pin_nid);
-		snd_hda_jack_detect_enable(codec, pin_nid, pin_nid);
+		snd_hda_jack_detect_enable_callback(codec, pin_nid, pin_nid,
+			codec->jackpoll_interval > 0 ? jack_callback : NULL);
 	}
 	return 0;
 }
@@ -2254,9 +2252,13 @@ static int patch_generic_hdmi(struct hda_codec *codec)
 	codec->spec = spec;
 	hdmi_array_init(spec, 4);
 
-	if (is_haswell(codec)) {
+	if (is_haswell_plus(codec)) {
 		intel_haswell_enable_all_pins(codec, true);
 		intel_haswell_fixup_enable_dp12(codec);
+	}
+
+	if (is_haswell(codec) || is_valleyview(codec)) {
+		codec->depop_delay = 0;
 	}
 
 	if (hdmi_parse_codec(codec) < 0) {
@@ -2265,7 +2267,7 @@ static int patch_generic_hdmi(struct hda_codec *codec)
 		return -EINVAL;
 	}
 	codec->patch_ops = generic_hdmi_patch_ops;
-	if (is_haswell(codec)) {
+	if (is_haswell_plus(codec)) {
 		codec->patch_ops.set_power_state = haswell_set_power_state;
 		codec->dp_mst = true;
 	}
@@ -2331,8 +2333,9 @@ static int simple_playback_build_controls(struct hda_codec *codec)
 	int err;
 
 	per_cvt = get_cvt(spec, 0);
-	err = snd_hda_create_spdif_out_ctls(codec, per_cvt->cvt_nid,
-					    per_cvt->cvt_nid);
+	err = snd_hda_create_dig_out_ctls(codec, per_cvt->cvt_nid,
+					  per_cvt->cvt_nid,
+					  HDA_PCM_TYPE_HDMI);
 	if (err < 0)
 		return err;
 	return simple_hdmi_build_jack(codec, 0);
@@ -3091,7 +3094,7 @@ static int atihdmi_pin_hbr_setup(struct hda_codec *codec, hda_nid_t pin_nid,
 	int hbr_ctl, hbr_ctl_new;
 
 	hbr_ctl = snd_hda_codec_read(codec, pin_nid, 0, ATI_VERB_GET_HBR_CONTROL, 0);
-	if (hbr_ctl & ATI_HBR_CAPABLE) {
+	if (hbr_ctl >= 0 && (hbr_ctl & ATI_HBR_CAPABLE)) {
 		if (hbr)
 			hbr_ctl_new = hbr_ctl | ATI_HBR_ENABLE;
 		else
@@ -3211,6 +3214,15 @@ static int patch_via_hdmi(struct hda_codec *codec)
 }
 
 /*
+ * called from hda_codec.c for generic HDMI support
+ */
+int snd_hda_parse_hdmi_codec(struct hda_codec *codec)
+{
+	return patch_generic_hdmi(codec);
+}
+EXPORT_SYMBOL_GPL(snd_hda_parse_hdmi_codec);
+
+/*
  * patch entries
  */
 static const struct hda_codec_preset snd_hda_preset_hdmi[] = {
@@ -3264,6 +3276,7 @@ static const struct hda_codec_preset snd_hda_preset_hdmi[] = {
 { .id = 0x80862805, .name = "CougarPoint HDMI",	.patch = patch_generic_hdmi },
 { .id = 0x80862806, .name = "PantherPoint HDMI", .patch = patch_generic_hdmi },
 { .id = 0x80862807, .name = "Haswell HDMI",	.patch = patch_generic_hdmi },
+{ .id = 0x80862808, .name = "Broadwell HDMI",	.patch = patch_generic_hdmi },
 { .id = 0x80862880, .name = "CedarTrail HDMI",	.patch = patch_generic_hdmi },
 { .id = 0x80862882, .name = "Valleyview2 HDMI",	.patch = patch_generic_hdmi },
 { .id = 0x808629fb, .name = "Crestline HDMI",	.patch = patch_generic_hdmi },
@@ -3319,6 +3332,7 @@ MODULE_ALIAS("snd-hda-codec-id:80862804");
 MODULE_ALIAS("snd-hda-codec-id:80862805");
 MODULE_ALIAS("snd-hda-codec-id:80862806");
 MODULE_ALIAS("snd-hda-codec-id:80862807");
+MODULE_ALIAS("snd-hda-codec-id:80862808");
 MODULE_ALIAS("snd-hda-codec-id:80862880");
 MODULE_ALIAS("snd-hda-codec-id:80862882");
 MODULE_ALIAS("snd-hda-codec-id:808629fb");

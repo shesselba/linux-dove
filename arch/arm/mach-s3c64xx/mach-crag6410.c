@@ -48,8 +48,8 @@
 #include <video/samsung_fimd.h>
 #include <mach/hardware.h>
 #include <mach/map.h>
-
 #include <mach/regs-gpio.h>
+#include <mach/gpio-samsung.h>
 
 #include <plat/regs-serial.h>
 #include <plat/fb.h>
@@ -114,6 +114,7 @@ static struct platform_pwm_backlight_data crag6410_backlight_data = {
 	.max_brightness	= 1000,
 	.dft_brightness	= 600,
 	.pwm_period_ns	= 100000,	/* about 1kHz */
+	.enable_gpio	= -1,
 };
 
 static struct platform_device crag6410_backlight_device = {

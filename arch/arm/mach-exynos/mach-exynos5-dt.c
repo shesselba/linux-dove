@@ -14,10 +14,10 @@
 #include <linux/io.h>
 
 #include <asm/mach/arch.h>
-#include <mach/regs-pmu.h>
 #include <plat/mfc.h>
 
 #include "common.h"
+#include "regs-pmu.h"
 
 static void __init exynos5_dt_machine_init(void)
 {
@@ -42,6 +42,8 @@ static void __init exynos5_dt_machine_init(void)
 			}
 		}
 	}
+
+	exynos_cpuidle_init();
 
 	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
 }

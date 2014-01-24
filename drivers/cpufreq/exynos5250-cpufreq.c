@@ -18,7 +18,6 @@
 #include <linux/cpufreq.h>
 
 #include <mach/map.h>
-#include <mach/regs-clock.h>
 
 #include "exynos-cpufreq.h"
 
@@ -236,4 +235,3 @@ err_moutcore:
 	pr_err("%s: failed initialization\n", __func__);
 	return -EINVAL;
 }
-EXPORT_SYMBOL(exynos5250_cpufreq_init);
