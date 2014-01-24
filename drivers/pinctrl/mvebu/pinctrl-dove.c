@@ -31,9 +31,6 @@
 #define GC_REGS_OFFS			0xe802c
 
 #define DOVE_SB_REGS_VIRT_BASE		IOMEM(0xfde00000)
-#define DOVE_MPP_VIRT_BASE		(DOVE_SB_REGS_VIRT_BASE + 0xd0200)
-#define DOVE_PMU_MPP_GENERAL_CTRL	(DOVE_MPP_VIRT_BASE + 0x10)
-#define  DOVE_AU0_AC97_SEL		BIT(16)
 #define DOVE_PMU_SIGNAL_SELECT_0	(DOVE_SB_REGS_VIRT_BASE + 0xd802C)
 #define DOVE_PMU_SIGNAL_SELECT_1	(DOVE_SB_REGS_VIRT_BASE + 0xd8030)
 #define DOVE_GLOBAL_CONFIG_1		(DOVE_SB_REGS_VIRT_BASE + 0xe802C)
@@ -56,6 +53,10 @@
 #define  DOVE_CAM_GPIO_SEL		BIT(2)
 #define  DOVE_SD1_GPIO_SEL		BIT(1)
 #define  DOVE_SD0_GPIO_SEL		BIT(0)
+
+/* MPP Base registers */
+#define PMU_MPP_GENERAL_CTRL	0x10
+#define  AU0_AC97_SEL		BIT(16)
 
 #define MPPS_PER_REG	8
 #define MPP_BITS	4
@@ -97,7 +98,7 @@ static int dove_pmu_mpp_ctrl_get(struct mvebu_mpp_ctrl *ctrl,
 {
 	unsigned off = (ctrl->pid / MPPS_PER_REG) * MPP_BITS;
 	unsigned shift = (ctrl->pid % MPPS_PER_REG) * MPP_BITS;
-	unsigned long pmu = readl(DOVE_PMU_MPP_GENERAL_CTRL);
+	unsigned long pmu = readl(mpp_base + PMU_MPP_GENERAL_CTRL);
 	unsigned long func;
 
 	if (pmu & (1 << ctrl->pid)) {
@@ -105,7 +106,7 @@ static int dove_pmu_mpp_ctrl_get(struct mvebu_mpp_ctrl *ctrl,
 		*config = (func >> shift) & MPP_MASK;
 		*config |= CONFIG_PMU;
 	} else {
-		func = readl(DOVE_MPP_VIRT_BASE + off);
+		func = readl(mpp_base + off);
 		*config = (func >> shift) & MPP_MASK;
 	}
 	return 0;
@@ -116,21 +117,23 @@ static int dove_pmu_mpp_ctrl_set(struct mvebu_mpp_ctrl *ctrl,
 {
 	unsigned off = (ctrl->pid / MPPS_PER_REG) * MPP_BITS;
 	unsigned shift = (ctrl->pid % MPPS_PER_REG) * MPP_BITS;
-	unsigned long pmu = readl(DOVE_PMU_MPP_GENERAL_CTRL);
+	unsigned long pmu = readl(mpp_base + PMU_MPP_GENERAL_CTRL);
 	unsigned long func;
 
 	if (config & CONFIG_PMU) {
-		writel(pmu | (1 << ctrl->pid), DOVE_PMU_MPP_GENERAL_CTRL);
+		writel(pmu | (1 << ctrl->pid),
+		       mpp_base + PMU_MPP_GENERAL_CTRL);
 		func = readl(DOVE_PMU_SIGNAL_SELECT_0 + off);
 		func &= ~(MPP_MASK << shift);
 		func |= (config & MPP_MASK) << shift;
 		writel(func, DOVE_PMU_SIGNAL_SELECT_0 + off);
 	} else {
-		writel(pmu & ~(1 << ctrl->pid), DOVE_PMU_MPP_GENERAL_CTRL);
-		func = readl(DOVE_MPP_VIRT_BASE + off);
+		writel(pmu & ~(1 << ctrl->pid),
+		       mpp_base + PMU_MPP_GENERAL_CTRL);
+		func = readl(mpp_base + off);
 		func &= ~(MPP_MASK << shift);
 		func |= (config & MPP_MASK) << shift;
-		writel(func, DOVE_MPP_VIRT_BASE + off);
+		writel(func, mpp_base + off);
 	}
 	return 0;
 }
@@ -228,9 +231,9 @@ static int dove_nand_ctrl_set(struct mvebu_mpp_ctrl *ctrl,
 static int dove_audio0_ctrl_get(struct mvebu_mpp_ctrl *ctrl,
 				unsigned long *config)
 {
-	unsigned long pmu = readl(DOVE_PMU_MPP_GENERAL_CTRL);
+	unsigned long pmu = readl(mpp_base + PMU_MPP_GENERAL_CTRL);
 
-	*config = ((pmu & DOVE_AU0_AC97_SEL) != 0);
+	*config = ((pmu & AU0_AC97_SEL) != 0);
 
 	return 0;
 }
@@ -238,12 +241,12 @@ static int dove_audio0_ctrl_get(struct mvebu_mpp_ctrl *ctrl,
 static int dove_audio0_ctrl_set(struct mvebu_mpp_ctrl *ctrl,
 				unsigned long config)
 {
-	unsigned long pmu = readl(DOVE_PMU_MPP_GENERAL_CTRL);
+	unsigned long pmu = readl(mpp_base + PMU_MPP_GENERAL_CTRL);
 
-	pmu &= ~DOVE_AU0_AC97_SEL;
+	pmu &= ~AU0_AC97_SEL;
 	if (config)
-		pmu |= DOVE_AU0_AC97_SEL;
-	writel(pmu, DOVE_PMU_MPP_GENERAL_CTRL);
+		pmu |= AU0_AC97_SEL;
+	writel(pmu, mpp_base + PMU_MPP_GENERAL_CTRL);
 
 	return 0;
 }
