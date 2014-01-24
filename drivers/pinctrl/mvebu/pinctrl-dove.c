@@ -55,6 +55,8 @@
 
 #define CONFIG_PMU	BIT(4)
 
+static void __iomem *mpp_base;
+
 static int dove_pmu_mpp_ctrl_get(struct mvebu_mpp_ctrl *ctrl,
 				 unsigned long *config)
 {
@@ -776,6 +778,13 @@ static int dove_pinctrl_probe(struct platform_device *pdev)
 {
 	const struct of_device_id *match =
 		of_match_device(dove_pinctrl_of_match, &pdev->dev);
+	struct resource *mpp_res;
+
+	mpp_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	mpp_base = devm_ioremap_resource(&pdev->dev, mpp_res);
+	if (IS_ERR(mpp_base))
+		return PTR_ERR(mpp_base);
+
 	pdev->dev.platform_data = (void *)match->data;
 
 	/*
@@ -789,7 +798,7 @@ static int dove_pinctrl_probe(struct platform_device *pdev)
 	}
 	clk_prepare_enable(clk);
 
-	return mvebu_pinctrl_probe(pdev);
+	return mvebu_pinctrl_probe(pdev, mpp_base);
 }
 
 static int dove_pinctrl_remove(struct platform_device *pdev)

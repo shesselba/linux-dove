@@ -186,7 +186,7 @@ struct mvebu_pinctrl_soc_info {
 		.npins = _npins,				\
 	}
 
-int mvebu_pinctrl_probe(struct platform_device *pdev);
+int mvebu_pinctrl_probe(struct platform_device *pdev, void __iomem *base);
 int mvebu_pinctrl_remove(struct platform_device *pdev);
 
 #endif

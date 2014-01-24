@@ -590,25 +590,23 @@ static int mvebu_pinctrl_build_functions(struct platform_device *pdev,
 	return 0;
 }
 
-int mvebu_pinctrl_probe(struct platform_device *pdev)
+int mvebu_pinctrl_probe(struct platform_device *pdev, void __iomem *base)
 {
 	struct mvebu_pinctrl_soc_info *soc = dev_get_platdata(&pdev->dev);
-	struct resource *res;
 	struct mvebu_pinctrl *pctl;
-	void __iomem *base;
 	struct pinctrl_pin_desc *pdesc;
 	unsigned gid, n, k;
 	int ret;
+
+	if (!base) {
+		dev_err(&pdev->dev, "missing base address\n");
+		return -EINVAL;
+	}
 
 	if (!soc || !soc->controls || !soc->modes) {
 		dev_err(&pdev->dev, "wrong pinctrl soc info\n");
 		return -EINVAL;
 	}
-
-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	base = devm_ioremap_resource(&pdev->dev, res);
-	if (IS_ERR(base))
-		return PTR_ERR(base);
 
 	pctl = devm_kzalloc(&pdev->dev, sizeof(struct mvebu_pinctrl),
 			GFP_KERNEL);
