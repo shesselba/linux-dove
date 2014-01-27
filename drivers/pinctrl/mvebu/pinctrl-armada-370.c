@@ -428,7 +428,7 @@ static int armada_370_pinctrl_probe(struct platform_device *pdev)
 
 	pdev->dev.platform_data = soc;
 
-	return mvebu_pinctrl_probe(pdev, mpp_base);
+	return mvebu_pinctrl_probe(pdev);
 }
 
 static int armada_370_pinctrl_remove(struct platform_device *pdev)

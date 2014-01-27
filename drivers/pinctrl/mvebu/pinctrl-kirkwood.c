@@ -492,7 +492,7 @@ static int kirkwood_pinctrl_probe(struct platform_device *pdev)
 		return PTR_ERR(mpp_base);
 
 	pdev->dev.platform_data = (void *)match->data;
-	return mvebu_pinctrl_probe(pdev, mpp_base);
+	return mvebu_pinctrl_probe(pdev);
 }
 
 static int kirkwood_pinctrl_remove(struct platform_device *pdev)
