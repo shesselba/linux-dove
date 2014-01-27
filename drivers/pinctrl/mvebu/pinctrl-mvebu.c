@@ -637,18 +637,11 @@ int mvebu_pinctrl_probe(struct platform_device *pdev, void __iomem *base)
 		for (k = 0; k < ctrl->npins; k++)
 			ctrl->pins[k] = ctrl->pid + k;
 
-		/* special soc specific control */
-		if (ctrl->mpp_get || ctrl->mpp_set) {
-			if (!ctrl->name || !ctrl->mpp_get || !ctrl->mpp_set) {
-				dev_err(&pdev->dev, "wrong soc control info\n");
-				return -EINVAL;
-			}
+		/* generic mvebu register groups have no name passed */
+		if (!ctrl->name)
+			pctl->num_groups += ctrl->npins;
+		else
 			pctl->num_groups += 1;
-			continue;
-		}
-
-		/* generic mvebu register control */
-		pctl->num_groups += ctrl->npins;
 	}
 
 	pdesc = devm_kzalloc(&pdev->dev, pctl->desc.npins *
