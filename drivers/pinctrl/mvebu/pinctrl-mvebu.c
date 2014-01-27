@@ -631,7 +631,6 @@ int mvebu_pinctrl_probe(struct platform_device *pdev, void __iomem *base)
 	pctl->desc.npins = 0;
 	for (n = 0; n < soc->ncontrols; n++) {
 		struct mvebu_mpp_ctrl *ctrl = &soc->controls[n];
-		char *names;
 
 		pctl->desc.npins += ctrl->npins;
 		/* initial control pins */
@@ -649,14 +648,6 @@ int mvebu_pinctrl_probe(struct platform_device *pdev, void __iomem *base)
 		}
 
 		/* generic mvebu register control */
-		names = devm_kzalloc(&pdev->dev, ctrl->npins * 8, GFP_KERNEL);
-		if (!names) {
-			dev_err(&pdev->dev, "failed to alloc mpp names\n");
-			return -ENOMEM;
-		}
-		for (k = 0; k < ctrl->npins; k++)
-			sprintf(names + 8*k, "mpp%d", ctrl->pid+k);
-		ctrl->name = names;
 		pctl->num_groups += ctrl->npins;
 	}
 
@@ -689,7 +680,18 @@ int mvebu_pinctrl_probe(struct platform_device *pdev, void __iomem *base)
 		pctl->groups[gid].npins = ctrl->npins;
 
 		/* generic mvebu register control maps to a number of groups */
-		if (!ctrl->mpp_get && !ctrl->mpp_set) {
+		if (!ctrl->name) {
+			char *names = devm_kzalloc(&pdev->dev,
+						   ctrl->npins * 8, GFP_KERNEL);
+			if (!names) {
+				dev_err(&pdev->dev, "failed to alloc mpp names\n");
+				return -ENOMEM;
+			}
+			for (k = 0; k < ctrl->npins; k++)
+				sprintf(names + 8*k, "mpp%d", ctrl->pid+k);
+			ctrl->name = names;
+
+			pctl->groups[gid].name = &ctrl->name[0];
 			pctl->groups[gid].npins = 1;
 
 			for (k = 1; k < ctrl->npins; k++) {
