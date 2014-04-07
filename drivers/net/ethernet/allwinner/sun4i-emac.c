@@ -476,7 +476,7 @@ static int emac_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	spin_unlock_irqrestore(&db->lock, flags);
 
 	/* free this SKB */
-	dev_kfree_skb(skb);
+	dev_consume_skb_any(skb);
 
 	return NETDEV_TX_OK;
 }
@@ -929,6 +929,9 @@ static int emac_resume(struct platform_device *dev)
 }
 
 static const struct of_device_id emac_of_match[] = {
+	{.compatible = "allwinner,sun4i-a10-emac",},
+
+	/* Deprecated */
 	{.compatible = "allwinner,sun4i-emac",},
 	{},
 };
