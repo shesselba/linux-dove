@@ -44,11 +44,11 @@
 	};
 };
 
-&nand {
-	pinctrl-0 = <&pmx_nand>;
-	pinctrl-names = "default";
-	status = "ok";
-	chip-delay = <25>;
+&eth0 {
+	status = "okay";
+	ethernet-port@0 {
+		phy-handle = <&ethphy0>;
+	};
 };
 
 &mdio {
@@ -59,9 +59,9 @@
 	};
 };
 
-&eth0 {
-	status = "okay";
-	ethernet-port@0 {
-		phy-handle = <&ethphy0>;
-	};
+&nand {
+	pinctrl-0 = <&pmx_nand>;
+	pinctrl-names = "default";
+	status = "ok";
+	chip-delay = <25>;
 };
