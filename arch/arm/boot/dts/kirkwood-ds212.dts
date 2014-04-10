@@ -38,10 +38,10 @@
 	};
 };
 
-&s35390a {
+&pcie2 {
 	status = "okay";
 };
 
-&pcie2 {
+&s35390a {
 	status = "okay";
 };
