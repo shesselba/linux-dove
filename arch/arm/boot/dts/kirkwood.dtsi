@@ -81,6 +81,11 @@
 				marvell,function = "nand";
 			};
 
+			pmx_spi: pmx-spi {
+				marvell,pins = "mpp0", "mpp1", "mpp2", "mpp3";
+				marvell,function = "spi";
+			};
+
 			pmx_uart0: pmx-uart0 {
 				marvell,pins = "mpp10", "mpp11";
 				marvell,function = "uart0";
