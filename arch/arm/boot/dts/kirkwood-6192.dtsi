@@ -83,7 +83,7 @@
 			clocks = <&gate_clk 7>;
 		};
 
-		sata@80000 {
+		sata: sata@80000 {
 			compatible = "marvell,orion-sata";
 			reg = <0x80000 0x5000>;
 			interrupts = <21>;
