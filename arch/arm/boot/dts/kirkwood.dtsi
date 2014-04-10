@@ -74,6 +74,12 @@
 		pinctrl: pin-controller@10000 {
 			/* set compatible property in SoC file */
 			reg = <0x10000 0x20>;
+
+			pmx_nand: pmx-nand {
+				marvell,pins = "mpp0", "mpp1", "mpp2", "mpp3",
+					       "mpp4", "mpp5", "mpp18", "mpp19";
+				marvell,function = "nand";
+			};
 		};
 
 		core_clk: clocks@10030 {
