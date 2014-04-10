@@ -39,16 +39,6 @@
 	};
 
 	ocp@f1000000 {
-		pinctrl: pin-controller@10000 {
-			pinctrl-0 = <&pmx_usb_power>;
-			pinctrl-names = "default";
-
-                        pmx_usb_power: pmx-usb-power {
-                                marvell,pins = "mpp10";
-                                marvell,function = "gpo";
-                        };
-		};
-
 		serial@12000 {
 			status = "okay";
 
@@ -108,5 +98,15 @@
 
         ethphy0: ethernet-phy@8 {
                 reg = <8>;
+        };
+};
+
+&pinctrl {
+	pinctrl-0 = <&pmx_usb_power>;
+	pinctrl-names = "default";
+
+        pmx_usb_power: pmx-usb-power {
+                marvell,pins = "mpp10";
+                marvell,function = "gpo";
         };
 };
