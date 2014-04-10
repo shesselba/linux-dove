@@ -30,26 +30,6 @@
 			status = "okay";
 			nr-ports = <1>;
 		};
-
-		spi@10600 {
-			pinctrl-0 = <&pmx_spi>;
-			pinctrl-names = "default";
-			status = "okay";
-
-			flash@0 {
-				#address-cells = <1>;
-				#size-cells = <1>;
-				compatible = "mx25l4005a";
-				reg = <0>;
-				spi-max-frequency = <20000000>;
-				mode = <0>;
-
-				partition@0 {
-					reg = <0x0 0x80000>;
-					label = "u-boot";
-				};
-			};
-		};
 	};
 
 	gpio_keys {
@@ -102,5 +82,25 @@
 	pmx_cloudbox_sata0: pmx-cloudbox-sata0 {
 		marvell,pins = "mpp15";
 		marvell,function = "sata0";
+	};
+};
+
+&spi0 {
+	pinctrl-0 = <&pmx_spi>;
+	pinctrl-names = "default";
+	status = "okay";
+
+	flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "macronix,mx25l4005a";
+		reg = <0>;
+		spi-max-frequency = <20000000>;
+		mode = <0>;
+
+		partition@0 {
+			reg = <0x0 0x80000>;
+			label = "u-boot";
+		};
 	};
 };
