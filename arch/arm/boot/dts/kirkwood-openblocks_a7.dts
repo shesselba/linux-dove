@@ -45,17 +45,6 @@
 			nr-ports = <1>;
 			status = "okay";
 		};
-
-		i2c@11100 {
-			status = "okay";
-			pinctrl-0 = <&pmx_twsi1>;
-			pinctrl-names = "default";
-
-			s24c02: s24c02@50 {
-				compatible = "24c02";
-				reg = <0x50>;
-			};
-		};
 	};
 
 	gpio-leds {
@@ -107,6 +96,17 @@
 	pinctrl-names = "default";
 	ethernet-port@0 {
 		phy-handle = <&ethphy1>;
+	};
+};
+
+&i2c1 {
+	status = "okay";
+	pinctrl-0 = <&pmx_twsi1>;
+	pinctrl-names = "default";
+
+	s24c02: s24c02@50 {
+		compatible = "atmel,24c02";
+		reg = <0x50>;
 	};
 };
 
