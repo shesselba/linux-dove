@@ -44,36 +44,6 @@
 	};
 
 	ocp@f1000000 {
-		spi@10600 {
-			status = "okay";
-			pinctrl-0 = <&pmx_spi>;
-			pinctrl-names = "default";
-
-			m25p16@0 {
-				#address-cells = <1>;
-				#size-cells = <1>;
-				compatible = "m25p16";
-				reg = <0>;
-				spi-max-frequency = <40000000>;
-				mode = <0>;
-
-				partition@0 {
-					reg = <0x0 0xc0000>;
-					label = "u-boot";
-				};
-
-				partition@c0000 {
-					reg = <0xc0000 0x20000>;
-					label = "u-boot env";
-				};
-
-				partition@e0000 {
-					reg = <0xe0000 0x120000>;
-					label = "data";
-				};
-			};
-		};
-
 		i2c@11000 {
 			status = "okay";
 			/*
@@ -203,5 +173,35 @@
 	pmx_led_red: pmx-led-red {
 		marvell,pins = "mpp41";
 		marvell,function = "gpio";
+	};
+};
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&pmx_spi>;
+	pinctrl-names = "default";
+
+	m25p16@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "st,m25p16";
+		reg = <0>;
+		spi-max-frequency = <40000000>;
+		mode = <0>;
+
+		partition@0 {
+			reg = <0x0 0xc0000>;
+			label = "u-boot";
+		};
+
+		partition@c0000 {
+			reg = <0xc0000 0x20000>;
+			label = "u-boot env";
+		};
+
+		partition@e0000 {
+			reg = <0xe0000 0x120000>;
+			label = "data";
+		};
 	};
 };
