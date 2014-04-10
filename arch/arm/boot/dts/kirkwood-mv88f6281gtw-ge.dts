@@ -70,7 +70,7 @@
 			status = "ok";
 		};
 
-		ehci@50000 {
+		usb@50000 {
 			status = "okay";
 		};
 
