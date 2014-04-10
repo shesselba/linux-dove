@@ -244,7 +244,7 @@
 			};
 		};
 
-		eth0: ethernet-controller@72000 {
+		eth0: ethernet@72000 {
 			compatible = "marvell,kirkwood-eth";
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -253,7 +253,7 @@
 			marvell,tx-checksum-limit = <1600>;
 			status = "disabled";
 
-			ethernet0-port@0 {
+			ethernet-port@0 {
 				compatible = "marvell,kirkwood-eth-port";
 				reg = <0>;
 				interrupts = <11>;
@@ -275,7 +275,7 @@
 			/* add phy nodes in board file */
 		};
 
-		eth1: ethernet-controller@76000 {
+		eth1: ethernet@76000 {
 			compatible = "marvell,kirkwood-eth";
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -284,7 +284,7 @@
 			marvell,tx-checksum-limit = <1600>;
 			status = "disabled";
 
-			ethernet1-port@0 {
+			ethernet-port@0 {
 				compatible = "marvell,kirkwood-eth-port";
 				reg = <0>;
 				interrupts = <15>;

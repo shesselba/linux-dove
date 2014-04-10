@@ -69,7 +69,7 @@
 
 &eth1 {
 	status = "okay";
-	ethernet1-port@0 {
+	ethernet-port@0 {
 		phy-handle = <&ethphy1>;
 	};
 };

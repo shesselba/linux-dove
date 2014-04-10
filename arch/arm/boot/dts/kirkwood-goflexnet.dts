@@ -182,7 +182,7 @@
 
 &eth0 {
 	status = "okay";
-	ethernet0-port@0 {
+	ethernet-port@0 {
 		phy-handle = <&ethphy0>;
 	};
 };
