@@ -44,21 +44,6 @@
 
 		};
 
-		spi@10600 {
-			status = "okay";
-			pinctrl-0 = <&pmx_spi>;
-			pinctrl-names = "default";
-
-			m25p128@0 {
-				#address-cells = <1>;
-				#size-cells = <1>;
-				compatible = "st,m25p128";
-				reg = <0>;
-				spi-max-frequency = <20000000>;
-				mode = <0>;
-			};
-		};
-
 		sata@80000 {
 			status = "okay";
 			nr-ports = <2>;
@@ -109,4 +94,19 @@
                 marvell,pins = "mpp10";
                 marvell,function = "gpo";
         };
+};
+
+&spi0 {
+	status = "okay";
+	pinctrl-0 = <&pmx_spi>;
+	pinctrl-names = "default";
+
+	m25p128@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "st,m25p128";
+		reg = <0>;
+		spi-max-frequency = <20000000>;
+		mode = <0>;
+	};
 };
