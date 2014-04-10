@@ -46,16 +46,17 @@
 	};
 
 	ocp@f1000000 {
-		i2c@11000 {
-			status = "okay";
-
-			lm75: lm75@48 {
-				compatible = "national,lm75";
-				reg = <0x48>;
-			};
-		};
 		serial@12000 {
 			status = "okay";
 		};
+	};
+};
+
+&i2c0 {
+	status = "okay";
+
+	lm75: lm75@48 {
+		compatible = "national,lm75";
+		reg = <0x48>;
 	};
 };
