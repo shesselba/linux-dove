@@ -130,6 +130,21 @@
 	};
 };
 
+&eth0 {
+	status = "okay";
+	ethernet-port@0 {
+		phy-handle = <&ethphy0>;
+	};
+};
+
+&mdio {
+	status = "okay";
+
+	ethphy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
 &nand {
 	chip-delay = <25>;
 	status = "okay";
@@ -164,20 +179,5 @@
 	partition@2214000 {
 		label = "user";
 		reg = <0x2214000 0x1dec000>;
-	};
-};
-
-&mdio {
-	status = "okay";
-
-	ethphy0: ethernet-phy@0 {
-		reg = <0>;
-	};
-};
-
-&eth0 {
-	status = "okay";
-	ethernet-port@0 {
-		phy-handle = <&ethphy0>;
 	};
 };
