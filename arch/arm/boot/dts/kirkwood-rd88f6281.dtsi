@@ -35,16 +35,6 @@
 	};
 
 	ocp@f1000000 {
-		pinctrl: pin-controller@10000 {
-			pinctrl-0 = <&pmx_sdio_cd>;
-			pinctrl-names = "default";
-
-			pmx_sdio_cd: pmx-sdio-cd {
-				marvell,pins = "mpp28";
-				marvell,function = "gpio";
-			};
-		};
-
 		serial@12000 {
 			status = "okay";
 
@@ -148,5 +138,15 @@
 	partition@300000 {
 		label = "data";
 		reg = <0x0300000 0x500000>;
+	};
+};
+
+&pinctrl {
+	pinctrl-0 = <&pmx_sdio_cd>;
+	pinctrl-names = "default";
+
+	pmx_sdio_cd: pmx-sdio-cd {
+		marvell,pins = "mpp28";
+		marvell,function = "gpio";
 	};
 };
