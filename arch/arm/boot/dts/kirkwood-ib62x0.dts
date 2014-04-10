@@ -102,6 +102,22 @@
 	};
 };
 
+&eth0 {
+	status = "okay";
+
+	ethernet-port@0 {
+		phy-handle = <&ethphy0>;
+	};
+};
+
+&mdio {
+	status = "okay";
+
+	ethphy0: ethernet-phy@8 {
+		reg = <8>;
+	};
+};
+
 &nand {
 	status = "okay";
 	pinctrl-0 = <&pmx_nand>;
@@ -127,20 +143,4 @@
 		reg = <0x0700000 0xf900000>;
 	};
 
-};
-
-&mdio {
-	status = "okay";
-
-	ethphy0: ethernet-phy@8 {
-		reg = <8>;
-	};
-};
-
-&eth0 {
-	status = "okay";
-
-	ethernet-port@0 {
-		phy-handle = <&ethphy0>;
-	};
 };
