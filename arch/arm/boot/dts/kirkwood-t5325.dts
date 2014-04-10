@@ -40,15 +40,6 @@
 	};
 
 	ocp@f1000000 {
-		i2c@11000 {
-			status = "okay";
-
-			alc5621: alc5621@1a {
-				compatible = "realtek,alc5621";
-				reg = <0x1a>;
-			};
-		};
-
 		serial@12000 {
 			status = "okay";
 		};
@@ -110,6 +101,15 @@
 	status = "okay";
 	ethernet-port@0 {
 		phy-handle = <&ethphy0>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+
+	alc5621: alc5621@1a {
+		compatible = "realtek,alc5621";
+		reg = <0x1a>;
 	};
 };
 
