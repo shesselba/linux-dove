@@ -33,17 +33,6 @@
 			nr-ports = <1>;
 			status = "okay";
 		};
-
-		i2c@11100 {
-			status = "okay";
-			pinctrl-0 = <&pmx_twsi1>;
-			pinctrl-names = "default";
-
-			s35390a: s35390a@30 {
-				compatible = "s35390a";
-				reg = <0x30>;
-			};
-		};
 	};
 
 	gpio-leds {
@@ -86,6 +75,17 @@
 	status = "okay";
 	ethernet-port@0 {
 		phy-handle = <&ethphy0>;
+	};
+};
+
+&i2c1 {
+	status = "okay";
+	pinctrl-0 = <&pmx_twsi1>;
+	pinctrl-names = "default";
+
+	s35390a: s35390a@30 {
+		compatible = "sii,s35390a";
+		reg = <0x30>;
 	};
 };
 
