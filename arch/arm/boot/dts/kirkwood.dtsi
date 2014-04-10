@@ -312,7 +312,7 @@
 			status = "ok";
 		};
 
-		audio0: audio-controller@a0000 {
+		audio0: sound@a0000 {
 			compatible = "marvell,kirkwood-audio";
 			reg = <0xa0000 0x2210>;
 			interrupts = <24>;
