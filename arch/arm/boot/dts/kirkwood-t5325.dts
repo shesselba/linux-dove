@@ -40,46 +40,6 @@
 	};
 
 	ocp@f1000000 {
-		spi@10600 {
-			pinctrl-0 = <&pmx_spi>;
-			pinctrl-names = "default";
-			status = "okay";
-
-			flash@0 {
-				#address-cells = <1>;
-				#size-cells = <1>;
-				compatible = "st,m25p80";
-				spi-max-frequency = <86000000>;
-				reg = <0>;
-				mode = <0>;
-
-				partition@0 {
-					reg = <0x0 0x80000>;
-					label = "u-boot";
-				};
-
-				partition@1 {
-					reg = <0x80000 0x40000>;
-					label = "SSD firmware";
-				};
-
-				partition@2 {
-					reg = <0xc0000 0x10000>;
-					label = "u-boot env";
-				};
-
-				partition@3 {
-					reg = <0xd0000 0x10000>;
-					label = "permanent u-boot env";
-				};
-
-				partition@4 {
-					reg = <0xd0000 0x10000>;
-					label = "permanent u-boot env";
-				};
-			};
-		};
-
 		i2c@11000 {
 			status = "okay";
 
@@ -203,5 +163,45 @@
 	pmx_usb_sata_power_enable: pmx-usb-sata-power-enable {
 		marvell,pins = "mpp44";
 		marvell,function = "gpio";
+	};
+};
+
+&spi0 {
+	pinctrl-0 = <&pmx_spi>;
+	pinctrl-names = "default";
+	status = "okay";
+
+	flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "st,m25p80";
+		spi-max-frequency = <86000000>;
+		reg = <0>;
+		mode = <0>;
+
+		partition@0 {
+			reg = <0x0 0x80000>;
+			label = "u-boot";
+		};
+
+		partition@1 {
+			reg = <0x80000 0x40000>;
+			label = "SSD firmware";
+		};
+
+		partition@2 {
+			reg = <0xc0000 0x10000>;
+			label = "u-boot env";
+		};
+
+		partition@3 {
+			reg = <0xd0000 0x10000>;
+			label = "permanent u-boot env";
+		};
+
+		partition@4 {
+			reg = <0xd0000 0x10000>;
+			label = "permanent u-boot env";
+		};
 	};
 };
