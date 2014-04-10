@@ -80,6 +80,16 @@
 					       "mpp4", "mpp5", "mpp18", "mpp19";
 				marvell,function = "nand";
 			};
+
+			pmx_uart0: pmx-uart0 {
+				marvell,pins = "mpp10", "mpp11";
+				marvell,function = "uart0";
+			};
+
+			pmx_uart1: pmx-uart1 {
+				marvell,pins = "mpp13", "mpp14";
+				marvell,function = "uart1";
+			};
 		};
 
 		core_clk: clocks@10030 {
