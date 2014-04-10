@@ -24,17 +24,6 @@
 		};
 	};
 
-	ocp@f1000000 {
-		i2c@11000 {
-			status = "okay";
-
-			adt7476: adt7476a@2e {
-				compatible = "adt7476";
-				reg = <0x2e>;
-			};
-		};
-	};
-
 	gpio_keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
@@ -108,6 +97,15 @@
 			label = "nsa310:red:copy";
 			gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
 		};
+	};
+};
+
+&i2c0 {
+	status = "okay";
+
+	adt7476: adt7476a@2e {
+		compatible = "onnn,adt7476";
+		reg = <0x2e>;
 	};
 };
 
