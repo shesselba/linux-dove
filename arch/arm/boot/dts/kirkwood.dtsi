@@ -123,7 +123,7 @@
 			status = "disabled";
 		};
 
-		serial@12000 {
+		uart0: serial@12000 {
 			compatible = "ns16550a";
 			reg = <0x12000 0x100>;
 			reg-shift = <2>;
@@ -132,7 +132,7 @@
 			status = "disabled";
 		};
 
-		serial@12100 {
+		uart1: serial@12100 {
 			compatible = "ns16550a";
 			reg = <0x12100 0x100>;
 			reg-shift = <2>;
