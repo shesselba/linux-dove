@@ -7,17 +7,6 @@
 	};
 
 	ocp@f1000000 {
-		pinctrl: pin-controller@10000 {
-			pmx_ns2_sata0: pmx-ns2-sata0 {
-				marvell,pins = "mpp21";
-				marvell,function = "sata0";
-			};
-			pmx_ns2_sata1: pmx-ns2-sata1 {
-				marvell,pins = "mpp20";
-				marvell,function = "sata1";
-			};
-		};
-
 		serial@12000 {
 			pinctrl-0 = <&pmx_uart0>;
 			pinctrl-names = "default";
@@ -97,5 +86,17 @@
 
 	ethphy0: ethernet-phy {
                 /* overwrite reg property in board file */
+	};
+};
+
+&pinctrl {
+	pmx_ns2_sata0: pmx-ns2-sata0 {
+		marvell,pins = "mpp21";
+		marvell,function = "sata0";
+	};
+
+	pmx_ns2_sata1: pmx-ns2-sata1 {
+		marvell,pins = "mpp20";
+		marvell,function = "sata1";
 	};
 };
