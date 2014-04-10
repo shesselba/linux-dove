@@ -28,12 +28,6 @@
 			nr-ports = <1>;
 		};
 
-		i2c@11000 {
-			status = "ok";
-			pinctrl-0 = <&pmx_twsi0>;
-			pinctrl-names = "default";
-		};
-
 		sdio@90000 {
 			pinctrl-0 = <&pmx_sdio>;
 			pinctrl-names = "default";
@@ -111,6 +105,12 @@
 	ethernet-port@0 {
 		phy-handle = <&ethphy0>;
 	};
+};
+
+&i2c0 {
+	status = "ok";
+	pinctrl-0 = <&pmx_twsi0>;
+	pinctrl-names = "default";
 };
 
 &mdio {
