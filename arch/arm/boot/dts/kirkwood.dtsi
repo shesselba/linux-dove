@@ -77,7 +77,7 @@
 			#clock-cells = <1>;
 		};
 
-		spi@10600 {
+		spi0: spi@10600 {
 			compatible = "marvell,orion-spi";
 			#address-cells = <1>;
 			#size-cells = <0>;
