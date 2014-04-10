@@ -27,21 +27,6 @@
 	};
 
 	ocp@f1000000 {
-                i2c@11000 {
-                        status = "okay";
-
-			rtc@51 {
-				compatible = "nxp,pcf8563";
-				reg = <0x51>;
-			};
-
-			eeprom@57 {
-				compatible = "atmel,24c02";
-				reg = <0x57>;
-			};
-
-                };
-
                 serial@12000 {
                         status = "ok";
                         pinctrl-0 = <&pmx_uart0>;
@@ -127,6 +112,21 @@
 	ethernet-port@0 {
 		phy-handle = <&ethphy1>;
 	};
+};
+
+&i2c0 {
+        status = "okay";
+
+	rtc@51 {
+		compatible = "nxp,pcf8563";
+		reg = <0x51>;
+	};
+
+	eeprom@57 {
+		compatible = "atmel,24c02";
+		reg = <0x57>;
+	};
+
 };
 
 &mdio {
