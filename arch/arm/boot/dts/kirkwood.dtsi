@@ -71,7 +71,7 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 
-		core_clk: core-clocks@10030 {
+		core_clk: clocks@10030 {
 			compatible = "marvell,kirkwood-core-clock";
 			reg = <0x10030 0x4>;
 			#clock-cells = <1>;
@@ -160,7 +160,7 @@
 			marvell,#interrupts = <6>;
 		};
 
-		gate_clk: clock-gating-control@2011c {
+		gate_clk: clocks@2011c {
 			compatible = "marvell,kirkwood-gating-clock";
 			reg = <0x2011c 0x4>;
 			clocks = <&core_clk 0>;
