@@ -76,7 +76,7 @@
 			};
 		};
 
-		rtc@10300 {
+		rtc: rtc@10300 {
 			compatible = "marvell,kirkwood-rtc", "marvell,orion-rtc";
 			reg = <0x10300 0x20>;
 			interrupts = <53>;
