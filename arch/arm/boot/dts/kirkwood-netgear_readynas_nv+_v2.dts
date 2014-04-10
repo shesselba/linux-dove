@@ -28,11 +28,11 @@
 	};
 
 	mbus {
-		pcie-controller {
+		pcie {
 			status = "okay";
 
 			/* Connected to NEC uPD720200 USB 3.0 controller */
-			pcie@1,0 {
+			pcie-port@1,0 {
 				/* Port 0, Lane 0 */
 				status = "okay";
 			};

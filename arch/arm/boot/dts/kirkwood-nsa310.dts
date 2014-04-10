@@ -15,10 +15,10 @@
 	};
 
 	mbus {
-		pcie-controller {
+		pcie {
 			status = "okay";
 
-			pcie@1,0 {
+			pcie-port@1,0 {
 				status = "okay";
 			};
 		};

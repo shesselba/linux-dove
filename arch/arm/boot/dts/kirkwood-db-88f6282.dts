@@ -19,14 +19,14 @@
 	compatible = "marvell,db-88f6282-bp", "marvell,kirkwood-88f6282", "marvell,kirkwood";
 
 	mbus {
-		pcie-controller {
+		pcie {
 			status = "okay";
 
-			pcie@1,0 {
+			pcie-port@1,0 {
 				status = "okay";
 			};
 
-			pcie@2,0 {
+			pcie-port@2,0 {
 				status = "okay";
 			};
 		};
