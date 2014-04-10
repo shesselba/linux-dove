@@ -103,23 +103,17 @@
        };
 };
 
-&nand {
+&eth0 {
 	status = "okay";
-
-	partition@0 {
-		label = "u-boot";
-		reg = <0x0000000 0x100000>;
-		read-only;
+	ethernet-port@0 {
+		phy-handle = <&ethphy0>;
 	};
+};
 
-	partition@100000 {
-		label = "uImage";
-		reg = <0x0100000 0x200000>;
-	};
-
-	partition@300000 {
-		label = "data";
-		reg = <0x0300000 0x500000>;
+&eth1 {
+	status = "okay";
+	ethernet-port@0 {
+		phy-handle = <&ethphy1>;
 	};
 };
 
@@ -137,16 +131,22 @@
 	};
 };
 
-&eth0 {
+&nand {
 	status = "okay";
-	ethernet-port@0 {
-		phy-handle = <&ethphy0>;
-	};
-};
 
-&eth1 {
-	status = "okay";
-	ethernet-port@0 {
-		phy-handle = <&ethphy1>;
+	partition@0 {
+		label = "u-boot";
+		reg = <0x0000000 0x100000>;
+		read-only;
+	};
+
+	partition@100000 {
+		label = "uImage";
+		reg = <0x0100000 0x200000>;
+	};
+
+	partition@300000 {
+		label = "data";
+		reg = <0x0300000 0x500000>;
 	};
 };
