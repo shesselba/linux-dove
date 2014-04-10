@@ -13,26 +13,6 @@
 			status = "okay";
 		};
 
-		spi@10600 {
-			pinctrl-0 = <&pmx_spi>;
-			pinctrl-names = "default";
-			status = "okay";
-
-			flash@0 {
-				#address-cells = <1>;
-				#size-cells = <1>;
-				compatible = "mx25l4005a";
-				reg = <0>;
-				spi-max-frequency = <20000000>;
-				mode = <0>;
-
-				partition@0 {
-					reg = <0x0 0x80000>;
-					label = "u-boot";
-				};
-			};
-		};
-
 		i2c@11000 {
 			pinctrl-0 = <&pmx_twsi0>;
 			pinctrl-names = "default";
@@ -98,5 +78,25 @@
 	pmx_ns2_sata1: pmx-ns2-sata1 {
 		marvell,pins = "mpp20";
 		marvell,function = "sata1";
+	};
+};
+
+&spi0 {
+	pinctrl-0 = <&pmx_spi>;
+	pinctrl-names = "default";
+	status = "okay";
+
+	flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "macronix,mx25l4005a";
+		reg = <0>;
+		spi-max-frequency = <20000000>;
+		mode = <0>;
+
+		partition@0 {
+			reg = <0x0 0x80000>;
+			label = "u-boot";
+		};
 	};
 };
