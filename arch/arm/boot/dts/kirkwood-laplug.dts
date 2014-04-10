@@ -136,6 +136,22 @@
 	};
 };
 
+&eth0 {
+	status = "okay";
+	ethernet-port@0 {
+		phy-handle = <&ethphy0>;
+	};
+};
+
+&mdio {
+	status = "okay";
+
+	ethphy0: ethernet-phy@0 {
+		device_type = "ethernet-phy";
+		reg = <0>;
+	};
+};
+
 &nand {
 	/* Total size : 512MB */
 	status = "okay";
@@ -155,21 +171,5 @@
 	partition@1100000 {
 		label = "rootfs";
 		reg = <0x1100000 0x1EF00000>; /* 495MB */
-	};
-};
-
-&mdio {
-	status = "okay";
-
-	ethphy0: ethernet-phy@0 {
-		device_type = "ethernet-phy";
-		reg = <0>;
-	};
-};
-
-&eth0 {
-	status = "okay";
-	ethernet-port@0 {
-		phy-handle = <&ethphy0>;
 	};
 };
