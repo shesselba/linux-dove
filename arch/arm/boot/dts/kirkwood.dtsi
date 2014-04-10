@@ -204,7 +204,7 @@
 			status = "okay";
 		};
 
-		xor@60800 {
+		xor0: dma-controller@60800 {
 			compatible = "marvell,orion-xor";
 			reg = <0x60800 0x100
 			       0x60A00 0x100>;
@@ -224,7 +224,7 @@
 			};
 		};
 
-		xor@60900 {
+		xor1: dma-controller@60900 {
 			compatible = "marvell,orion-xor";
 			reg = <0x60900 0x100
 			       0x60B00 0x100>;
