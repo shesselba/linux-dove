@@ -17,15 +17,6 @@
 	};
 
 	ocp@f1000000 {
-		i2c@11000 {
-			status = "okay";
-
-			lm63: lm63@4c {
-				compatible = "national,lm63";
-				reg = <0x4c>;
-			};
-		};
-
 		serial@12000 {
 			status = "ok";
 		};
@@ -99,6 +90,15 @@
 	status = "okay";
 	ethernet-port@0 {
 		phy-handle = <&ethphy1>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+
+	lm63: lm63@4c {
+		compatible = "national,lm63";
+		reg = <0x4c>;
 	};
 };
 
