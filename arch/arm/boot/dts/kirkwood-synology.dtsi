@@ -29,25 +29,6 @@
 			status = "disabled";
 		};
 
-		i2c@11000 {
-			status = "okay";
-			clock-frequency = <400000>;
-			pinctrl-0 = <&pmx_twsi0>;
-			pinctrl-names = "default";
-
-			rs5c372: rs5c372@32 {
-				status = "disabled";
-				compatible = "ricoh,rs5c372";
-				reg = <0x32>;
-			};
-
-			s35390a: s35390a@30 {
-				status = "disabled";
-				compatible = "ssi,s35390a";
-				reg = <0x30>;
-			};
-		};
-
 		serial@12000 {
 			status = "okay";
 			pinctrl-0 = <&pmx_uart0>;
@@ -626,6 +607,25 @@
 
 	ethernet-port@0 {
 		phy-handle = <&ethphy1>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+	pinctrl-0 = <&pmx_twsi0>;
+	pinctrl-names = "default";
+
+	rs5c372: rs5c372@32 {
+		status = "disabled";
+		compatible = "ricoh,rs5c372";
+		reg = <0x32>;
+	};
+
+	s35390a: s35390a@30 {
+		status = "disabled";
+		compatible = "ssi,s35390a";
+		reg = <0x30>;
 	};
 };
 
