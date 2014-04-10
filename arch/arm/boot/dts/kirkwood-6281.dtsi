@@ -46,10 +46,6 @@
 				marvell,pins = "mpp4", "mpp20", "mpp22";
 				marvell,function = "sata1";
 			};
-			pmx_twsi0: pmx-twsi0 {
-				marvell,pins = "mpp8", "mpp9";
-				marvell,function = "twsi0";
-			};
 			pmx_sdio: pmx-sdio {
 				marvell,pins = "mpp12", "mpp13", "mpp14",
 					       "mpp15", "mpp16", "mpp17";

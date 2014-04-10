@@ -86,6 +86,11 @@
 				marvell,function = "spi";
 			};
 
+			pmx_twsi0: pmx-twsi0 {
+				marvell,pins = "mpp8", "mpp9";
+				marvell,function = "twsi0";
+			};
+
 			pmx_uart0: pmx-uart0 {
 				marvell,pins = "mpp10", "mpp11";
 				marvell,function = "uart0";
