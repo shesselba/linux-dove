@@ -220,6 +220,23 @@
 	};
 };
 
+&eth0 {
+	status = "okay";
+
+	ethernet-port@0 {
+		phy-handle = <&ethphy0>;
+	};
+};
+
+&mdio {
+	status = "okay";
+
+	ethphy0: ethernet-phy@0 { /* Marvell 88E1318 */
+		device_type = "ethernet-phy";
+		reg = <0>;
+	};
+};
+
 &nand {
 	status = "okay";
 
@@ -247,22 +264,5 @@
 	partition@1800000 {
 		label = "jffs2";
 		reg = <0x1800000 0x6800000>;
-	};
-};
-
-&mdio {
-	status = "okay";
-
-	ethphy0: ethernet-phy@0 { /* Marvell 88E1318 */
-		device_type = "ethernet-phy";
-		reg = <0>;
-	};
-};
-
-&eth0 {
-	status = "okay";
-
-	ethernet-port@0 {
-		phy-handle = <&ethphy0>;
 	};
 };
