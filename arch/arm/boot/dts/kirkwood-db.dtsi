@@ -25,13 +25,6 @@
 	};
 
 	ocp@f1000000 {
-		pin-controller@10000 {
-			pmx_sdio_gpios: pmx-sdio-gpios {
-				marvell,pins = "mpp37", "mpp38";
-				marvell,function = "gpio";
-			};
-		};
-
 		serial@12000 {
 			pinctrl-0 = <&pmx_uart0>;
 			pinctrl-names = "default";
@@ -92,5 +85,12 @@
 	partition@500000 {
 		label = "root";
 		reg = <0x500000 0x1fb00000>;
+	};
+};
+
+&pinctrl {
+	pmx_sdio_gpios: pmx-sdio-gpios {
+		marvell,pins = "mpp37", "mpp38";
+		marvell,function = "gpio";
 	};
 };
