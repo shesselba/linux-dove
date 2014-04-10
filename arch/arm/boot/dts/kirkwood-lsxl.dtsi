@@ -11,36 +11,6 @@
 			status = "okay";
 			nr-ports = <1>;
 		};
-
-		spi@10600 {
-			status = "okay";
-
-			m25p40@0 {
-				#address-cells = <1>;
-				#size-cells = <1>;
-				compatible = "m25p40";
-				reg = <0>;
-				spi-max-frequency = <25000000>;
-				mode = <0>;
-
-				partition@0 {
-					reg = <0x0 0x60000>;
-					label = "uboot";
-					read-only;
-				};
-
-				partition@60000 {
-					reg = <0x60000 0x10000>;
-					label = "dtb";
-					read-only;
-				};
-
-				partition@70000 {
-					reg = <0x70000 0x10000>;
-					label = "uboot_env";
-				};
-			};
-		};
 	};
 
 	gpio_keys {
@@ -243,5 +213,35 @@
 	pmx_usb_vbus: pmx-usb-vbus {
 		marvell,pins = "mpp11";
 		marvell,function = "gpio";
+	};
+};
+
+&spi0 {
+	status = "okay";
+
+	m25p40@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "st,m25p40";
+		reg = <0>;
+		spi-max-frequency = <25000000>;
+		mode = <0>;
+
+		partition@0 {
+			reg = <0x0 0x60000>;
+			label = "uboot";
+			read-only;
+		};
+
+		partition@60000 {
+			reg = <0x60000 0x10000>;
+			label = "dtb";
+			read-only;
+		};
+
+		partition@70000 {
+			reg = <0x70000 0x10000>;
+			label = "uboot_env";
+		};
 	};
 };
