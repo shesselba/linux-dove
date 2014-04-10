@@ -71,6 +71,22 @@
 	};
 };
 
+&eth0 {
+	status = "okay";
+	ethernet-port@0 {
+		phy-handle = <&ethphy0>;
+	};
+};
+
+&mdio {
+	status = "okay";
+
+	ethphy0: ethernet-phy@0 {
+		compatible = "marvell,88e1116";
+		reg = <0>;
+	};
+};
+
 &nand {
 	status = "okay";
 
@@ -88,21 +104,5 @@
 	partition@500000 {
 		label = "data";
 		reg = <0x0500000 0xfb00000>;
-	};
-};
-
-&mdio {
-	status = "okay";
-
-	ethphy0: ethernet-phy@0 {
-		compatible = "marvell,88e1116";
-		reg = <0>;
-	};
-};
-
-&eth0 {
-	status = "okay";
-	ethernet-port@0 {
-		phy-handle = <&ethphy0>;
 	};
 };
