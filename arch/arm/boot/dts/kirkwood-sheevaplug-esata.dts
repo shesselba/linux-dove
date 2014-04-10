@@ -20,7 +20,7 @@
 			nr-ports = <2>;
 		};
 
-		mvsdio@90000 {
+		sdio@90000 {
 			pinctrl-0 = <&pmx_sdio &pmx_sdio_cd &pmx_sdio_wp>;
 			pinctrl-names = "default";
 			status = "okay";
