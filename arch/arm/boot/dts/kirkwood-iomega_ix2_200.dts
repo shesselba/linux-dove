@@ -170,6 +170,29 @@
 	};
 };
 
+&eth0 {
+	status = "okay";
+	ethernet-port@0 {
+		speed = <1000>;
+		duplex = <1>;
+	};
+};
+
+&eth1 {
+	status = "okay";
+	ethernet-port@0 {
+		phy-handle = <&ethphy1>;
+	};
+};
+
+&mdio {
+	status = "okay";
+
+	ethphy1: ethernet-phy@11 {
+		reg = <11>;
+	};
+};
+
 &nand {
 	status = "okay";
 
@@ -193,28 +216,5 @@
 	partition@400000 {
 		label = "uInitrd";
 		reg = <0x540000 0x1000000>;
-	};
-};
-
-&mdio {
-	status = "okay";
-
-	ethphy1: ethernet-phy@11 {
-		reg = <11>;
-	};
-};
-
-&eth0 {
-	status = "okay";
-	ethernet-port@0 {
-		speed = <1000>;
-		duplex = <1>;
-	};
-};
-
-&eth1 {
-	status = "okay";
-	ethernet-port@0 {
-		phy-handle = <&ethphy1>;
 	};
 };
