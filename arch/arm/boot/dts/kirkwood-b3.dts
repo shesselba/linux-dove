@@ -44,16 +44,6 @@
 	};
 
 	ocp@f1000000 {
-		i2c@11000 {
-			status = "okay";
-			/*
-			 * There is something on the bus at address 0x64.
-			 * Not yet identified what it is, maybe the eeprom
-			 * for the Atheros WiFi chip?
-			 */
-		};
-
-
 		serial@12000 {
 			/* Internal on test pins, 3.3v TTL
 		 	 * UART0_RX = Testpoint 65
@@ -133,6 +123,15 @@
 	ethernet-port@0 {
 		phy-handle = <&ethphy1>;
 	};
+};
+
+&i2c0 {
+	status = "okay";
+	/*
+	 * There is something on the bus at address 0x64.
+	 * Not yet identified what it is, maybe the eeprom
+	 * for the Atheros WiFi chip?
+	 */
 };
 
 &mdio {
