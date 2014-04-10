@@ -29,48 +29,6 @@
 	};
 
 	ocp@f1000000 {
-		pinctrl: pin-controller@10000 {
-			pmx_button_reset: pmx-button-reset {
-				marvell,pins = "mpp12";
-				marvell,function = "gpio";
-			};
-			pmx_button_otb: pmx-button-otb {
-				marvell,pins = "mpp35";
-				marvell,function = "gpio";
-			};
-			pmx_led_level: pmx-led-level {
-				marvell,pins = "mpp41";
-				marvell,function = "gpio";
-			};
-			pmx_led_power_blue: pmx-led-power-blue {
-				marvell,pins = "mpp42";
-				marvell,function = "gpio";
-			};
-			pmx_led_power_red: pmx-power-red {
-				marvell,pins = "mpp43";
-				marvell,function = "gpio";
-			};
-			pmx_led_usb1: pmx-led-usb1 {
-				marvell,pins = "mpp44";
-				marvell,function = "gpio";
-			};
-			pmx_led_usb2: pmx-led-usb2 {
-				marvell,pins = "mpp45";
-				marvell,function = "gpio";
-			};
-			pmx_led_usb3: pmx-led-usb3 {
-				marvell,pins = "mpp46";
-				marvell,function = "gpio";
-			};
-			pmx_led_usb4: pmx-led-usb4 {
-				marvell,pins = "mpp47";
-				marvell,function = "gpio";
-			};
-			pmx_led_otb: pmx-led-otb {
-				marvell,pins = "mpp48";
-				marvell,function = "gpio";
-			};
-		};
 		i2c@11000 {
 			status = "okay";
 
@@ -191,5 +149,57 @@
 	partition@980000 {
 		label = "boot";
 		reg = <0x980000 0x1f400000>;
+	};
+};
+
+&pinctrl {
+	pmx_button_otb: pmx-button-otb {
+		marvell,pins = "mpp35";
+		marvell,function = "gpio";
+	};
+
+	pmx_button_reset: pmx-button-reset {
+		marvell,pins = "mpp12";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_level: pmx-led-level {
+		marvell,pins = "mpp41";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_otb: pmx-led-otb {
+		marvell,pins = "mpp48";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_power_blue: pmx-led-power-blue {
+		marvell,pins = "mpp42";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_power_red: pmx-power-red {
+		marvell,pins = "mpp43";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_usb1: pmx-led-usb1 {
+		marvell,pins = "mpp44";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_usb2: pmx-led-usb2 {
+		marvell,pins = "mpp45";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_usb3: pmx-led-usb3 {
+		marvell,pins = "mpp46";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_usb4: pmx-led-usb4 {
+		marvell,pins = "mpp47";
+		marvell,function = "gpio";
 	};
 };
