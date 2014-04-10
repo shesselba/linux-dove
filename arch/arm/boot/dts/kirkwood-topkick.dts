@@ -173,6 +173,21 @@
 	};
 };
 
+&eth0 {
+	status = "okay";
+	ethernet-port@0 {
+		phy-handle = <&ethphy0>;
+	};
+};
+
+&mdio {
+	status = "okay";
+
+	ethphy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+};
+
 &nand {
 	status = "okay";
 	pinctrl-0 = <&pmx_nand>;
@@ -201,20 +216,5 @@
 	partition@1800000 {
 		label = "rootfs";
 		reg = <0x1800000 0xe800000>;
-	};
-};
-
-&mdio {
-	status = "okay";
-
-	ethphy0: ethernet-phy@0 {
-		reg = <0>;
-	};
-};
-
-&eth0 {
-	status = "okay";
-	ethernet-port@0 {
-		phy-handle = <&ethphy0>;
 	};
 };
