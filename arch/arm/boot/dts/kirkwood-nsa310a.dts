@@ -20,76 +20,6 @@
 	};
 
 	ocp@f1000000 {
-		pinctrl: pin-controller@10000 {
-			pinctrl-names = "default";
-
-			pmx_led_esata_green: pmx-led-esata-green {
-				marvell,pins = "mpp12";
-				marvell,function = "gpio";
-			};
-
-			pmx_led_esata_red: pmx-led-esata-red {
-				marvell,pins = "mpp13";
-				marvell,function = "gpio";
-			};
-
-			pmx_led_usb_green: pmx-led-usb-green {
-				marvell,pins = "mpp15";
-				marvell,function = "gpio";
-			};
-
-			pmx_usb_power_off: pmx-usb-power-off {
-				marvell,pins = "mpp21";
-				marvell,function = "gpio";
-			};
-
-			pmx_led_sys_green: pmx-led-sys-green {
-				marvell,pins = "mpp28";
-				marvell,function = "gpio";
-			};
-
-			pmx_led_sys_red: pmx-led-sys-red {
-				marvell,pins = "mpp29";
-				marvell,function = "gpio";
-			};
-
-			pmx_btn_reset: pmx-btn-reset {
-				marvell,pins = "mpp36";
-				marvell,function = "gpio";
-			};
-
-			pmx_btn_copy: pmx-btn-copy {
-				marvell,pins = "mpp37";
-				marvell,function = "gpio";
-			};
-
-			pmx_led_copy_green: pmx-led-copy-green {
-				marvell,pins = "mpp39";
-				marvell,function = "gpio";
-			};
-
-			pmx_led_copy_red: pmx-led-copy-red {
-				marvell,pins = "mpp40";
-				marvell,function = "gpio";
-			};
-
-			pmx_led_hdd_green: pmx-led-hdd-green {
-				marvell,pins = "mpp41";
-				marvell,function = "gpio";
-			};
-
-			pmx_led_hdd_red: pmx-led-hdd-red {
-				marvell,pins = "mpp42";
-				marvell,function = "gpio";
-			};
-
-			pmx_btn_power: pmx-btn-power {
-				marvell,pins = "mpp46";
-				marvell,function = "gpio";
-			};
-
-		};
-
 		i2c@11000 {
 			status = "okay";
 
@@ -161,5 +91,74 @@
 			label = "nsa310:red:copy";
 			gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
 		};
+	};
+};
+
+&pinctrl {
+	pinctrl-names = "default";
+
+	pmx_btn_copy: pmx-btn-copy {
+		marvell,pins = "mpp37";
+		marvell,function = "gpio";
+	};
+
+	pmx_btn_power: pmx-btn-power {
+		marvell,pins = "mpp46";
+		marvell,function = "gpio";
+	};
+
+	pmx_btn_reset: pmx-btn-reset {
+		marvell,pins = "mpp36";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_copy_green: pmx-led-copy-green {
+		marvell,pins = "mpp39";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_copy_red: pmx-led-copy-red {
+		marvell,pins = "mpp40";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_esata_green: pmx-led-esata-green {
+		marvell,pins = "mpp12";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_esata_red: pmx-led-esata-red {
+		marvell,pins = "mpp13";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_hdd_green: pmx-led-hdd-green {
+		marvell,pins = "mpp41";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_hdd_red: pmx-led-hdd-red {
+		marvell,pins = "mpp42";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_sys_green: pmx-led-sys-green {
+		marvell,pins = "mpp28";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_sys_red: pmx-led-sys-red {
+		marvell,pins = "mpp29";
+		marvell,function = "gpio";
+	};
+
+	pmx_led_usb_green: pmx-led-usb-green {
+		marvell,pins = "mpp15";
+		marvell,function = "gpio";
+	};
+
+	pmx_usb_power_off: pmx-usb-power-off {
+		marvell,pins = "mpp21";
+		marvell,function = "gpio";
 	};
 };
