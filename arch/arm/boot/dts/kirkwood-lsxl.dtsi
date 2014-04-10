@@ -208,18 +208,6 @@
 	};
 };
 
-&mdio {
-	status = "okay";
-
-	ethphy0: ethernet-phy@0 {
-		reg = <0>;
-	};
-
-	ethphy1: ethernet-phy@8 {
-		reg = <8>;
-	};
-};
-
 &eth0 {
 	status = "okay";
 	ethernet-port@0 {
@@ -231,5 +219,17 @@
 	status = "okay";
 	ethernet-port@0 {
 		phy-handle = <&ethphy1>;
+	};
+};
+
+&mdio {
+	status = "okay";
+
+	ethphy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+
+	ethphy1: ethernet-phy@8 {
+		reg = <8>;
 	};
 };
