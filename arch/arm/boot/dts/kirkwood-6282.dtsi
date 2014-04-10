@@ -117,7 +117,7 @@
 			clocks = <&gate_clk 7>;
 		};
 
-		i2c@11100 {
+		i2c1: i2c@11100 {
 			compatible = "marvell,mv64xxx-i2c";
 			reg = <0x11100 0x20>;
 			#address-cells = <1>;
