@@ -17,11 +17,6 @@
 	};
 
 	ocp@f1000000 {
-		sata@80000 {
-			status = "okay";
-			nr-ports = <1>;
-		};
-
 		sdio@90000 {
 			pinctrl-0 = <&pmx_sdio>;
 			pinctrl-names = "default";
@@ -93,6 +88,11 @@
 		marvell,pins = "mpp49";
 		marvell,function = "gpio";
 	};
+};
+
+&sata {
+	status = "okay";
+	nr-ports = <1>;
 };
 
 &spi0 {
