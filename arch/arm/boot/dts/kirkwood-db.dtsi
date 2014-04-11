@@ -25,10 +25,6 @@
 	};
 
 	ocp@f1000000 {
-		usb@50000 {
-			status = "okay";
-		};
-
 		sdio@90000 {
 			pinctrl-0 = <&pmx_sdio_gpios>;
 			pinctrl-names = "default";
@@ -90,4 +86,8 @@
 
 &uart0 {
 	status = "ok";
+};
+
+&usb0 {
+	status = "okay";
 };
