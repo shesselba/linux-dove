@@ -17,11 +17,6 @@
 	};
 
 	ocp@f1000000 {
-		sata@80000 {
-			status = "okay";
-			nr-ports = <1>;
-		};
-
 		/* AzureWave AW-GH381 WiFi/BT */
 		sdio@90000 {
 			status = "okay";
@@ -122,6 +117,11 @@
 		marvell,pins = "mpp48";
 		marvell,function = "gpio";
 	};
+};
+
+&sata {
+	status = "okay";
+	nr-ports = <1>;
 };
 
 &uart0 {
