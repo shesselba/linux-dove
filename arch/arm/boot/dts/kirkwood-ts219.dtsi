@@ -27,12 +27,6 @@
 			reg = <0x12000 0x100>;
 			clocks = <&gate_clk 7>;
 		};
-		sata@80000 {
-			pinctrl-0 = <&pmx_sata0 &pmx_sata1>;
-			pinctrl-names = "default";
-			status = "okay";
-			nr-ports = <2>;
-		};
 	};
 };
 
@@ -61,6 +55,13 @@
 	ethphy0: ethernet-phy {
                 /* overwrite reg property in board file */
 	};
+};
+
+&sata {
+	pinctrl-0 = <&pmx_sata0 &pmx_sata1>;
+	pinctrl-names = "default";
+	status = "okay";
+	nr-ports = <2>;
 };
 
 &spi0 {
