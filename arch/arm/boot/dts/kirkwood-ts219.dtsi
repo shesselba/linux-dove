@@ -22,12 +22,6 @@
 	};
 
 	ocp@f1000000 {
-		serial@12100 {
-			clock-frequency = <200000000>;
-			status = "okay";
-			pinctrl-0 = <&pmx_uart1>;
-			pinctrl-names = "default";
-		};
 		poweroff@12100 {
 			compatible = "qnap,power-off";
 			reg = <0x12000 0x100>;
@@ -112,5 +106,9 @@
 };
 
 &uart0 {
+	status = "okay";
+};
+
+&uart1 {
 	status = "okay";
 };
