@@ -40,11 +40,6 @@
 	};
 
 	ocp@f1000000 {
-		sata@80000 {
-			status = "okay";
-			nr-ports = <2>;
-		};
-
 		audio: sound@a0000 {
 			status = "okay";
 		};
@@ -160,6 +155,11 @@
 		marvell,pins = "mpp44";
 		marvell,function = "gpio";
 	};
+};
+
+&sata {
+	status = "okay";
+	nr-ports = <2>;
 };
 
 &spi0 {
