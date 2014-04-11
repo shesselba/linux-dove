@@ -167,6 +167,12 @@
 			reg-shift = <2>;
 			interrupts = <33>;
 			clocks = <&gate_clk 7>;
+			/*
+			 * Default pinctrl setting without RTS/CTS,
+			 * overwrite on board level when required
+			 */
+			pinctrl-0 = <&pmx_uart0>;
+			pinctrl-names = "default";
 			status = "disabled";
 		};
 
@@ -176,6 +182,12 @@
 			reg-shift = <2>;
 			interrupts = <34>;
 			clocks = <&gate_clk 7>;
+			/*
+			 * Default pinctrl setting without RTS/CTS,
+			 * overwrite on board level when required
+			 */
+			pinctrl-0 = <&pmx_uart1>;
+			pinctrl-names = "default";
 			status = "disabled";
 		};
 
