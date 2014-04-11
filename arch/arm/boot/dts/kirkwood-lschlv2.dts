@@ -10,10 +10,8 @@
 		device_type = "memory";
 		reg = <0x00000000 0x4000000>;
 	};
+};
 
-	ocp@f1000000 {
-		serial@12000 {
-			status = "okay";
-		};
-	};
+&uart0 {
+	status = "okay";
 };
