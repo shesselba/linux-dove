@@ -16,16 +16,6 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
 
-	ocp@f1000000 {
-		sdio@90000 {
-			pinctrl-0 = <&pmx_sdio>;
-			pinctrl-names = "default";
-			status = "okay";
-			/* No CD or WP GPIOs */
-			broken-cd;
-		};
-	};
-
 	gpio-leds {
 		compatible = "gpio-leds";
 		pinctrl-0 = <&pmx_led_bluetooth &pmx_led_wifi
@@ -93,6 +83,14 @@
 &sata {
 	status = "okay";
 	nr-ports = <1>;
+};
+
+&sdio {
+	pinctrl-0 = <&pmx_sdio>;
+	pinctrl-names = "default";
+	status = "okay";
+	/* No CD or WP GPIOs */
+	broken-cd;
 };
 
 &spi0 {
