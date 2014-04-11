@@ -39,7 +39,7 @@
 	status = "okay";
 };
 
-&pcie2 {
+&pcie1 {
 	status = "okay";
 };
 
