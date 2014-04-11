@@ -16,14 +16,6 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
 
-	ocp@f1000000 {
-		/* AzureWave AW-GH381 WiFi/BT */
-		sdio@90000 {
-			status = "okay";
-			non-removable;
-		};
-	};
-
 	gpio-leds {
 		compatible = "gpio-leds";
 		pinctrl-0 = < &pmx_led_health_r &pmx_led_health_g
@@ -122,6 +114,12 @@
 &sata {
 	status = "okay";
 	nr-ports = <1>;
+};
+
+/* AzureWave AW-GH381 WiFi/BT */
+&sdio {
+	status = "okay";
+	non-removable;
 };
 
 &uart0 {
