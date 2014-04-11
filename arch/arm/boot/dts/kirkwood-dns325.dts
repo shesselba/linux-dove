@@ -44,12 +44,6 @@
 			gpios = <&gpio0 29 GPIO_ACTIVE_LOW>;
 		};
 	};
-
-	ocp@f1000000 {
-		serial@12000 {
-			status = "okay";
-		};
-	};
 };
 
 &i2c0 {
@@ -59,4 +53,8 @@
 		compatible = "national,lm75";
 		reg = <0x48>;
 	};
+};
+
+&uart0 {
+	status = "okay";
 };
