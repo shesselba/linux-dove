@@ -10,14 +10,6 @@
  */
 
 / {
-	ocp@f1000000 {
-		poweroff@12100 {
-			compatible = "synology,power-off";
-			reg = <0x12100 0x100>;
-			clocks = <&gate_clk 7>;
-		};
-	};
-
 	gpio-fan-150-32-35 {
 		status = "disabled";
 		compatible = "gpio-fan";
@@ -856,7 +848,12 @@
 	status = "okay";
 };
 
+/*
+ * UART1 is directly connected to a micro-controller
+ * that provides some system related functions.
+ */
 &uart1 {
+	compatible = "synology,power-off";
 	status = "okay";
 };
 
