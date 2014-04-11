@@ -28,6 +28,7 @@
 			linux,code = <KEY_COPY>;
 			gpios = <&gpio0 29 GPIO_ACTIVE_LOW>;
 		};
+
 		button@2 {
 			label = "Reset";
 			linux,code = <KEY_RESTART>;
@@ -46,10 +47,12 @@
 			gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
 			default-state = "keep";
 		};
+
 		red-os {
 			label = "ib62x0:red:os";
 			gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>;
 		};
+
 		usb-copy {
 			label = "ib62x0:red:usb_copy";
 			gpios = <&gpio0 27 GPIO_ACTIVE_HIGH>;

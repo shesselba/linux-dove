@@ -31,31 +31,38 @@
 			gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
 		};
+
 		power-blue {
 			label = "power:blue";
 			gpios = <&gpio1 10 GPIO_ACTIVE_HIGH>;
 			default-state = "keep";
 		};
+
 		power-red {
 			label = "power:red";
 			gpios = <&gpio1 11 GPIO_ACTIVE_HIGH>;
 		};
+
 		usb1 {
 			label = "usb1:blue";
 			gpios = <&gpio1 12 GPIO_ACTIVE_HIGH>;
 		};
+
 		usb2 {
 			label = "usb2:blue";
 			gpios = <&gpio1 13 GPIO_ACTIVE_HIGH>;
 		};
+
 		usb3 {
 			label = "usb3:blue";
 			gpios = <&gpio1 14 GPIO_ACTIVE_HIGH>;
 		};
+
 		usb4 {
 			label = "usb4:blue";
 			gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
 		};
+
 		otb {
 			label = "otb:blue";
 			gpios = <&gpio1 16 GPIO_ACTIVE_HIGH>;
@@ -75,6 +82,7 @@
 			gpios = <&gpio1 3 GPIO_ACTIVE_LOW>;
 			debounce-interval = <100>;
 		};
+
 		button@2 {
 			label = "Reset";
 			linux,code = <KEY_RESTART>;
@@ -86,6 +94,7 @@
 
 &eth0 {
 	status = "okay";
+
 	ethernet-port@0 {
 		phy-handle = <&ethphy0>;
 	};

@@ -40,24 +40,29 @@
 			gpios = <&gpio0 21 GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "ide-disk";
 		};
+
 		system2 {
 			label = "topkick:red:system";
 			gpios = <&gpio1 5 GPIO_ACTIVE_LOW>;
 		};
+
 		system {
 			label = "topkick:blue:system";
 			gpios = <&gpio1 6 GPIO_ACTIVE_LOW>;
 			default-state = "on";
 		};
+
 		wifi {
 			label = "topkick:green:wifi";
 			gpios = <&gpio1 7 GPIO_ACTIVE_LOW>;
 		};
+
 		wifi2 {
 			label = "topkick:yellow:wifi";
 			gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
 		};
 	};
+
 	regulators {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -81,6 +86,7 @@
 
 &eth0 {
 	status = "okay";
+
 	ethernet-port@0 {
 		phy-handle = <&ethphy0>;
 	};

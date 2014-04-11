@@ -25,6 +25,7 @@
 			linux,code = <KEY_COPY>;
 			gpios = <&gpio1 11 GPIO_ACTIVE_LOW>;
 		};
+
 		button@2 {
 			label = "Reset";
 			linux,code = <KEY_RESTART>;
@@ -35,6 +36,7 @@
 
 &eth1 {
 	status = "okay";
+
 	ethernet-port@0 {
 		phy-handle = <&ethphy1>;
 	};

@@ -43,6 +43,7 @@
 			label = "laplug_v2:red:power";
 			gpios = <&gpio0 12 GPIO_ACTIVE_HIGH>;
 		};
+
 		blue-power {
 			label = "laplug_v2:blue:power";
 			gpios = <&gpio0 29 GPIO_ACTIVE_HIGH>;
@@ -102,6 +103,7 @@
 
 &eth0 {
 	status = "okay";
+
 	ethernet-port@0 {
 		phy-handle = <&ethphy0>;
 	};

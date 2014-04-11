@@ -17,6 +17,7 @@
 			linux,code = <KEY_COPY>;
 			gpios = <&gpio1 11 GPIO_ACTIVE_LOW>;
 		};
+
 		button@2 {
 			label = "Reset";
 			linux,code = <KEY_RESTART>;
@@ -25,7 +26,9 @@
 	};
 };
 
-&ethphy0 { reg = <0>; };
+&ethphy0 {
+	reg = <0>;
+};
 
 &pcie1 {
 	status = "okay";

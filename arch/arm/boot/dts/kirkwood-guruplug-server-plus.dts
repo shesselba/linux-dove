@@ -26,14 +26,17 @@
 			label = "guruplug:red:health";
 			gpios = <&gpio1 14 GPIO_ACTIVE_LOW>;
 		};
+
 		health-g {
 			label = "guruplug:green:health";
 			gpios = <&gpio1 15 GPIO_ACTIVE_LOW>;
 		};
+
 		wmode-r {
 			label = "guruplug:red:wmode";
 			gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
 		};
+
 		wmode-g {
 			label = "guruplug:green:wmode";
 			gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
@@ -43,6 +46,7 @@
 
 &eth0 {
 	status = "okay";
+
 	ethernet-port@0 {
 		phy-handle = <&ethphy0>;
 	};
@@ -50,6 +54,7 @@
 
 &eth1 {
 	status = "okay";
+
 	ethernet-port@0 {
 		phy-handle = <&ethphy1>;
 	};

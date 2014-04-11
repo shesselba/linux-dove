@@ -16,5 +16,10 @@
 #include "kirkwood-ts219.dtsi"
 #include "kirkwood-ts419.dtsi"
 
-&ethphy0 { reg = <8>; };
-&ethphy1 { reg = <0>; };
+&ethphy0 {
+	reg = <8>;
+};
+
+&ethphy1 {
+	reg = <0>;
+};

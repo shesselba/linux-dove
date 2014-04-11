@@ -26,10 +26,12 @@
 			label = "dreamplug:blue:bluetooth";
 			gpios = <&gpio1 15 GPIO_ACTIVE_LOW>;
 		};
+
 		wifi {
 			label = "dreamplug:green:wifi";
 			gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
 		};
+
 		wifi-ap {
 			label = "dreamplug:green:wifi_ap";
 			gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
@@ -39,6 +41,7 @@
 
 &eth0 {
 	status = "okay";
+
 	ethernet-port@0 {
 		phy-handle = <&ethphy0>;
 	};
@@ -46,6 +49,7 @@
 
 &eth1 {
 	status = "okay";
+
 	ethernet-port@0 {
 		phy-handle = <&ethphy1>;
 	};

@@ -17,6 +17,7 @@
 			linux,code = <KEY_COPY>;
 			gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
 		};
+
 		button@2 {
 			label = "Reset";
 			linux,code = <KEY_RESTART>;
@@ -25,7 +26,9 @@
 	};
 };
 
-&ethphy0 { reg = <8>; };
+&ethphy0 {
+	reg = <8>;
+};
 
 &pinctrl {
 	pinctrl-0 = <&pmx_ram_size &pmx_board_id>;

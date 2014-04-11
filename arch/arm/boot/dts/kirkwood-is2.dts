@@ -22,7 +22,9 @@
 	};
 };
 
-&ethphy0 { reg = <8>; };
+&ethphy0 {
+	reg = <8>;
+};
 
 &sata {
 	pinctrl-0 = <&pmx_ns2_sata0>;

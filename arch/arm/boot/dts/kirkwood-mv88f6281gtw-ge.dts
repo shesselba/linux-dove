@@ -63,6 +63,7 @@
 			linux,code = <KEY_RESTART>;
 			gpios = <&gpio1 15 GPIO_ACTIVE_LOW>;
 		};
+
 		button@2 {
 			label = "WPS Button";
 			linux,code = <KEY_WPS_BUTTON>;
@@ -118,6 +119,7 @@
 
 &eth0 {
 	status = "okay";
+
 	ethernet-port@0 {
 		phy-handle = <&ethphy0>;
 	};
