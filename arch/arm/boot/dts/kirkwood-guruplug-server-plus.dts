@@ -17,11 +17,6 @@
 	};
 
 	ocp@f1000000 {
-		serial@12000 {
-			clock-frequency = <200000000>;
-			status = "ok";
-		};
-
 		sata@80000 {
 			status = "okay";
 			nr-ports = <1>;
@@ -127,4 +122,8 @@
 		marvell,pins = "mpp48";
 		marvell,function = "gpio";
 	};
+};
+
+&uart0 {
+	status = "ok";
 };
