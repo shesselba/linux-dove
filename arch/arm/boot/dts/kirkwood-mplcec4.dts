@@ -20,14 +20,6 @@
 		rtc@10300 {
 			status = "disabled";
 		};
-
-		sdio@90000 {
-			pinctrl-0 = <&pmx_sdio &pmx_sdio_cd>;
-			pinctrl-names = "default";
-			status = "okay";
-			cd-gpios = <&gpio1 15 GPIO_ACTIVE_LOW>;
-			/* No WP GPIO */
-		};
 	};
 
 	gpio-leds {
@@ -209,6 +201,14 @@
 	pinctrl-names = "default";
 	nr-ports = <2>;
 	status = "okay";
+};
+
+&sdio {
+	pinctrl-0 = <&pmx_sdio &pmx_sdio_cd>;
+	pinctrl-names = "default";
+	status = "okay";
+	cd-gpios = <&gpio1 15 GPIO_ACTIVE_LOW>;
+	/* No WP GPIO */
 };
 
 &uart0 {
