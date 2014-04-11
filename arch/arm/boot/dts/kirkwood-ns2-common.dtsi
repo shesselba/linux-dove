@@ -6,7 +6,7 @@
 		bootargs = "console=ttyS0,115200n8";
 	};
 
-	gpio_keys {
+	gpio-keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -27,7 +27,7 @@
 		};
 	};
 
-	gpio_poweroff {
+	gpio-poweroff {
 		compatible = "gpio-poweroff";
 		gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
 	};

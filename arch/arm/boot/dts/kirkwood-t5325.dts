@@ -49,7 +49,7 @@
 		};
 	};
 
-	gpio_keys {
+	gpio-keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -63,7 +63,7 @@
 		};
 	};
 
-	gpio_poweroff {
+	gpio-poweroff {
 		compatible = "gpio-poweroff";
 		pinctrl-0 = <&pmx_power_off>;
 		pinctrl-names = "default";

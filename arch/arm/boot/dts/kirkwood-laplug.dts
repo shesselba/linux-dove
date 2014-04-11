@@ -26,7 +26,7 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
 
-	gpio_keys {
+	gpio-keys {
 		compatible = "gpio-keys";
 
 		button@1{
@@ -50,7 +50,7 @@
 		};
 	};
 
-	gpio_poweroff {
+	gpio-poweroff {
 		compatible = "gpio-poweroff";
 		gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
 	};

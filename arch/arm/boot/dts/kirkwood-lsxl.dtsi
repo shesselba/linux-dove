@@ -6,7 +6,7 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
 
-	gpio_keys {
+	gpio-keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -33,7 +33,7 @@
 		};
 	};
 
-	gpio_leds {
+	gpio-leds {
 		compatible = "gpio-leds";
 		pinctrl-0 = <&pmx_led_function_red &pmx_led_alarm
 			     &pmx_led_info &pmx_led_power
@@ -67,7 +67,7 @@
 		};
 	};
 
-	gpio_fan {
+	gpio-fan {
 		compatible = "gpio-fan";
 		pinctrl-0 = <&pmx_fan_low &pmx_fan_high &pmx_fan_lock>;
 		pinctrl-names = "default";
@@ -80,7 +80,7 @@
 		alarm-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
 	};
 
-	restart_poweroff {
+	restart-poweroff {
 		compatible = "restart-poweroff";
 	};
 

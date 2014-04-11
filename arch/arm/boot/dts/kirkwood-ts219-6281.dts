@@ -5,7 +5,7 @@
 #include "kirkwood-ts219.dtsi"
 
 / {
-	gpio_keys {
+	gpio-keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
 		#size-cells = <0>;

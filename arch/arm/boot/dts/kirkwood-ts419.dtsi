@@ -13,7 +13,7 @@
 	model = "QNAP TS419 family";
 	compatible = "qnap,ts419", "marvell,kirkwood";
 
-	gpio_keys {
+	gpio-keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
 		#size-cells = <0>;

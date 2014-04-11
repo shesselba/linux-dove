@@ -37,7 +37,7 @@
 		};
         };
 
-	gpio_keys {
+	gpio-keys {
 		compatible = "gpio-keys";
 		pinctrl-0 = <&pmx_gpio_init>;
 		pinctrl-names = "default";

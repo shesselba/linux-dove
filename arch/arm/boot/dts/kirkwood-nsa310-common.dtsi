@@ -4,7 +4,7 @@
 / {
 	model = "ZyXEL NSA310";
 
-	gpio_poweroff {
+	gpio-poweroff {
 		compatible = "gpio-poweroff";
 		pinctrl-0 = <&pmx_pwr_off>;
 		pinctrl-names = "default";

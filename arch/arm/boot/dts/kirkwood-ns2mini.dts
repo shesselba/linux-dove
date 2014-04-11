@@ -12,7 +12,7 @@
 		reg = <0x00000000 0x8000000>;
 	};
 
-	gpio_fan {
+	gpio-fan {
 		compatible = "gpio-fan";
 		gpios = <&gpio0 22 GPIO_ACTIVE_LOW
 			 &gpio0  7 GPIO_ACTIVE_LOW

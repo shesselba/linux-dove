@@ -5,7 +5,7 @@
 	model = "D-Link DNS NASes (kirkwood-based)";
 	compatible = "dlink,dns-kirkwood", "marvell,kirkwood-88f6281", "marvell,kirkwood";
 
-	gpio_keys {
+	gpio-keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -30,7 +30,7 @@
 		};
 	};
 
-	gpio_fan {
+	gpio-fan {
 		/* Fan: ADDA AD045HB-G73 40mm 6000rpm@5v */
 		compatible = "gpio-fan";
 		pinctrl-0 = <&pmx_fan_high_speed &pmx_fan_low_speed>;
@@ -42,7 +42,7 @@
 				      6000 2>;
 	};
 
-	gpio_poweroff {
+	gpio-poweroff {
 		compatible = "gpio-poweroff";
 		pinctrl-0 = <&pmx_power_off>;
 		pinctrl-names = "default";
