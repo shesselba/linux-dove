@@ -31,13 +31,6 @@
 			status = "disabled";
 		};
 
-		sata@80000 {
-			pinctrl-0 = <&pmx_sata0 &pmx_sata1>;
-			pinctrl-names = "default";
-			nr-ports = <2>;
-			status = "okay";
-		};
-
 		sdio@90000 {
 			pinctrl-0 = <&pmx_sdio &pmx_sdio_cd>;
 			pinctrl-names = "default";
@@ -211,6 +204,13 @@
 		marvell,pins = "mpp47";
 		marvell,function = "gpio";
 	};
+};
+
+&sata {
+	pinctrl-0 = <&pmx_sata0 &pmx_sata1>;
+	pinctrl-names = "default";
+	nr-ports = <2>;
+	status = "okay";
 };
 
 &uart0 {
