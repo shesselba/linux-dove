@@ -14,16 +14,6 @@
 	model = "Globalscale Technologies eSATA SheevaPlug";
 	compatible = "globalscale,sheevaplug-esata-rev13", "globalscale,sheevaplug-esata", "globalscale,sheevaplug", "marvell,kirkwood-88f6281", "marvell,kirkwood";
 
-	ocp@f1000000 {
-		sdio@90000 {
-			pinctrl-0 = <&pmx_sdio &pmx_sdio_cd &pmx_sdio_wp>;
-			pinctrl-names = "default";
-			status = "okay";
-			cd-gpios = <&gpio1 12 GPIO_ACTIVE_LOW>;
-			wp-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
-		};
-	};
-
 	gpio-leds {
 		compatible = "gpio-leds";
 		pinctrl-0 = <&pmx_led_blue>;
@@ -40,4 +30,12 @@
 &sata {
 	status = "okay";
 	nr-ports = <2>;
+};
+
+&sdio {
+	pinctrl-0 = <&pmx_sdio &pmx_sdio_cd &pmx_sdio_wp>;
+	pinctrl-names = "default";
+	status = "okay";
+	cd-gpios = <&gpio1 12 GPIO_ACTIVE_LOW>;
+	wp-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
 };
