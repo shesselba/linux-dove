@@ -17,13 +17,6 @@
 	};
 
 	ocp@f1000000 {
-		serial@12000 {
-			pinctrl-0 = <&pmx_uart0>;
-			pinctrl-names = "default";
-			clock-frequency = <166666667>;
-			status = "okay";
-		};
-
 		sata@80000 {
 			pinctrl-0 = <&pmx_cloudbox_sata0>;
 			pinctrl-names = "default";
@@ -103,4 +96,8 @@
 			label = "u-boot";
 		};
 	};
+};
+
+&uart0 {
+	status = "okay";
 };
