@@ -46,12 +46,6 @@
 		       };
 		};
 
-		serial@12000 {
-			pinctrl-0 = <&pmx_uart0>;
-			pinctrl-names = "default";
-			status = "okay";
-		};
-
 		sata@80000 {
 			status = "okay";
 			nr-ports = <2>;
@@ -251,4 +245,8 @@
 		marvell,pins = "mpp30";
 		marvell,function = "gpio";
 	};
+};
+
+&uart0 {
+	status = "okay";
 };
