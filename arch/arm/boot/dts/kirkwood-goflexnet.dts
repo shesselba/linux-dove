@@ -16,13 +16,6 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk root=/dev/sda1 rootdelay=10";
 	};
 
-	ocp@f1000000 {
-		sata@80000 {
-			status = "okay";
-			nr-ports = <2>;
-		};
-
-	};
 	gpio-leds {
 		compatible = "gpio-leds";
 		pinctrl-0 = < &pmx_led_orange
@@ -192,6 +185,11 @@
 		marvell,pins = "mpp41";
 		marvell,function = "gpio";
 	};
+};
+
+&sata {
+	status = "okay";
+	nr-ports = <2>;
 };
 
 &uart0 {
