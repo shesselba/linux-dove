@@ -10,20 +10,6 @@
  */
 
 / {
-	mbus {
-		pcie {
-			status = "okay";
-
-			pcie-port@1,0 {
-				status = "okay";
-			};
-
-			pcie2: pcie-port@2,0 {
-				status = "disabled";
-			};
-		};
-	};
-
 	ocp@f1000000 {
 		rtc@10300 {
 			status = "disabled";
@@ -622,6 +608,14 @@
 		device_type = "ethernet-phy";
 		reg = <9>;
 	};
+};
+
+&pcie0 {
+	status = "okay";
+};
+
+&pciec {
+	status = "okay";
 };
 
 &pinctrl {
