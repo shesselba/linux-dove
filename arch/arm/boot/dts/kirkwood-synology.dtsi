@@ -29,12 +29,6 @@
 			status = "disabled";
 		};
 
-		serial@12000 {
-			status = "okay";
-			pinctrl-0 = <&pmx_uart0>;
-			pinctrl-names = "default";
-		};
-
 		serial@12100 {
 			status = "okay";
 			pinctrl-0 = <&pmx_uart1>;
@@ -868,4 +862,8 @@
 			label = "FIS directory";
 		};
 	};
+};
+
+&uart0 {
+	status = "okay";
 };
