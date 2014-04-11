@@ -29,16 +29,6 @@
 		bootargs = "console=ttyS0,115200n8";
 	};
 
-	mbus {
-		pcie {
-			status = "okay";
-
-			pcie-port@1,0 {
-				status = "okay";
-			};
-		};
-	};
-
 	ocp@f1000000 {
 		audio: sound@a0000 {
 			status = "okay";
@@ -111,6 +101,14 @@
 		device_type = "ethernet-phy";
 		reg = <8>;
 	};
+};
+
+&pcie0 {
+	status = "okay";
+};
+
+&pciec {
+	status = "okay";
 };
 
 &pinctrl {
