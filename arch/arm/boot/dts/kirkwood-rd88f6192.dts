@@ -39,11 +39,6 @@
 	};
 
 	ocp@f1000000 {
-		serial@12000 {
-			status = "okay";
-
-		};
-
 		sata@80000 {
 			status = "okay";
 			nr-ports = <2>;
@@ -109,4 +104,8 @@
 		spi-max-frequency = <20000000>;
 		mode = <0>;
 	};
+};
+
+&uart0 {
+	status = "okay";
 };
