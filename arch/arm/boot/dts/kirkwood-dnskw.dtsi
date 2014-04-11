@@ -49,15 +49,6 @@
 		gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
 	};
 
-	ocp@f1000000 {
-		sata@80000 {
-			pinctrl-0 = <&pmx_sata0 &pmx_sata1>;
-			pinctrl-names = "default";
-			status = "okay";
-			nr-ports = <2>;
-		};
-	};
-
 	regulators {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -253,4 +244,11 @@
 		marvell,pins = "mpp49";
 		marvell,function = "gpio";
 	};
+};
+
+&sata {
+	pinctrl-0 = <&pmx_sata0 &pmx_sata1>;
+	pinctrl-names = "default";
+	status = "okay";
+	nr-ports = <2>;
 };
