@@ -17,12 +17,6 @@
 	};
 
 	ocp@f1000000 {
-		serial@12000 {
-			status = "ok";
-			pinctrl-0 = <&pmx_uart0>;
-			pinctrl-names = "default";
-		};
-
 		serial@12100 {
 			status = "ok";
 			pinctrl-0 = <&pmx_uart1>;
@@ -164,7 +158,7 @@
 		marvell,function = "sysrst";
 	};
 
-	pmx_uart0: pmx-uart0 {
+	pmx_uart0_a6: pmx-uart0-a6 {
 		marvell,pins = "mpp10", "mpp11", "mpp15", "mpp16";
 		marvell,function = "uart0";
 	};
@@ -178,4 +172,9 @@
 		marvell,pins = "mpp39";
 		marvell,function = "gpio";
 	};
+};
+
+&uart0 {
+	status = "ok";
+	pinctrl-0 = <&pmx_uart0_a6>;
 };
