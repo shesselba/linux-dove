@@ -18,16 +18,6 @@
 		linux,initrd-end   = <0x4800000>;
 	};
 
-	mbus {
-		pcie {
-			status = "okay";
-
-			pcie-port@1,0 {
-				status = "okay";
-			};
-		};
-	};
-
 	gpio-leds {
 		compatible = "gpio-leds";
 		pinctrl-0 = < &pmx_led_level &pmx_led_power_blue
@@ -145,6 +135,14 @@
 		label = "boot";
 		reg = <0x980000 0x1f400000>;
 	};
+};
+
+&pcie0 {
+	status = "okay";
+};
+
+&pciec {
+	status = "okay";
 };
 
 &pinctrl {
