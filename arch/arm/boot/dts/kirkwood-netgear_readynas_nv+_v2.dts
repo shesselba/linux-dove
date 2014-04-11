@@ -27,18 +27,6 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
 
-	mbus {
-		pcie {
-			status = "okay";
-
-			/* Connected to NEC uPD720200 USB 3.0 controller */
-			pcie-port@1,0 {
-				/* Port 0, Lane 0 */
-				status = "okay";
-			};
-		};
-	};
-
 	ocp@f1000000 {
 		clocks {
 		       g762_clk: g762-oscillator {
@@ -202,6 +190,15 @@
 		label = "jffs2";
 		reg = <0x1800000 0x6800000>;
 	};
+};
+
+/* Connected to NEC uPD720200 USB 3.0 controller */
+&pcie0 {
+	status = "okay";
+};
+
+&pciec {
+	status = "okay";
 };
 
 &pinctrl {
