@@ -16,12 +16,6 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
 
-	ocp@f1000000 {
-		serial@12000 {
-			status = "ok";
-		};
-	};
-
 	i2c@0 {
 		compatible = "i2c-gpio";
 		gpios = < &gpio0 8 GPIO_ACTIVE_HIGH		/* sda */
@@ -65,4 +59,8 @@
 		marvell,pins = "mpp8";
 		marvell,function = "gpio";
 	};
+};
+
+&uart0 {
+	status = "ok";
 };
