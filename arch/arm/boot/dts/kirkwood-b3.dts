@@ -43,14 +43,6 @@
 		};
 	};
 
-	ocp@f1000000 {
-		sata@80000 {
-			/* One internal, the second as eSATA */
-			status = "okay";
-			nr-ports = <2>;
-		};
-	};
-
 	gpio-leds {
 		/*
 		 * There is one LED "port" on the front and the colours
@@ -162,6 +154,12 @@
 		marvell,pins = "mpp41";
 		marvell,function = "gpio";
 	};
+};
+
+&sata {
+	/* One internal, the second as eSATA */
+	status = "okay";
+	nr-ports = <2>;
 };
 
 &spi0 {
