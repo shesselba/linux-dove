@@ -38,13 +38,6 @@
 		};
 	};
 
-	ocp@f1000000 {
-		sata@80000 {
-			status = "okay";
-			nr-ports = <2>;
-		};
-	};
-
 	regulators {
                 compatible = "simple-bus";
                 #address-cells = <1>;
@@ -89,6 +82,11 @@
                 marvell,pins = "mpp10";
                 marvell,function = "gpo";
         };
+};
+
+&sata {
+	status = "okay";
+	nr-ports = <2>;
 };
 
 &spi0 {
