@@ -47,11 +47,6 @@
 				 clock-frequency = <8192>;
 		       };
 		};
-
-		sata@80000 { /* Connected to Marvell 88SM4140 SATA port multiplier */
-			status = "okay";
-			nr-ports = <1>;
-		};
 	};
 
 	gpio-leds {
@@ -259,6 +254,12 @@
 		marvell,pins = "mpp30";
 		marvell,function = "gpio";
 	};
+};
+
+/* Connected to Marvell 88SM4140 SATA port multiplier */
+&sata {
+	status = "okay";
+	nr-ports = <1>;
 };
 
 &uart0 {
