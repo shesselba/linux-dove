@@ -27,12 +27,6 @@
 	};
 
 	ocp@f1000000 {
-                serial@12000 {
-                        status = "ok";
-                        pinctrl-0 = <&pmx_uart0>;
-                        pinctrl-names = "default";
-                };
-
 		rtc@10300 {
 			status = "disabled";
 		};
@@ -217,4 +211,8 @@
 		marvell,pins = "mpp47";
 		marvell,function = "gpio";
 	};
+};
+
+&uart0 {
+        status = "ok";
 };
