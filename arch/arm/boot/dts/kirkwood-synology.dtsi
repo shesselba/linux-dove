@@ -29,12 +29,6 @@
 			status = "disabled";
 		};
 
-		serial@12100 {
-			status = "okay";
-			pinctrl-0 = <&pmx_uart1>;
-			pinctrl-names = "default";
-		};
-
 		poweroff@12100 {
 			compatible = "synology,power-off";
 			reg = <0x12100 0x100>;
@@ -867,3 +861,8 @@
 &uart0 {
 	status = "okay";
 };
+
+&uart1 {
+	status = "okay";
+};
+
