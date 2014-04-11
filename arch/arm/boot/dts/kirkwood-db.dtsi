@@ -23,16 +23,6 @@
 	chosen {
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
-
-	ocp@f1000000 {
-		sdio@90000 {
-			pinctrl-0 = <&pmx_sdio_gpios>;
-			pinctrl-names = "default";
-			wp-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
-			cd-gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;
-			status = "okay";
-		};
-	};
 };
 
 &eth0 {
@@ -81,6 +71,14 @@
 
 &sata {
 	nr-ports = <2>;
+	status = "okay";
+};
+
+&sdio {
+	pinctrl-0 = <&pmx_sdio_gpios>;
+	pinctrl-names = "default";
+	wp-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
+	cd-gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
 
