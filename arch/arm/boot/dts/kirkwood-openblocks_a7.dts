@@ -29,12 +29,6 @@
 	};
 
 	ocp@f1000000 {
-		serial@12100 {
-			status = "ok";
-			pinctrl-0 = <&pmx_uart1>;
-			pinctrl-names = "default";
-		};
-
 		sata@80000 {
 			nr-ports = <1>;
 			status = "okay";
@@ -193,7 +187,7 @@
 		marvell,function = "uart0";
 	};
 
-	pmx_uart1: pmx-uart1 {
+	pmx_uart1_a7: pmx-uart1-a7 {
 		marvell,pins = "mpp13", "mpp14", "mpp8", "mpp9";
 		marvell,function = "uart1";
 	};
@@ -207,4 +201,9 @@
 &uart0 {
 	status = "ok";
 	pinctrl-0 = <&pmx_uart0_a7>;
+};
+
+&uart1 {
+	status = "ok";
+	pinctrl-0 = <&pmx_uart1_a7>;
 };
