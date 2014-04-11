@@ -34,13 +34,6 @@
 			reg = <0x12100 0x100>;
 			clocks = <&gate_clk 7>;
 		};
-
-		sata@80000 {
-			pinctrl-0 = <&pmx_sata0 &pmx_sata1>;
-			pinctrl-names = "default";
-			status = "okay";
-			nr-ports = <2>;
-		};
 	};
 
 	gpio-fan-150-32-35 {
@@ -811,6 +804,13 @@
 		marvell,pins = "mpp45";
 		marvell,function = "gpio";
 	};
+};
+
+&sata {
+	pinctrl-0 = <&pmx_sata0 &pmx_sata1>;
+	pinctrl-names = "default";
+	status = "okay";
+	nr-ports = <2>;
 };
 
 &spi0 {
