@@ -6,14 +6,6 @@
 		bootargs = "console=ttyS0,115200n8";
 	};
 
-	ocp@f1000000 {
-		serial@12000 {
-			pinctrl-0 = <&pmx_uart0>;
-			pinctrl-names = "default";
-			status = "okay";
-		};
-	};
-
 	gpio_keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
@@ -99,4 +91,8 @@
 			label = "u-boot";
 		};
 	};
+};
+
+&uart0 {
+	status = "okay";
 };
