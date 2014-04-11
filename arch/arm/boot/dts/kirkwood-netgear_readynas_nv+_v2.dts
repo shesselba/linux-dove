@@ -48,12 +48,6 @@
 		       };
 		};
 
-		serial@12000 {
-			pinctrl-0 = <&pmx_uart0>;
-			pinctrl-names = "default";
-			status = "okay";
-		};
-
 		sata@80000 { /* Connected to Marvell 88SM4140 SATA port multiplier */
 			status = "okay";
 			nr-ports = <1>;
@@ -265,4 +259,8 @@
 		marvell,pins = "mpp30";
 		marvell,function = "gpio";
 	};
+};
+
+&uart0 {
+	status = "okay";
 };
