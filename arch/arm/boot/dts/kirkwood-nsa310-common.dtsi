@@ -4,16 +4,6 @@
 / {
 	model = "ZyXEL NSA310";
 
-	ocp@f1000000 {
-		pcie {
-			status = "okay";
-
-			pcie-port@1,0 {
-				status = "okay";
-			};
-		};
-	};
-
 	gpio_poweroff {
 		compatible = "gpio-poweroff";
 		pinctrl-0 = <&pmx_pwr_off>;
@@ -82,6 +72,14 @@
 		label = "rootfs2";
 		reg = <0x5040000 0x2fc0000>;
 	};
+};
+
+&pcie0 {
+	status = "okay";
+};
+
+&pciec {
+	status = "okay";
 };
 
 &pinctrl {
