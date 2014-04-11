@@ -45,11 +45,6 @@
 				 clock-frequency = <8192>;
 		       };
 		};
-
-		sata@80000 {
-			status = "okay";
-			nr-ports = <2>;
-		};
 	};
 
 	gpio-leds {
@@ -245,6 +240,11 @@
 		marvell,pins = "mpp30";
 		marvell,function = "gpio";
 	};
+};
+
+&sata {
+	status = "okay";
+	nr-ports = <2>;
 };
 
 &uart0 {
