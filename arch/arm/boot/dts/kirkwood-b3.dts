@@ -44,17 +44,6 @@
 	};
 
 	ocp@f1000000 {
-		serial@12000 {
-			/* Internal on test pins, 3.3v TTL
-		 	 * UART0_RX = Testpoint 65
-			 * UART0_TX = Testpoint 66
-			 * See the Excito Wiki for more details.
-		 	 */
-			pinctrl-0 = <&pmx_uart0>;
-			pinctrl-names = "default";
-			status = "okay";
-		};
-
 		sata@80000 {
 			/* One internal, the second as eSATA */
 			status = "okay";
@@ -203,4 +192,14 @@
 			label = "data";
 		};
 	};
+};
+
+&uart0 {
+	/*
+	 * Internal on test pins, 3.3v TTL
+	 * UART0_RX = Testpoint 65
+	 * UART0_TX = Testpoint 66
+	 * See the Excito Wiki for more details.
+	 */
+	status = "okay";
 };
