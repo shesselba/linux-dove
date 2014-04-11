@@ -25,11 +25,6 @@
 	};
 
 	ocp@f1000000 {
-		sata@80000 {
-			nr-ports = <2>;
-			status = "okay";
-		};
-
 		usb@50000 {
 			status = "okay";
 		};
@@ -86,6 +81,11 @@
 		marvell,pins = "mpp37", "mpp38";
 		marvell,function = "gpio";
 	};
+};
+
+&sata {
+	nr-ports = <2>;
+	status = "okay";
 };
 
 &uart0 {
