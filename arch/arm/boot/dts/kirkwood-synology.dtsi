@@ -11,10 +11,6 @@
 
 / {
 	ocp@f1000000 {
-		rtc@10300 {
-			status = "disabled";
-		};
-
 		poweroff@12100 {
 			compatible = "synology,power-off";
 			reg = <0x12100 0x100>;
@@ -850,6 +846,10 @@
 			label = "FIS directory";
 		};
 	};
+};
+
+&rtc {
+	status = "disabled";
 };
 
 &uart0 {
