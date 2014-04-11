@@ -27,14 +27,12 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
 
-	ocp@f1000000 {
-		clocks {
-		       g762_clk: g762-oscillator {
-				 compatible = "fixed-clock";
-				 #clock-cells = <0>;
-				 clock-frequency = <8192>;
-		       };
-		};
+	clocks {
+	       g762_clk: g762-oscillator {
+			 compatible = "fixed-clock";
+			 #clock-cells = <0>;
+			 clock-frequency = <8192>;
+	       };
 	};
 
 	gpio-leds {
