@@ -15,11 +15,6 @@
 	compatible = "globalscale,sheevaplug-esata-rev13", "globalscale,sheevaplug-esata", "globalscale,sheevaplug", "marvell,kirkwood-88f6281", "marvell,kirkwood";
 
 	ocp@f1000000 {
-		sata@80000 {
-			status = "okay";
-			nr-ports = <2>;
-		};
-
 		sdio@90000 {
 			pinctrl-0 = <&pmx_sdio &pmx_sdio_cd &pmx_sdio_wp>;
 			pinctrl-names = "default";
@@ -40,4 +35,9 @@
 			default-state = "keep";
 		};
 	};
+};
+
+&sata {
+	status = "okay";
+	nr-ports = <2>;
 };
