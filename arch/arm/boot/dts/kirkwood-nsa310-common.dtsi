@@ -5,11 +5,6 @@
 	model = "ZyXEL NSA310";
 
 	ocp@f1000000 {
-		sata@80000 {
-			status = "okay";
-			nr-ports = <2>;
-		};
-
 		pcie {
 			status = "okay";
 
@@ -99,6 +94,11 @@
 		marvell,pins = "mpp21";
 		marvell,function = "gpio";
 	};
+};
+
+&sata {
+	status = "okay";
+	nr-ports = <2>;
 };
 
 &uart0 {
