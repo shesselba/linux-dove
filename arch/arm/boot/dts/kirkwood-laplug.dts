@@ -26,15 +26,6 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
 
-	mbus {
-		pcie {
-			status = "okay";
-			pcie-port@1,0 {
-				status = "okay";
-			};
-		};
-	};
-
 	gpio_keys {
 		compatible = "gpio-keys";
 
@@ -157,6 +148,14 @@
 		label = "rootfs";
 		reg = <0x1100000 0x1EF00000>; /* 495MB */
 	};
+};
+
+&pcie0 {
+	status = "okay";
+};
+
+&pciec {
+	status = "okay";
 };
 
 &pinctrl {
