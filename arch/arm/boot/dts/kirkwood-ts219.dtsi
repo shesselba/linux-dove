@@ -10,14 +10,6 @@
 	chosen {
 		bootargs = "console=ttyS0,115200n8";
 	};
-
-	ocp@f1000000 {
-		poweroff@12100 {
-			compatible = "qnap,power-off";
-			reg = <0x12000 0x100>;
-			clocks = <&gate_clk 7>;
-		};
-	};
 };
 
 &eth0 {
@@ -108,6 +100,11 @@
 	status = "okay";
 };
 
+/*
+ * UART1 is directly connected to a micro-controller
+ * that provides some system related functions.
+ */
 &uart1 {
+	compatible = "qnap,power-off";
 	status = "okay";
 };
