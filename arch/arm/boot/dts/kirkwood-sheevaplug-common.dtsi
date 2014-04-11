@@ -19,14 +19,6 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
 
-	ocp@f1000000 {
-		serial@12000 {
-			pinctrl-0 = <&pmx_uart0>;
-			pinctrl-names = "default";
-			status = "okay";
-		};
-	};
-
 	regulators {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -109,4 +101,8 @@
 		marvell,pins = "mpp29";
 		marvell,function = "gpio";
 	};
+};
+
+&uart0 {
+	status = "okay";
 };
