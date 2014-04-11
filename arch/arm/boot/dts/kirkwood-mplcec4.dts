@@ -16,16 +16,6 @@
                 bootargs = "console=ttyS0,115200n8 earlyprintk";
         };
 
-	mbus {
-		pcie {
-			status = "okay";
-
-			pcie-port@1,0 {
-				status = "okay";
-			};
-		};
-	};
-
 	ocp@f1000000 {
 		rtc@10300 {
 			status = "disabled";
@@ -157,6 +147,14 @@
 		label = "rootfs";
 		reg = <0x600000 0x1fa00000>;
 	};
+};
+
+&pcie0 {
+	status = "okay";
+};
+
+&pciec {
+	status = "okay";
 };
 
 &pinctrl {
