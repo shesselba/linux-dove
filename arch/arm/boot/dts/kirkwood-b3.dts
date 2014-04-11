@@ -32,17 +32,6 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
 
-	mbus {
-		pcie {
-			status = "okay";
-
-			/* Wifi model has Atheros chipset on pcie port */
-			pcie-port@1,0 {
-				status = "okay";
-			};
-		};
-	};
-
 	gpio-leds {
 		/*
 		 * There is one LED "port" on the front and the colours
@@ -127,6 +116,15 @@
 		device_type = "ethernet-phy";
 		reg = <24>;
 	};
+};
+
+/* Wifi model has Atheros chipset on pcie port */
+&pcie0 {
+	status = "okay";
+};
+
+&pciec {
+	status = "okay";
 };
 
 &pinctrl {
