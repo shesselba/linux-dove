@@ -27,16 +27,6 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
 
-	mbus {
-		pcie {
-			status = "okay";
-
-			pcie-port@1,0 {
-				status = "okay";
-			};
-		};
-	};
-
 	ocp@f1000000 {
 		clocks {
 		       g762_clk: g762-oscillator {
@@ -193,6 +183,14 @@
 		label = "jffs2";
 		reg = <0x1800000 0x6800000>;
 	};
+};
+
+&pcie0 {
+	status = "okay";
+};
+
+&pciec {
+	status = "okay";
 };
 
 &pinctrl {
