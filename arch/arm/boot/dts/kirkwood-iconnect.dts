@@ -28,12 +28,6 @@
 		};
 	};
 
-	ocp@f1000000 {
-		serial@12000 {
-			status = "ok";
-		};
-	};
-
 	gpio-leds {
 		compatible = "gpio-leds";
 		pinctrl-0 = < &pmx_led_level &pmx_led_power_blue
@@ -203,4 +197,8 @@
 		marvell,pins = "mpp47";
 		marvell,function = "gpio";
 	};
+};
+
+&uart0 {
+	status = "ok";
 };
