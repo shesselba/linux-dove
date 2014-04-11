@@ -5,16 +5,6 @@
 #include "kirkwood-ts219.dtsi"
 
 / {
-	mbus {
-		pcie {
-			status = "okay";
-
-			pcie-port@2,0 {
-				status = "okay";
-			};
-		};
-	};
-
 	gpio_keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
@@ -36,6 +26,10 @@
 };
 
 &ethphy0 { reg = <0>; };
+
+&pcie1 {
+	status = "okay";
+};
 
 &pinctrl {
 	pinctrl-0 = <&pmx_ram_size &pmx_board_id>;
