@@ -16,15 +16,6 @@
 		bootargs = "console=ttyS0,115200n8";
 	};
 
-	ocp@f1000000 {
-		sata@80000 {
-			pinctrl-0 = <&pmx_cloudbox_sata0>;
-			pinctrl-names = "default";
-			status = "okay";
-			nr-ports = <1>;
-		};
-	};
-
 	gpio_keys {
 		compatible = "gpio-keys";
 		#address-cells = <1>;
@@ -76,6 +67,13 @@
 		marvell,pins = "mpp15";
 		marvell,function = "sata0";
 	};
+};
+
+&sata {
+	pinctrl-0 = <&pmx_cloudbox_sata0>;
+	pinctrl-names = "default";
+	status = "okay";
+	nr-ports = <1>;
 };
 
 &spi0 {
