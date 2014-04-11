@@ -17,12 +17,6 @@
 	};
 
 	ocp@f1000000 {
-		serial@12000 {
-			status = "ok";
-			pinctrl-0 = <&pmx_uart0>;
-			pinctrl-names = "default";
-		};
-
 		sata@80000 {
 			status = "okay";
 			nr-ports = <1>;
@@ -217,4 +211,8 @@
 		marvell,pins = "mpp44";
 		marvell,function = "gpio";
 	};
+};
+
+&uart0 {
+	status = "ok";
 };
