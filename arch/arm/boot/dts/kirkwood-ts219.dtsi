@@ -11,16 +11,6 @@
 		bootargs = "console=ttyS0,115200n8";
 	};
 
-	mbus {
-		pcie {
-			status = "okay";
-
-			pcie-port@1,0 {
-				status = "okay";
-			};
-		};
-	};
-
 	ocp@f1000000 {
 		poweroff@12100 {
 			compatible = "qnap,power-off";
@@ -55,6 +45,14 @@
 	ethphy0: ethernet-phy {
                 /* overwrite reg property in board file */
 	};
+};
+
+&pcie0 {
+	status = "okay";
+};
+
+&pciec {
+	status = "okay";
 };
 
 &sata {
