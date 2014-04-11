@@ -58,18 +58,18 @@
 	};
 };
 
+&eth1 {
+	status = "okay";
+	ethernet-port@0 {
+		phy-handle = <&ethphy1>;
+	};
+};
+
 &mdio {
 	status = "okay";
 
 	ethphy1: ethernet-phy@1 {
 		device_type = "ethernet-phy";
                 /* overwrite reg property in board file */
-	};
-};
-
-&eth1 {
-	status = "okay";
-	ethernet-port@0 {
-		phy-handle = <&ethphy1>;
 	};
 };
