@@ -11,15 +11,6 @@
 		reg = <0x00000000 0x10000000>;
 	};
 
-	ocp@f1000000 {
-		sata@80000 {
-			pinctrl-0 = <&pmx_ns2_sata0 &pmx_ns2_sata1>;
-			pinctrl-names = "default";
-			status = "okay";
-			nr-ports = <2>;
-		};
-	};
-
 	gpio_fan {
 		compatible = "gpio-fan";
 		gpios = <&gpio0 22 GPIO_ACTIVE_LOW
@@ -51,3 +42,10 @@
 };
 
 &ethphy0 { reg = <8>; };
+
+&sata {
+	pinctrl-0 = <&pmx_ns2_sata0 &pmx_ns2_sata1>;
+	pinctrl-names = "default";
+	status = "okay";
+	nr-ports = <2>;
+};
