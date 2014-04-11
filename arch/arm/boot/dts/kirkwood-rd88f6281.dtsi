@@ -24,16 +24,6 @@
 		bootargs = "console=ttyS0,115200n8";
 	};
 
-	mbus {
-		pcie {
-			status = "okay";
-
-			pcie-port@1,0 {
-				status = "okay";
-			};
-		};
-	};
-
 	ocp@f1000000 {
 		sdio@90000 {
 			pinctrl-0 = <&pmx_sdio &pmx_sdio_cd>;
@@ -130,6 +120,14 @@
 		label = "data";
 		reg = <0x0300000 0x500000>;
 	};
+};
+
+&pcie0 {
+	status = "okay";
+};
+
+&pciec {
+	status = "okay";
 };
 
 &pinctrl {
