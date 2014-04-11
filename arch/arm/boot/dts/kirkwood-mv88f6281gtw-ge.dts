@@ -31,13 +31,6 @@
 	};
 
 	ocp@f1000000 {
-		serial@12000 {
-			pinctrl-0 = <&pmx_uart0>;
-			pinctrl-names = "default";
-			clock-frequency = <200000000>;
-			status = "ok";
-		};
-
 		usb@50000 {
 			status = "okay";
 		};
@@ -184,4 +177,8 @@
 		spi-max-frequency = <50000000>;
 		mode = <0>;
 	};
+};
+
+&uart0 {
+	status = "ok";
 };
