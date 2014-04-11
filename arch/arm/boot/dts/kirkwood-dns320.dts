@@ -44,16 +44,12 @@
 			gpios = <&gpio1 3 GPIO_ACTIVE_LOW>; /* GPIO 35 */
 		};
 	};
-
-	ocp@f1000000 {
-		serial@12100 {
-			pinctrl-0 = <&pmx_uart1>;
-			pinctrl-names = "default";
-			status = "okay";
-		};
-	};
 };
 
 &uart0 {
+	status = "okay";
+};
+
+&uart1 {
 	status = "okay";
 };
