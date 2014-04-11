@@ -30,12 +30,6 @@
 		bootargs = "console=ttyS0,115200n8 earlyprintk";
 	};
 
-	ocp@f1000000 {
-		usb@50000 {
-			status = "okay";
-		};
-	};
-
 	gpio-leds {
 		compatible = "gpio-leds";
 		pinctrl-0 = <&pmx_leds &pmx_usb_led>;
@@ -181,4 +175,8 @@
 
 &uart0 {
 	status = "ok";
+};
+
+&usb0 {
+	status = "okay";
 };
