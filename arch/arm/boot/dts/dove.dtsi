@@ -630,6 +630,22 @@
 				reg = <0xe8400 0x0c>;
 				ngpios = <8>;
 			};
+
+			lcd0: lcd-controller@820000 {
+				compatible = "marvell,dove-lcd";
+				reg = <0x820000 0x200>;
+				interrupts = <47>;
+				clocks = <0>;
+				status = "disabled";
+			};
+
+			lcd1: lcd-controller@810000 {
+				compatible = "marvell,dove-lcd";
+				reg = <0x810000 0x200>;
+				interrupts = <46>;
+				clocks = <0>;
+				status = "disabled";
+			};
 		};
 	};
 };

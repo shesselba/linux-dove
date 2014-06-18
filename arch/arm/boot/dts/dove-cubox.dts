@@ -8,7 +8,7 @@
 
 	memory {
 		device_type = "memory";
-		reg = <0x00000000 0x40000000>;
+		reg = <0x00000000 0x3f000000>;
 	};
 
 	chosen {
@@ -62,6 +62,19 @@
 		pinctrl-0 = <&pmx_gpio_19>;
 		pinctrl-names = "default";
 	};
+
+	video {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		vcard: video-card {
+			compatible = "marvell,dove-video-card";
+			reg = <0x3f000000 0x1000000>;
+			marvell,external-encoder = <&tda19988>;
+		};
+	};
 };
 
 &uart0 { status = "okay"; };
@@ -74,9 +87,15 @@
 	reg = <1>;
 };
 
+&lcd0 {
+	status = "okay";
+	clocks = <&si5351 0>;
+	clock-names = "ext_ref_clk_1";
+};
+
 &i2c0 {
 	status = "okay";
-	clock-frequency = <100000>;
+	clock-frequency = <400000>;
 
 	si5351: clock-generator {
 		compatible = "silabs,si5351a-msop";
@@ -106,6 +125,11 @@
 			silabs,clock-source = <0>;
 			silabs,pll-master;
 		};
+	};
+
+	tda19988: hdmi-encoder@70 {
+		compatible = "nxp,tda998x";
+		reg = <0x70>;
 	};
 };
 
