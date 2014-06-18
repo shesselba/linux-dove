@@ -39,16 +39,18 @@ static struct tda998x_encoder_params params = {
 	.audio_sample_rate = 44100,
 };
 
+static struct i2c_board_info tda19988_info = {
+	.type = "tda998x",
+	.addr = 0x70,
+	.platform_data = &params,
+};
+
 static const struct armada_drm_slave_config tda19988_config = {
 	.i2c_adapter_id = 0,
 	.crtcs = 1 << 0, /* Only LCD0 at the moment */
 	.polled = DRM_CONNECTOR_POLL_CONNECT | DRM_CONNECTOR_POLL_DISCONNECT,
 	.interlace_allowed = true,
-	.info = {
-		.type = "tda998x",
-		.addr = 0x70,
-		.platform_data = &params,
-	},
+	.info = &tda19988_info,
 };
 #endif
 
@@ -129,7 +131,6 @@ static int armada_drm_load(struct drm_device *dev, unsigned long flags)
 		return -ENXIO;
 
 	priv->variant = (struct armada_variant *)id->driver_data;
-
 	ret = priv->variant->init(priv, dev->dev);
 	if (ret)
 		return ret;
@@ -164,6 +165,12 @@ static int armada_drm_load(struct drm_device *dev, unsigned long flags)
 	}
 
 #ifdef CONFIG_DRM_ARMADA_TDA1998X
+	{
+		struct device_node *np;
+		np = of_find_compatible_node(NULL, NULL, "marvell,dove-video-card");
+		if (np)
+			tda19988_info.of_node = of_parse_phandle(np, "marvell,external-encoder", 0);
+	}
 	ret = armada_drm_connector_slave_create(dev, &tda19988_config);
 	if (ret)
 		goto err_kms;

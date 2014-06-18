@@ -17,7 +17,7 @@ struct armada_drm_slave_config {
 	uint8_t polled;
 	bool interlace_allowed;
 	bool doublescan_allowed;
-	struct i2c_board_info info;
+	struct i2c_board_info *info;
 };
 
 int armada_drm_connector_slave_create(struct drm_device *dev,

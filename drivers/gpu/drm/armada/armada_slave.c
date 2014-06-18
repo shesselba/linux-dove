@@ -99,7 +99,7 @@ armada_drm_conn_slave_create(struct drm_connector *conn, const void *data)
 		return ret;
 	}
 
-	ret = drm_i2c_encoder_init(conn->dev, slave, adap, &config->info);
+	ret = drm_i2c_encoder_init(conn->dev, slave, adap, config->info);
 	i2c_put_adapter(adap);
 	if (ret) {
 		DRM_ERROR("unable to init encoder slave\n");
