@@ -332,7 +332,7 @@ static SOC_ENUM_SINGLE_DECL(da732x_adc2_voice_filter_enum,
 static int da732x_hpf_set(struct snd_kcontrol *kcontrol,
 			  struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+	struct snd_soc_codec *codec = snd_soc_kcontrol_codec(kcontrol);
 	struct soc_enum *enum_ctrl = (struct soc_enum *)kcontrol->private_value;
 	unsigned int reg = enum_ctrl->reg;
 	unsigned int sel = ucontrol->value.integer.value[0];
@@ -360,7 +360,7 @@ static int da732x_hpf_set(struct snd_kcontrol *kcontrol,
 static int da732x_hpf_get(struct snd_kcontrol *kcontrol,
 			  struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+	struct snd_soc_codec *codec = snd_soc_kcontrol_codec(kcontrol);
 	struct soc_enum *enum_ctrl = (struct soc_enum *)kcontrol->private_value;
 	unsigned int reg = enum_ctrl->reg;
 	int val;
@@ -1571,7 +1571,8 @@ static int da732x_i2c_probe(struct i2c_client *i2c,
 	}
 
 	dev_info(&i2c->dev, "Revision: %d.%d\n",
-		 (reg & DA732X_ID_MAJOR_MASK), (reg & DA732X_ID_MINOR_MASK));
+		 (reg & DA732X_ID_MAJOR_MASK) >> 4,
+		 (reg & DA732X_ID_MINOR_MASK));
 
 	ret = snd_soc_register_codec(&i2c->dev, &soc_codec_dev_da732x,
 				     da732x_dai, ARRAY_SIZE(da732x_dai));

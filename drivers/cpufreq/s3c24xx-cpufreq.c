@@ -27,7 +27,6 @@
 #include <asm/mach/map.h>
 
 #include <plat/cpu.h>
-#include <plat/clock.h>
 #include <plat/cpu-freq-core.h>
 
 #include <mach/regs-clock.h>
@@ -141,6 +140,7 @@ static int s3c_cpufreq_calcdivs(struct s3c_cpufreq_config *cfg)
 
 static void s3c_cpufreq_setfvco(struct s3c_cpufreq_config *cfg)
 {
+	cfg->mpll = _clk_mpll;
 	(cfg->info->set_fvco)(cfg);
 }
 
@@ -586,7 +586,7 @@ static int s3c_cpufreq_build_freq(void)
 	size = cpu_cur.info->calc_freqtable(&cpu_cur, NULL, 0);
 	size++;
 
-	ftab = kmalloc(sizeof(*ftab) * size, GFP_KERNEL);
+	ftab = kzalloc(sizeof(*ftab) * size, GFP_KERNEL);
 	if (!ftab) {
 		printk(KERN_ERR "%s: no memory for tables\n", __func__);
 		return -ENOMEM;
@@ -664,7 +664,7 @@ int __init s3c_plltab_register(struct cpufreq_frequency_table *plls,
 
 	size = sizeof(*vals) * (plls_no + 1);
 
-	vals = kmalloc(size, GFP_KERNEL);
+	vals = kzalloc(size, GFP_KERNEL);
 	if (vals) {
 		memcpy(vals, plls, size);
 		pll_reg = vals;

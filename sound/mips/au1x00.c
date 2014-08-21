@@ -648,14 +648,14 @@ static int au1000_ac97_probe(struct platform_device *pdev)
 		goto out;
 
 	err = -EBUSY;
-	au1000->ac97_res_port = request_mem_region(r->start,
-					r->end - r->start + 1, pdev->name);
+	au1000->ac97_res_port = request_mem_region(r->start, resource_size(r),
+						   pdev->name);
 	if (!au1000->ac97_res_port) {
 		snd_printk(KERN_ERR "ALSA AC97: can't grab AC97 port\n");
 		goto out;
 	}
 
-	io = ioremap(r->start, r->end - r->start + 1);
+	io = ioremap(r->start, resource_size(r));
 	if (!io)
 		goto out;
 
@@ -725,15 +725,4 @@ struct platform_driver au1000_ac97c_driver = {
 	.remove		= au1000_ac97_remove,
 };
 
-static int __init au1000_ac97_load(void)
-{
-	return platform_driver_register(&au1000_ac97c_driver);
-}
-
-static void __exit au1000_ac97_unload(void)
-{
-	platform_driver_unregister(&au1000_ac97c_driver);
-}
-
-module_init(au1000_ac97_load);
-module_exit(au1000_ac97_unload);
+module_platform_driver(au1000_ac97c_driver);

@@ -149,6 +149,7 @@ struct omap2_mcspi_cs {
 	void __iomem		*base;
 	unsigned long		phys;
 	int			word_len;
+	u16			mode;
 	struct list_head	node;
 	/* Context save and restore shadow register */
 	u32			chconf0, chctrl0;
@@ -926,6 +927,8 @@ static int omap2_mcspi_setup_transfer(struct spi_device *spi,
 
 	mcspi_write_chconf0(spi, l);
 
+	cs->mode = spi->mode;
+
 	dev_dbg(&spi->dev, "setup: speed %d, sample %s edge, clk %s\n",
 			speed_hz,
 			(spi->mode & SPI_CPHA) ? "trailing" : "leading",
@@ -998,6 +1001,7 @@ static int omap2_mcspi_setup(struct spi_device *spi)
 			return -ENOMEM;
 		cs->base = mcspi->base + spi->chip_select * 0x14;
 		cs->phys = mcspi->phys + spi->chip_select * 0x14;
+		cs->mode = 0;
 		cs->chconf0 = 0;
 		cs->chctrl0 = 0;
 		spi->controller_state = cs;
@@ -1078,6 +1082,16 @@ static void omap2_mcspi_work(struct omap2_mcspi *mcspi, struct spi_message *m)
 	mcspi_dma = mcspi->dma_channels + spi->chip_select;
 	cs = spi->controller_state;
 	cd = spi->controller_data;
+
+	/*
+	 * The slave driver could have changed spi->mode in which case
+	 * it will be different from cs->mode (the current hardware setup).
+	 * If so, set par_override (even though its not a parity issue) so
+	 * omap2_mcspi_setup_transfer will be called to configure the hardware
+	 * with the correct mode on the first iteration of the loop below.
+	 */
+	if (spi->mode != cs->mode)
+		par_override = 1;
 
 	omap2_mcspi_set_enable(spi, 0);
 	list_for_each_entry(t, &m->transfers, transfer_list) {
@@ -1379,12 +1393,13 @@ static int omap2_mcspi_probe(struct platform_device *pdev)
 
 	INIT_LIST_HEAD(&mcspi->ctx.cs);
 
-	mcspi->dma_channels = kcalloc(master->num_chipselect,
-			sizeof(struct omap2_mcspi_dma),
-			GFP_KERNEL);
-
-	if (mcspi->dma_channels == NULL)
+	mcspi->dma_channels = devm_kcalloc(&pdev->dev, master->num_chipselect,
+					   sizeof(struct omap2_mcspi_dma),
+					   GFP_KERNEL);
+	if (mcspi->dma_channels == NULL) {
+		status = -ENOMEM;
 		goto free_master;
+	}
 
 	for (i = 0; i < master->num_chipselect; i++) {
 		char *dma_rx_ch_name = mcspi->dma_channels[i].dma_rx_ch_name;
@@ -1426,7 +1441,7 @@ static int omap2_mcspi_probe(struct platform_device *pdev)
 	}
 
 	if (status < 0)
-		goto dma_chnl_free;
+		goto free_master;
 
 	pm_runtime_use_autosuspend(&pdev->dev);
 	pm_runtime_set_autosuspend_delay(&pdev->dev, SPI_AUTOSUSPEND_TIMEOUT);
@@ -1444,8 +1459,6 @@ static int omap2_mcspi_probe(struct platform_device *pdev)
 
 disable_pm:
 	pm_runtime_disable(&pdev->dev);
-dma_chnl_free:
-	kfree(mcspi->dma_channels);
 free_master:
 	spi_master_put(master);
 	return status;
@@ -1453,18 +1466,11 @@ free_master:
 
 static int omap2_mcspi_remove(struct platform_device *pdev)
 {
-	struct spi_master	*master;
-	struct omap2_mcspi	*mcspi;
-	struct omap2_mcspi_dma	*dma_channels;
-
-	master = platform_get_drvdata(pdev);
-	mcspi = spi_master_get_devdata(master);
-	dma_channels = mcspi->dma_channels;
+	struct spi_master *master = platform_get_drvdata(pdev);
+	struct omap2_mcspi *mcspi = spi_master_get_devdata(master);
 
 	pm_runtime_put_sync(mcspi->dev);
 	pm_runtime_disable(&pdev->dev);
-
-	kfree(dma_channels);
 
 	return 0;
 }

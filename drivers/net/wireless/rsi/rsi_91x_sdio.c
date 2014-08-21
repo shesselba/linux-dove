@@ -285,7 +285,6 @@ static void rsi_reset_card(struct sdio_func *pfunction)
 		if (err) {
 			rsi_dbg(ERR_ZONE, "%s: CCCR speed reg read failed: %d\n",
 				__func__, err);
-			card->state &= ~MMC_STATE_HIGHSPEED;
 		} else {
 			err = rsi_cmd52writebyte(card,
 						 SDIO_CCCR_SPEED,
@@ -296,14 +295,13 @@ static void rsi_reset_card(struct sdio_func *pfunction)
 					__func__, err);
 				return;
 			}
-			mmc_card_set_highspeed(card);
 			host->ios.timing = MMC_TIMING_SD_HS;
 			host->ops->set_ios(host, &host->ios);
 		}
 	}
 
 	/* Set clock */
-	if (mmc_card_highspeed(card))
+	if (mmc_card_hs(card))
 		clock = 50000000;
 	else
 		clock = card->cis.max_dtr;
@@ -756,11 +754,12 @@ fail:
 static void rsi_disconnect(struct sdio_func *pfunction)
 {
 	struct rsi_hw *adapter = sdio_get_drvdata(pfunction);
-	struct rsi_91x_sdiodev *dev =
-		(struct rsi_91x_sdiodev *)adapter->rsi_dev;
+	struct rsi_91x_sdiodev *dev;
 
 	if (!adapter)
 		return;
+
+	dev = (struct rsi_91x_sdiodev *)adapter->rsi_dev;
 
 	dev->write_fail = 2;
 	rsi_mac80211_detach(adapter);
@@ -821,9 +820,11 @@ static struct sdio_driver rsi_driver = {
  */
 static int rsi_module_init(void)
 {
-	sdio_register_driver(&rsi_driver);
+	int ret;
+
+	ret = sdio_register_driver(&rsi_driver);
 	rsi_dbg(INIT_ZONE, "%s: Registering driver\n", __func__);
-	return 0;
+	return ret;
 }
 
 /**

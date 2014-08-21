@@ -299,7 +299,6 @@ void usbip_dump_urb(struct urb *purb);
 void usbip_dump_header(struct usbip_header *pdu);
 
 int usbip_recv(struct socket *sock, void *buf, int size);
-struct socket *sockfd_to_socket(unsigned int sockfd);
 
 void usbip_pack_pdu(struct usbip_header *pdu, struct urb *urb, int cmd,
 		    int pack);
@@ -322,12 +321,14 @@ int usbip_event_happened(struct usbip_device *ud);
 static inline int interface_to_busnum(struct usb_interface *interface)
 {
 	struct usb_device *udev = interface_to_usbdev(interface);
+
 	return udev->bus->busnum;
 }
 
 static inline int interface_to_devnum(struct usb_interface *interface)
 {
 	struct usb_device *udev = interface_to_usbdev(interface);
+
 	return udev->devnum;
 }
 

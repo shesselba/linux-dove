@@ -853,8 +853,7 @@ static struct dma_async_tx_descriptor *omap_dma_prep_slave_sg(
 
 static struct dma_async_tx_descriptor *omap_dma_prep_dma_cyclic(
 	struct dma_chan *chan, dma_addr_t buf_addr, size_t buf_len,
-	size_t period_len, enum dma_transfer_direction dir, unsigned long flags,
-	void *context)
+	size_t period_len, enum dma_transfer_direction dir, unsigned long flags)
 {
 	struct omap_dmadev *od = to_omap_dma_dev(chan->device);
 	struct omap_chan *c = to_omap_dma_chan(chan);
@@ -1088,6 +1087,23 @@ static void omap_dma_free(struct omap_dmadev *od)
 	}
 }
 
+#define OMAP_DMA_BUSWIDTHS	(BIT(DMA_SLAVE_BUSWIDTH_1_BYTE) | \
+				 BIT(DMA_SLAVE_BUSWIDTH_2_BYTES) | \
+				 BIT(DMA_SLAVE_BUSWIDTH_4_BYTES))
+
+static int omap_dma_device_slave_caps(struct dma_chan *dchan,
+				      struct dma_slave_caps *caps)
+{
+	caps->src_addr_widths = OMAP_DMA_BUSWIDTHS;
+	caps->dstn_addr_widths = OMAP_DMA_BUSWIDTHS;
+	caps->directions = BIT(DMA_DEV_TO_MEM) | BIT(DMA_MEM_TO_DEV);
+	caps->cmd_pause = true;
+	caps->cmd_terminate = true;
+	caps->residue_granularity = DMA_RESIDUE_GRANULARITY_BURST;
+
+	return 0;
+}
+
 static int omap_dma_probe(struct platform_device *pdev)
 {
 	struct omap_dmadev *od;
@@ -1118,6 +1134,7 @@ static int omap_dma_probe(struct platform_device *pdev)
 	od->ddev.device_prep_slave_sg = omap_dma_prep_slave_sg;
 	od->ddev.device_prep_dma_cyclic = omap_dma_prep_dma_cyclic;
 	od->ddev.device_control = omap_dma_control;
+	od->ddev.device_slave_caps = omap_dma_device_slave_caps;
 	od->ddev.dev = &pdev->dev;
 	INIT_LIST_HEAD(&od->ddev.channels);
 	INIT_LIST_HEAD(&od->pending);

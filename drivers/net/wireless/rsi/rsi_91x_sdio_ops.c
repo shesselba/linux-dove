@@ -247,7 +247,7 @@ static int rsi_process_pkt(struct rsi_common *common)
 	if (!common->rx_data_pkt) {
 		rsi_dbg(ERR_ZONE, "%s: Failed in memory allocation\n",
 			__func__);
-		return -1;
+		return -ENOMEM;
 	}
 
 	status = rsi_sdio_host_intf_read_pkt(adapter,
@@ -260,12 +260,10 @@ static int rsi_process_pkt(struct rsi_common *common)
 	}
 
 	status = rsi_read_pkt(common, rcv_pkt_len);
-	kfree(common->rx_data_pkt);
-	return status;
 
 fail:
 	kfree(common->rx_data_pkt);
-	return -1;
+	return status;
 }
 
 /**
@@ -403,14 +401,16 @@ void rsi_interrupt_handler(struct rsi_hw *adapter)
 			case BUFFER_AVAILABLE:
 				dev->rx_info.watch_bufferfull_count = 0;
 				dev->rx_info.buffer_full = false;
+				dev->rx_info.semi_buffer_full = false;
 				dev->rx_info.mgmt_buffer_full = false;
 				rsi_sdio_ack_intr(common->priv,
 						  (1 << PKT_BUFF_AVAILABLE));
-				rsi_set_event((&common->tx_thread.event));
+				rsi_set_event(&common->tx_thread.event);
+
 				rsi_dbg(ISR_ZONE,
-					"%s: ==> BUFFER_AVILABLE <==\n",
+					"%s: ==> BUFFER_AVAILABLE <==\n",
 					__func__);
-				dev->rx_info.buf_avilable_counter++;
+				dev->rx_info.buf_available_counter++;
 				break;
 
 			case FIRMWARE_ASSERT_IND:

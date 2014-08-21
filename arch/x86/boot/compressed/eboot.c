@@ -19,10 +19,7 @@
 
 static efi_system_table_t *sys_table;
 
-static struct efi_config *efi_early;
-
-#define efi_call_early(f, ...)						\
-	efi_early->call(efi_early->f, __VA_ARGS__);
+struct efi_config *efi_early;
 
 #define BOOT_SERVICES(bits)						\
 static void setup_boot_services##bits(struct efi_config *c)		\
@@ -48,8 +45,7 @@ static void setup_boot_services##bits(struct efi_config *c)		\
 BOOT_SERVICES(32);
 BOOT_SERVICES(64);
 
-static void efi_printk(efi_system_table_t *, char *);
-static void efi_char16_printk(efi_system_table_t *, efi_char16_t *);
+void efi_char16_printk(efi_system_table_t *, efi_char16_t *);
 
 static efi_status_t
 __file_size32(void *__fh, efi_char16_t *filename_16,
@@ -112,7 +108,7 @@ __file_size64(void *__fh, efi_char16_t *filename_16,
 	efi_file_info_t *info;
 	efi_status_t status;
 	efi_guid_t info_guid = EFI_FILE_INFO_ID;
-	u32 info_sz;
+	u64 info_sz;
 
 	status = efi_early->call((unsigned long)fh->open, fh, &h, filename_16,
 				 EFI_FILE_MODE_READ, (u64)0);
@@ -156,7 +152,7 @@ grow:
 
 	return status;
 }
-static efi_status_t
+efi_status_t
 efi_file_size(efi_system_table_t *sys_table, void *__fh,
 	      efi_char16_t *filename_16, void **handle, u64 *file_sz)
 {
@@ -166,32 +162,32 @@ efi_file_size(efi_system_table_t *sys_table, void *__fh,
 	return __file_size32(__fh, filename_16, handle, file_sz);
 }
 
-static inline efi_status_t
-efi_file_read(void *__fh, void *handle, unsigned long *size, void *addr)
+efi_status_t
+efi_file_read(void *handle, unsigned long *size, void *addr)
 {
 	unsigned long func;
 
 	if (efi_early->is64) {
-		efi_file_handle_64_t *fh = __fh;
+		efi_file_handle_64_t *fh = handle;
 
 		func = (unsigned long)fh->read;
 		return efi_early->call(func, handle, size, addr);
 	} else {
-		efi_file_handle_32_t *fh = __fh;
+		efi_file_handle_32_t *fh = handle;
 
 		func = (unsigned long)fh->read;
 		return efi_early->call(func, handle, size, addr);
 	}
 }
 
-static inline efi_status_t efi_file_close(void *__fh, void *handle)
+efi_status_t efi_file_close(void *handle)
 {
 	if (efi_early->is64) {
-		efi_file_handle_64_t *fh = __fh;
+		efi_file_handle_64_t *fh = handle;
 
 		return efi_early->call((unsigned long)fh->close, handle);
 	} else {
-		efi_file_handle_32_t *fh = __fh;
+		efi_file_handle_32_t *fh = handle;
 
 		return efi_early->call((unsigned long)fh->close, handle);
 	}
@@ -249,7 +245,7 @@ static inline efi_status_t __open_volume64(void *__image, void **__fh)
 	return status;
 }
 
-static inline efi_status_t
+efi_status_t
 efi_open_volume(efi_system_table_t *sys_table, void *__image, void **__fh)
 {
 	if (efi_early->is64)
@@ -258,7 +254,7 @@ efi_open_volume(efi_system_table_t *sys_table, void *__image, void **__fh)
 	return __open_volume32(__image, __fh);
 }
 
-static void efi_char16_printk(efi_system_table_t *table, efi_char16_t *str)
+void efi_char16_printk(efi_system_table_t *table, efi_char16_t *str)
 {
 	unsigned long output_string;
 	size_t offset;
@@ -283,8 +279,6 @@ static void efi_char16_printk(efi_system_table_t *table, efi_char16_t *str)
 		efi_early->call(*func, efi_early->text_output, str);
 	}
 }
-
-#include "../../../../drivers/firmware/efi/efi-stub-helper.c"
 
 static void find_bits(unsigned long mask, u8 *pos, u8 *size)
 {
@@ -1016,6 +1010,9 @@ void setup_graphics(struct boot_params *boot_params)
  * Because the x86 boot code expects to be passed a boot_params we
  * need to create one ourselves (usually the bootloader would create
  * one for us).
+ *
+ * The caller is responsible for filling out ->code32_start in the
+ * returned boot_params.
  */
 struct boot_params *make_boot_params(struct efi_config *c)
 {
@@ -1035,6 +1032,7 @@ struct boot_params *make_boot_params(struct efi_config *c)
 	int i;
 	unsigned long ramdisk_addr;
 	unsigned long ramdisk_size;
+	unsigned long initrd_addr_max;
 
 	efi_early = c;
 	sys_table = (efi_system_table_t *)(unsigned long)efi_early->table;
@@ -1081,13 +1079,10 @@ struct boot_params *make_boot_params(struct efi_config *c)
 	hdr->vid_mode = 0xffff;
 	hdr->boot_flag = 0xAA55;
 
-	hdr->code32_start = (__u64)(unsigned long)image->image_base;
-
 	hdr->type_of_loader = 0x21;
 
 	/* Convert unicode cmdline to ascii */
-	cmdline_ptr = efi_convert_cmdline_to_ascii(sys_table, image,
-						   &options_size);
+	cmdline_ptr = efi_convert_cmdline(sys_table, image, &options_size);
 	if (!cmdline_ptr)
 		goto fail;
 	hdr->cmd_line_ptr = (unsigned long)cmdline_ptr;
@@ -1100,14 +1095,21 @@ struct boot_params *make_boot_params(struct efi_config *c)
 
 	memset(sdt, 0, sizeof(*sdt));
 
+	if (hdr->xloadflags & XLF_CAN_BE_LOADED_ABOVE_4G)
+		initrd_addr_max = -1UL;
+	else
+		initrd_addr_max = hdr->initrd_addr_max;
+
 	status = handle_cmdline_files(sys_table, image,
 				      (char *)(unsigned long)hdr->cmd_line_ptr,
-				      "initrd=", hdr->initrd_addr_max,
+				      "initrd=", initrd_addr_max,
 				      &ramdisk_addr, &ramdisk_size);
 	if (status != EFI_SUCCESS)
 		goto fail2;
-	hdr->ramdisk_image = ramdisk_addr;
-	hdr->ramdisk_size = ramdisk_size;
+	hdr->ramdisk_image = ramdisk_addr & 0xffffffff;
+	hdr->ramdisk_size  = ramdisk_size & 0xffffffff;
+	boot_params->ext_ramdisk_image = (u64)ramdisk_addr >> 32;
+	boot_params->ext_ramdisk_size  = (u64)ramdisk_size >> 32;
 
 	return boot_params;
 fail2:
@@ -1374,7 +1376,10 @@ struct boot_params *efi_main(struct efi_config *c,
 
 	setup_graphics(boot_params);
 
-	setup_efi_pci(boot_params);
+	status = setup_efi_pci(boot_params);
+	if (status != EFI_SUCCESS) {
+		efi_printk(sys_table, "setup_efi_pci() failed!\n");
+	}
 
 	status = efi_call_early(allocate_pool, EFI_LOADER_DATA,
 				sizeof(*gdt), (void **)&gdt);
@@ -1401,16 +1406,20 @@ struct boot_params *efi_main(struct efi_config *c,
 					     hdr->init_size, hdr->init_size,
 					     hdr->pref_address,
 					     hdr->kernel_alignment);
-		if (status != EFI_SUCCESS)
+		if (status != EFI_SUCCESS) {
+			efi_printk(sys_table, "efi_relocate_kernel() failed!\n");
 			goto fail;
+		}
 
 		hdr->pref_address = hdr->code32_start;
 		hdr->code32_start = bzimage_addr;
 	}
 
 	status = exit_boot(boot_params, handle, is64);
-	if (status != EFI_SUCCESS)
+	if (status != EFI_SUCCESS) {
+		efi_printk(sys_table, "exit_boot() failed!\n");
 		goto fail;
+	}
 
 	memset((char *)gdt->address, 0x0, gdt->size);
 	desc = (struct desc_struct *)gdt->address;
@@ -1470,5 +1479,6 @@ struct boot_params *efi_main(struct efi_config *c,
 
 	return boot_params;
 fail:
+	efi_printk(sys_table, "efi_main() failed!\n");
 	return NULL;
 }

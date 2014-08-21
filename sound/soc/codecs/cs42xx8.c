@@ -219,6 +219,9 @@ static int cs42xx8_set_dai_fmt(struct snd_soc_dai *codec_dai,
 	case SND_SOC_DAIFMT_RIGHT_J:
 		val = CS42XX8_INTF_DAC_DIF_RIGHTJ | CS42XX8_INTF_ADC_DIF_RIGHTJ;
 		break;
+	case SND_SOC_DAIFMT_DSP_A:
+		val = CS42XX8_INTF_DAC_DIF_TDM | CS42XX8_INTF_ADC_DIF_TDM;
+		break;
 	default:
 		dev_err(codec->dev, "unsupported dai format\n");
 		return -EINVAL;
@@ -248,8 +251,7 @@ static int cs42xx8_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params,
 			     struct snd_soc_dai *dai)
 {
-	struct snd_soc_pcm_runtime *rtd = substream->private_data;
-	struct snd_soc_codec *codec = rtd->codec;
+	struct snd_soc_codec *codec = dai->codec;
 	struct cs42xx8_priv *cs42xx8 = snd_soc_codec_get_drvdata(codec);
 	bool tx = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
 	u32 ratio = cs42xx8->sysclk / params_rate(params);
@@ -423,7 +425,7 @@ const struct cs42xx8_driver_data cs42888_data = {
 };
 EXPORT_SYMBOL_GPL(cs42888_data);
 
-const struct of_device_id cs42xx8_of_match[] = {
+static const struct of_device_id cs42xx8_of_match[] = {
 	{ .compatible = "cirrus,cs42448", .data = &cs42448_data, },
 	{ .compatible = "cirrus,cs42888", .data = &cs42888_data, },
 	{ /* sentinel */ }
@@ -495,17 +497,16 @@ int cs42xx8_probe(struct device *dev, struct regmap *regmap)
 	regcache_cache_bypass(cs42xx8->regmap, true);
 
 	/* Validate the chip ID */
-	regmap_read(cs42xx8->regmap, CS42XX8_CHIPID, &val);
-	if (val < 0) {
-		dev_err(dev, "failed to get device ID: %x", val);
-		ret = -EINVAL;
+	ret = regmap_read(cs42xx8->regmap, CS42XX8_CHIPID, &val);
+	if (ret < 0) {
+		dev_err(dev, "failed to get device ID, ret = %d", ret);
 		goto err_enable;
 	}
 
 	/* The top four bits of the chip ID should be 0000 */
-	if ((val & CS42XX8_CHIPID_CHIP_ID_MASK) != 0x00) {
+	if (((val & CS42XX8_CHIPID_CHIP_ID_MASK) >> 4) != 0x00) {
 		dev_err(dev, "unmatched chip ID: %d\n",
-				val & CS42XX8_CHIPID_CHIP_ID_MASK);
+			(val & CS42XX8_CHIPID_CHIP_ID_MASK) >> 4);
 		ret = -EINVAL;
 		goto err_enable;
 	}

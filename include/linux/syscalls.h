@@ -119,8 +119,10 @@ extern struct trace_event_functions exit_syscall_print_funcs;
 	static struct syscall_metadata __syscall_meta_##sname;		\
 	static struct ftrace_event_call __used				\
 	  event_enter_##sname = {					\
-		.name                   = "sys_enter"#sname,		\
 		.class			= &event_class_syscall_enter,	\
+		{							\
+			.name                   = "sys_enter"#sname,	\
+		},							\
 		.event.funcs            = &enter_syscall_print_funcs,	\
 		.data			= (void *)&__syscall_meta_##sname,\
 		.flags                  = TRACE_EVENT_FL_CAP_ANY,	\
@@ -133,8 +135,10 @@ extern struct trace_event_functions exit_syscall_print_funcs;
 	static struct syscall_metadata __syscall_meta_##sname;		\
 	static struct ftrace_event_call __used				\
 	  event_exit_##sname = {					\
-		.name                   = "sys_exit"#sname,		\
 		.class			= &event_class_syscall_exit,	\
+		{							\
+			.name                   = "sys_exit"#sname,	\
+		},							\
 		.event.funcs		= &exit_syscall_print_funcs,	\
 		.data			= (void *)&__syscall_meta_##sname,\
 		.flags                  = TRACE_EVENT_FL_CAP_ANY,	\
@@ -313,6 +317,10 @@ asmlinkage long sys_restart_syscall(void);
 asmlinkage long sys_kexec_load(unsigned long entry, unsigned long nr_segments,
 				struct kexec_segment __user *segments,
 				unsigned long flags);
+asmlinkage long sys_kexec_file_load(int kernel_fd, int initrd_fd,
+				    unsigned long cmdline_len,
+				    const char __user *cmdline_ptr,
+				    unsigned long flags);
 
 asmlinkage long sys_exit(int error_code);
 asmlinkage long sys_exit_group(int error_code);
@@ -707,7 +715,7 @@ asmlinkage long sys_keyctl(int cmd, unsigned long arg2, unsigned long arg3,
 
 asmlinkage long sys_ioprio_set(int which, int who, int ioprio);
 asmlinkage long sys_ioprio_get(int which, int who);
-asmlinkage long sys_set_mempolicy(int mode, unsigned long __user *nmask,
+asmlinkage long sys_set_mempolicy(int mode, const unsigned long __user *nmask,
 				unsigned long maxnode);
 asmlinkage long sys_migrate_pages(pid_t pid, unsigned long maxnode,
 				const unsigned long __user *from,
@@ -719,7 +727,7 @@ asmlinkage long sys_move_pages(pid_t pid, unsigned long nr_pages,
 				int flags);
 asmlinkage long sys_mbind(unsigned long start, unsigned long len,
 				unsigned long mode,
-				unsigned long __user *nmask,
+				const unsigned long __user *nmask,
 				unsigned long maxnode,
 				unsigned flags);
 asmlinkage long sys_get_mempolicy(int __user *policy,
@@ -798,6 +806,7 @@ asmlinkage long sys_timerfd_settime(int ufd, int flags,
 asmlinkage long sys_timerfd_gettime(int ufd, struct itimerspec __user *otmr);
 asmlinkage long sys_eventfd(unsigned int count);
 asmlinkage long sys_eventfd2(unsigned int count, int flags);
+asmlinkage long sys_memfd_create(const char __user *uname_ptr, unsigned int flags);
 asmlinkage long sys_fallocate(int fd, int mode, loff_t offset, loff_t len);
 asmlinkage long sys_old_readdir(unsigned int, struct old_linux_dirent __user *, unsigned int);
 asmlinkage long sys_pselect6(int, fd_set __user *, fd_set __user *,
@@ -862,4 +871,9 @@ asmlinkage long sys_process_vm_writev(pid_t pid,
 asmlinkage long sys_kcmp(pid_t pid1, pid_t pid2, int type,
 			 unsigned long idx1, unsigned long idx2);
 asmlinkage long sys_finit_module(int fd, const char __user *uargs, int flags);
+asmlinkage long sys_seccomp(unsigned int op, unsigned int flags,
+			    const char __user *uargs);
+asmlinkage long sys_getrandom(char __user *buf, size_t count,
+			      unsigned int flags);
+
 #endif

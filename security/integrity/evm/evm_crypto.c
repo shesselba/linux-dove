@@ -112,7 +112,7 @@ static void hmac_add_misc(struct shash_desc *desc, struct inode *inode,
 	hmac_misc.gid = from_kgid(&init_user_ns, inode->i_gid);
 	hmac_misc.mode = inode->i_mode;
 	crypto_shash_update(desc, (const u8 *)&hmac_misc, sizeof(hmac_misc));
-	if (evm_hmac_version > 1)
+	if (evm_hmac_attrs & EVM_ATTR_FSUUID)
 		crypto_shash_update(desc, inode->i_sb->s_uuid,
 				    sizeof(inode->i_sb->s_uuid));
 	crypto_shash_final(desc, digest);
@@ -139,7 +139,7 @@ static int evm_calc_hmac_or_hash(struct dentry *dentry,
 	int error;
 	int size;
 
-	if (!inode->i_op || !inode->i_op->getxattr)
+	if (!inode->i_op->getxattr)
 		return -EOPNOTSUPP;
 	desc = init_desc(type);
 	if (IS_ERR(desc))

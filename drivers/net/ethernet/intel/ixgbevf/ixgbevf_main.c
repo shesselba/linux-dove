@@ -76,7 +76,7 @@ static const struct ixgbevf_info *ixgbevf_info_tbl[] = {
  * { Vendor ID, Device ID, SubVendor ID, SubDevice ID,
  *   Class, Class Mask, private data (not used) }
  */
-static DEFINE_PCI_DEVICE_TABLE(ixgbevf_pci_tbl) = {
+static const struct pci_device_id ixgbevf_pci_tbl[] = {
 	{PCI_VDEVICE(INTEL, IXGBE_DEV_ID_82599_VF), board_82599_vf },
 	{PCI_VDEVICE(INTEL, IXGBE_DEV_ID_X540_VF), board_X540_vf },
 	/* required last entry */
@@ -85,7 +85,7 @@ static DEFINE_PCI_DEVICE_TABLE(ixgbevf_pci_tbl) = {
 MODULE_DEVICE_TABLE(pci, ixgbevf_pci_tbl);
 
 MODULE_AUTHOR("Intel Corporation, <linux.nics@intel.com>");
-MODULE_DESCRIPTION("Intel(R) 82599 Virtual Function Driver");
+MODULE_DESCRIPTION("Intel(R) 10 Gigabit Virtual Function Network Driver");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(DRV_VERSION);
 
@@ -107,7 +107,8 @@ static void ixgbevf_remove_adapter(struct ixgbe_hw *hw)
 		return;
 	hw->hw_addr = NULL;
 	dev_err(&adapter->pdev->dev, "Adapter removed\n");
-	schedule_work(&adapter->watchdog_task);
+	if (test_bit(__IXGBEVF_WORK_INIT, &adapter->state))
+		schedule_work(&adapter->watchdog_task);
 }
 
 static void ixgbevf_check_remove(struct ixgbe_hw *hw, u32 reg)
@@ -1667,7 +1668,7 @@ static void ixgbevf_up_complete(struct ixgbevf_adapter *adapter)
 
 	spin_unlock_bh(&adapter->mbx_lock);
 
-	smp_mb__before_clear_bit();
+	smp_mb__before_atomic();
 	clear_bit(__IXGBEVF_DOWN, &adapter->state);
 	ixgbevf_napi_enable_all(adapter);
 
@@ -2838,6 +2839,7 @@ static int ixgbevf_tso(struct ixgbevf_ring *tx_ring,
 	struct sk_buff *skb = first->skb;
 	u32 vlan_macip_lens, type_tucmd;
 	u32 mss_l4len_idx, l4len;
+	int err;
 
 	if (skb->ip_summed != CHECKSUM_PARTIAL)
 		return 0;
@@ -2845,11 +2847,9 @@ static int ixgbevf_tso(struct ixgbevf_ring *tx_ring,
 	if (!skb_is_gso(skb))
 		return 0;
 
-	if (skb_header_cloned(skb)) {
-		int err = pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
-		if (err)
-			return err;
-	}
+	err = skb_cow_head(skb, 0);
+	if (err < 0)
+		return err;
 
 	/* ADV DTYP TUCMD MKRLOC/ISCSIHEDLEN */
 	type_tucmd = IXGBE_ADVTXD_TUCMD_L4T_TCP;
@@ -3354,7 +3354,7 @@ static int ixgbevf_resume(struct pci_dev *pdev)
 		dev_err(&pdev->dev, "Cannot enable PCI device from suspend\n");
 		return err;
 	}
-	smp_mb__before_clear_bit();
+	smp_mb__before_atomic();
 	clear_bit(__IXGBEVF_DISABLED, &adapter->state);
 	pci_set_master(pdev);
 
@@ -3573,8 +3573,13 @@ static int ixgbevf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	adapter->watchdog_timer.function = ixgbevf_watchdog;
 	adapter->watchdog_timer.data = (unsigned long)adapter;
 
+	if (IXGBE_REMOVED(hw->hw_addr)) {
+		err = -EIO;
+		goto err_sw_init;
+	}
 	INIT_WORK(&adapter->reset_task, ixgbevf_reset_task);
 	INIT_WORK(&adapter->watchdog_task, ixgbevf_watchdog_task);
+	set_bit(__IXGBEVF_WORK_INIT, &adapter->state);
 
 	err = ixgbevf_init_interrupt_scheme(adapter);
 	if (err)
@@ -3667,6 +3672,9 @@ static pci_ers_result_t ixgbevf_io_error_detected(struct pci_dev *pdev,
 	struct net_device *netdev = pci_get_drvdata(pdev);
 	struct ixgbevf_adapter *adapter = netdev_priv(netdev);
 
+	if (!test_bit(__IXGBEVF_WORK_INIT, &adapter->state))
+		return PCI_ERS_RESULT_DISCONNECT;
+
 	rtnl_lock();
 	netif_device_detach(netdev);
 
@@ -3704,7 +3712,7 @@ static pci_ers_result_t ixgbevf_io_slot_reset(struct pci_dev *pdev)
 		return PCI_ERS_RESULT_DISCONNECT;
 	}
 
-	smp_mb__before_clear_bit();
+	smp_mb__before_atomic();
 	clear_bit(__IXGBEVF_DISABLED, &adapter->state);
 	pci_set_master(pdev);
 

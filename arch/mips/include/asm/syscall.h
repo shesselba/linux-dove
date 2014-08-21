@@ -14,7 +14,7 @@
 #define __ASM_MIPS_SYSCALL_H
 
 #include <linux/compiler.h>
-#include <linux/audit.h>
+#include <uapi/linux/audit.h>
 #include <linux/elf-em.h>
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -127,13 +127,14 @@ extern const unsigned long sys_call_table[];
 extern const unsigned long sys32_call_table[];
 extern const unsigned long sysn32_call_table[];
 
-static inline int syscall_get_arch(struct task_struct *task,
-				   struct pt_regs *regs)
+static inline int syscall_get_arch(void)
 {
 	int arch = EM_MIPS;
 #ifdef CONFIG_64BIT
-	if (!test_tsk_thread_flag(task, TIF_32BIT_REGS))
+	if (!test_thread_flag(TIF_32BIT_REGS))
 		arch |= __AUDIT_ARCH_64BIT;
+	if (test_thread_flag(TIF_32BIT_ADDR))
+		arch |= __AUDIT_ARCH_CONVENTION_MIPS64_N32;
 #endif
 #if defined(__LITTLE_ENDIAN)
 	arch |=  __AUDIT_ARCH_LE;
